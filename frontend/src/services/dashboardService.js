@@ -19,10 +19,18 @@ export const dashboardService = {
   },
 
   async getTrends(months = 6) {
-    const response = await api.get('/dashboard/trends', {
-      params: { months }
-    })
-    return response.data
+    try {
+      console.log('Making API call to /dashboard/trends with params:', { months })
+      const response = await api.get('/dashboard/trends', {
+        params: { months }
+      })
+      console.log('API response for trends:', response)
+      return response.data
+    } catch (error) {
+      console.error('API error in getTrends:', error)
+      console.error('Error response:', error.response)
+      throw error
+    }
   },
 
   async getDailySpending() {

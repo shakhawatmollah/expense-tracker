@@ -95,10 +95,11 @@ class DashboardService
             );
 
             $trends[] = [
-                'month' => $month->format('M Y'),
+                'month' => $month->format('Y-m-d'), // Changed from 'M Y' to 'Y-m-d' for better parsing
                 'total' => $monthlyExpenses->sum('amount'),
                 'count' => $monthlyExpenses->count(),
                 'date' => $month->format('Y-m-d'),
+                'label' => $month->format('M Y'), // Added separate label for display
             ];
         }
 

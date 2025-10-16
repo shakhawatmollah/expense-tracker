@@ -21,6 +21,33 @@ class ExpenseController extends Controller
      */
     public function index(Request $request): JsonResponse
     {
+        // Check if pagination is requested
+        if ($request->has('paginate') && $request->get('paginate') !== 'false') {
+            $expenses = $this->expenseService->getPaginatedUserExpenses(
+                $request->user()->id,
+                $request->all()
+            );
+
+            return response()->json([
+                'data' => ExpenseResource::collection($expenses->items()),
+                'meta' => [
+                    'current_page' => $expenses->currentPage(),
+                    'from' => $expenses->firstItem(),
+                    'last_page' => $expenses->lastPage(),
+                    'per_page' => $expenses->perPage(),
+                    'to' => $expenses->lastItem(),
+                    'total' => $expenses->total(),
+                ],
+                'links' => [
+                    'first' => $expenses->url(1),
+                    'last' => $expenses->url($expenses->lastPage()),
+                    'prev' => $expenses->previousPageUrl(),
+                    'next' => $expenses->nextPageUrl(),
+                ]
+            ]);
+        }
+
+        // Return all expenses without pagination
         $expenses = $this->expenseService->getUserExpenses(
             $request->user()->id,
             $request->all()

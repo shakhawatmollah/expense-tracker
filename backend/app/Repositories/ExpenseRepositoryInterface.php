@@ -13,6 +13,11 @@ interface ExpenseRepositoryInterface
     public function getUserExpenses(int $userId, array $filters = []): Collection;
 
     /**
+     * Get paginated expenses for a specific user
+     */
+    public function getPaginatedUserExpenses(int $userId, array $filters = []): \Illuminate\Pagination\LengthAwarePaginator;
+
+    /**
      * Create a new expense
      */
     public function create(array $data): Expense;

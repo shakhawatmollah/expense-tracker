@@ -45,9 +45,50 @@ class ExpenseRepository implements ExpenseRepositoryInterface
             $query->whereDate('date', '<=', $filters['end_date']);
         }
 
+        if (!empty($filters['search'])) {
+            $query->where(function ($q) use ($filters) {
+                $q->where('description', 'like', '%' . $filters['search'] . '%')
+                  ->orWhereHas('category', function ($categoryQuery) use ($filters) {
+                      $categoryQuery->where('name', 'like', '%' . $filters['search'] . '%');
+                  });
+            });
+        }
+
         $query->orderBy('date', 'desc');
 
         return $query->get();
+    }
+
+    public function getPaginatedUserExpenses(int $userId, array $filters = []): LengthAwarePaginator
+    {
+        $query = Expense::where('user_id', $userId)
+            ->with(['category']);
+
+        if (!empty($filters['category_id'])) {
+            $query->where('category_id', $filters['category_id']);
+        }
+
+        if (!empty($filters['start_date'])) {
+            $query->whereDate('date', '>=', $filters['start_date']);
+        }
+
+        if (!empty($filters['end_date'])) {
+            $query->whereDate('date', '<=', $filters['end_date']);
+        }
+
+        if (!empty($filters['search'])) {
+            $query->where(function ($q) use ($filters) {
+                $q->where('description', 'like', '%' . $filters['search'] . '%')
+                  ->orWhereHas('category', function ($categoryQuery) use ($filters) {
+                      $categoryQuery->where('name', 'like', '%' . $filters['search'] . '%');
+                  });
+            });
+        }
+
+        $query->orderBy('date', 'desc');
+
+        $perPage = $filters['per_page'] ?? 15;
+        return $query->paginate($perPage);
     }
 
     public function getByUser(int $userId, array $filters = []): Collection|LengthAwarePaginator
@@ -215,7 +256,7 @@ class ExpenseRepository implements ExpenseRepositoryInterface
 
     public function getExpensesByCategory(int $userId, array $filters = []): array
     {
-        $query = Expense::where('user_id', $userId)
+        $query = Expense::where('expenses.user_id', $userId)
             ->join('categories', 'expenses.category_id', '=', 'categories.id')
             ->select(
                 'categories.id',

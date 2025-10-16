@@ -15,6 +15,7 @@ export const useCategoriesStore = defineStore('categories', () => {
       const response = await categoryService.getCategories()
       categories.value = response.data
     } catch (err) {
+      console.error('Error fetching categories:', err)
       error.value = err.response?.data?.message || 'Failed to fetch categories'
       throw err
     } finally {

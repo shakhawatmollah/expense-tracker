@@ -2,7 +2,21 @@ import api from './api'
 
 export const expenseService = {
   async getExpenses(filters = {}) {
-    const params = new URLSearchParams(filters)
+    // Add pagination by default
+    const params = new URLSearchParams({
+      paginate: 'true',
+      ...filters
+    })
+    const response = await api.get(`/expenses?${params}`)
+    return response.data
+  },
+
+  async getAllExpenses(filters = {}) {
+    // Get all expenses without pagination
+    const params = new URLSearchParams({
+      paginate: 'false',
+      ...filters
+    })
     const response = await api.get(`/expenses?${params}`)
     return response.data
   },

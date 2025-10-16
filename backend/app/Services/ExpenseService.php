@@ -22,6 +22,14 @@ class ExpenseService
     }
 
     /**
+     * Get paginated expenses for a specific user
+     */
+    public function getPaginatedUserExpenses(int $userId, array $filters = []): LengthAwarePaginator
+    {
+        return $this->expenseRepository->getPaginatedUserExpenses($userId, $filters);
+    }
+
+    /**
      * Create a new expense
      */
     public function create(array $data): Expense

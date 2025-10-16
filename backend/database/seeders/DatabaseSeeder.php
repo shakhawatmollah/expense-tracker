@@ -13,16 +13,28 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // User::factory(10)->create();
+        $this->command->info('🌱 Starting database seeding...');
 
-        User::factory()->create([
-            'name' => 'Test User',
-            'email' => 'test@example.com',
+        // Seed users first
+        $this->call([
+            UserSeeder::class,
         ]);
 
-        // Seed default categories after users are created
+        // Seed categories after users are created
         $this->call([
             CategorySeeder::class,
         ]);
+
+        // Seed expenses after categories are created
+        $this->call([
+            ExpenseSeeder::class,
+        ]);
+
+        $this->command->info('✅ Database seeding completed successfully!');
+        $this->command->info('📊 You can now login with:');
+        $this->command->info('   Email: demo@example.com | Password: demo123');
+        $this->command->info('   Email: john@example.com | Password: password123');
+        $this->command->info('   Email: jane@example.com | Password: password123');
+        $this->command->info('   Email: admin@example.com | Password: admin123');
     }
 }

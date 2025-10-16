@@ -61,18 +61,18 @@
         <LoadingSpinner class="mx-auto h-8 w-8" />
         <p class="mt-2 text-sm text-gray-500">Loading expenses...</p>
       </div>
-      <div v-else-if="filteredExpenses.length === 0" class="text-center py-8">
+      <div v-else-if="expenses.length === 0" class="text-center py-8">
         <CreditCardIcon class="mx-auto h-12 w-12 text-gray-400" />
         <h3 class="mt-2 text-sm font-medium text-gray-900">No expenses found</h3>
         <p class="mt-1 text-sm text-gray-500">
-          {{ expenses.length === 0 ? 'Get started by creating a new expense.' : 'Try adjusting your filters.' }}
+          {{ pagination.total === 0 ? 'Get started by creating a new expense.' : 'Try adjusting your filters.' }}
         </p>
-        <Button v-if="expenses.length === 0" @click="openAddModal" class="mt-4">
+        <Button v-if="pagination.total === 0" @click="openAddModal" class="mt-4">
           Add Your First Expense
         </Button>
       </div>
       <ul v-else class="divide-y divide-gray-200">
-        <li v-for="expense in filteredExpenses" :key="expense.id" class="px-6 py-4 hover:bg-gray-50">
+        <li v-for="expense in expenses" :key="expense.id" class="px-6 py-4 hover:bg-gray-50">
           <div class="flex items-center justify-between">
             <div class="flex items-center space-x-4">
               <div class="flex-shrink-0">
@@ -111,6 +111,13 @@
         </li>
       </ul>
     </div>
+
+    <!-- Pagination -->
+    <Pagination 
+      v-if="expenses.length > 0 && pagination.last_page > 1"
+      :pagination="pagination"
+      @page-changed="handlePageChange"
+    />
 
     <!-- Expense Form Modal -->
     <ExpenseForm
@@ -154,6 +161,7 @@ import { useExpensesStore } from '@/stores/expenses'
 import { useCategoriesStore } from '@/stores/categories'
 import LoadingSpinner from '@/components/common/LoadingSpinner.vue'
 import Button from '@/components/common/Button.vue'
+import Pagination from '@/components/common/Pagination.vue'
 import ExpenseForm from './ExpenseForm.vue'
 
 const expenseStore = useExpensesStore()
@@ -176,37 +184,38 @@ const endDate = ref('')
 const expenses = computed(() => expenseStore.expenses)
 const categories = computed(() => categoryStore.categories)
 const loading = computed(() => expenseStore.loading)
+const pagination = computed(() => expenseStore.pagination)
 
-const filteredExpenses = computed(() => {
-  let filtered = [...expenses.value]
+// Current page and filters state
+const currentPage = ref(1)
+const currentFilters = ref({})
 
-  // Search filter
-  if (searchQuery.value.trim()) {
-    const query = searchQuery.value.toLowerCase()
-    filtered = filtered.filter(expense => 
-      expense.description.toLowerCase().includes(query) ||
-      expense.category?.name?.toLowerCase().includes(query)
-    )
+// Method to fetch expenses with current filters and page
+const fetchExpensesWithFilters = async () => {
+  const filters = {
+    page: currentPage.value,
+    per_page: 15,
+    search: searchQuery.value.trim() || undefined,
+    category_id: selectedCategory.value || undefined,
+    start_date: startDate.value || undefined,
+    end_date: endDate.value || undefined
   }
 
-  // Category filter
-  if (selectedCategory.value) {
-    filtered = filtered.filter(expense => 
-      expense.category_id === parseInt(selectedCategory.value)
-    )
-  }
+  // Remove undefined values
+  Object.keys(filters).forEach(key => {
+    if (filters[key] === undefined) {
+      delete filters[key]
+    }
+  })
 
-  // Date range filter
-  if (startDate.value) {
-    filtered = filtered.filter(expense => expense.date >= startDate.value)
-  }
-  if (endDate.value) {
-    filtered = filtered.filter(expense => expense.date <= endDate.value)
-  }
+  currentFilters.value = filters
+  await expenseStore.fetchExpenses(filters)
+}
 
-  // Sort by date (newest first)
-  return filtered.sort((a, b) => new Date(b.date) - new Date(a.date))
-})
+const handlePageChange = (page) => {
+  currentPage.value = page
+  fetchExpensesWithFilters()
+}
 
 // Methods
 const openAddModal = () => {
@@ -226,8 +235,8 @@ const closeModal = () => {
 
 const handleExpenseSaved = () => {
   closeModal()
-  // Refresh expenses list
-  expenseStore.fetchExpenses()
+  // Refresh current page with current filters
+  fetchExpensesWithFilters()
 }
 
 const confirmDelete = (expense) => {
@@ -271,12 +280,13 @@ const formatDate = (date) => {
 
 // Watchers for real-time filtering
 watch([searchQuery, selectedCategory, startDate, endDate], () => {
-  // Filtering is handled by computed property
+  currentPage.value = 1 // Reset to first page when filters change
+  fetchExpensesWithFilters()
 })
 
 // Lifecycle
 onMounted(() => {
-  expenseStore.fetchExpenses()
+  fetchExpensesWithFilters()
   categoryStore.fetchCategories()
 })
 </script>

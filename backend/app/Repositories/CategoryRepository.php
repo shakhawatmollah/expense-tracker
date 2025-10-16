@@ -77,7 +77,9 @@ class CategoryRepository implements CategoryRepositoryInterface
     public function getCategoriesWithExpenseCounts(int $userId): Collection
     {
         return Category::where('user_id', $userId)
-            ->withCount('expenses')
+            ->withCount(['expenses' => function ($query) use ($userId) {
+                $query->where('user_id', $userId);
+            }])
             ->orderBy('expenses_count', 'desc')
             ->get();
     }

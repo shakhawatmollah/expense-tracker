@@ -18,19 +18,9 @@
 </template>
 
 <script setup>
-import { onMounted } from 'vue'
 import AppHeader from '@/components/layout/AppHeader.vue'
 import AppSidebar from '@/components/layout/AppSidebar.vue'
 import ExpenseList from '@/components/expenses/ExpenseList.vue'
-import { useExpensesStore } from '@/stores/expenses'
 
-const expensesStore = useExpensesStore()
-
-onMounted(async () => {
-  try {
-    await expensesStore.fetchExpenses()
-  } catch (error) {
-    console.error('Failed to load expenses:', error)
-  }
-})
+// ExpenseList component will handle fetching expenses with pagination
 </script>

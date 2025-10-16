@@ -61,9 +61,14 @@ export const useDashboardStore = defineStore('dashboard', () => {
     error.value = null
     
     try {
+      console.log('Fetching trends for', months, 'months...')
       const response = await dashboardService.getTrends(months)
+      console.log('Raw trends response:', response)
       trends.value = response.data
+      console.log('Trends value set:', trends.value)
     } catch (err) {
+      console.error('Trends fetch error:', err)
+      console.error('Error response:', err.response)
       error.value = err.response?.data?.message || 'Failed to fetch trends'
       throw err
     } finally {

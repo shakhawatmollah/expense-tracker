@@ -31,6 +31,18 @@ Route::prefix('auth')->group(function () {
 
 // Protected routes
 Route::middleware('auth:sanctum')->group(function () {
+    // Debug route for testing category counts
+    Route::get('debug/categories', function (Request $request) {
+        $categories = App\Models\Category::where('user_id', $request->user()->id)
+            ->withCount('expenses')
+            ->get();
+        
+        return response()->json([
+            'categories' => $categories,
+            'count' => $categories->count()
+        ]);
+    });
+    
     // Dashboard routes
     Route::prefix('dashboard')->group(function () {
         Route::get('/', [DashboardController::class, 'index']);

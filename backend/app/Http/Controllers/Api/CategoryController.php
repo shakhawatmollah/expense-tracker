@@ -21,7 +21,7 @@ class CategoryController extends Controller
      */
     public function index(Request $request): JsonResponse
     {
-        $categories = $this->categoryService->getUserCategories($request->user()->id);
+        $categories = $this->categoryService->getCategoriesWithExpenseCounts($request->user()->id);
 
         return response()->json([
             'data' => CategoryResource::collection($categories)

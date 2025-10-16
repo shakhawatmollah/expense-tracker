@@ -36,15 +36,19 @@ import CategoryBreakdown from '@/components/dashboard/CategoryBreakdown.vue'
 import RecentExpenses from '@/components/dashboard/RecentExpenses.vue'
 import { useExpensesStore } from '@/stores/expenses'
 import { useCategoriesStore } from '@/stores/categories'
+import { useDashboardStore } from '@/stores/dashboard'
 
 const expensesStore = useExpensesStore()
 const categoriesStore = useCategoriesStore()
+const dashboardStore = useDashboardStore()
 
 onMounted(async () => {
   try {
     await Promise.all([
-      expensesStore.fetchExpenses(),
-      categoriesStore.fetchCategories()
+      expensesStore.fetchAllExpenses(), // Use non-paginated for dashboard
+      categoriesStore.fetchCategories(),
+      dashboardStore.fetchDashboardOverview(),
+      dashboardStore.fetchTrends(6)
     ])
   } catch (error) {
     console.error('Failed to load dashboard data:', error)

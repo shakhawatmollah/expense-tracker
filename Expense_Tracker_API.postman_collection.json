@@ -1,0 +1,683 @@
+{
+	"info": {
+		"_postman_id": "expense-tracker-api-v1",
+		"name": "Expense Tracker API",
+		"description": "Complete API endpoints for the Laravel-based Expense Tracker application with authentication, categories, expenses, and dashboard functionality.",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "expense-tracker"
+	},
+	"auth": {
+		"type": "bearer",
+		"bearer": [
+			{
+				"key": "token",
+				"value": "{{auth_token}}",
+				"type": "string"
+			}
+		]
+	},
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "base_url",
+			"value": "http://localhost:8000/api",
+			"type": "string"
+		},
+		{
+			"key": "auth_token",
+			"value": "",
+			"type": "string"
+		}
+	],
+	"item": [
+		{
+			"name": "Authentication",
+			"item": [
+				{
+					"name": "Register User",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 201) {",
+									"    const response = pm.response.json();",
+									"    pm.environment.set('auth_token', response.token);",
+									"    pm.globals.set('auth_token', response.token);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"John Doe\",\n    \"email\": \"john.doe@example.com\",\n    \"password\": \"password123\",\n    \"password_confirmation\": \"password123\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/auth/register",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"auth",
+								"register"
+							]
+						},
+						"description": "Register a new user account. Returns user data and authentication token."
+					},
+					"response": []
+				},
+				{
+					"name": "Login User",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 200) {",
+									"    const response = pm.response.json();",
+									"    pm.environment.set('auth_token', response.token);",
+									"    pm.globals.set('auth_token', response.token);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\": \"john@example.com\",\n    \"password\": \"password123\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/auth/login",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"auth",
+								"login"
+							]
+						},
+						"description": "Login with existing credentials. Use seeded users: john@example.com, jane@example.com, admin@example.com, or demo@example.com"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Current User",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/auth/me",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"auth",
+								"me"
+							]
+						},
+						"description": "Get currently authenticated user information."
+					},
+					"response": []
+				},
+				{
+					"name": "Logout User",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/auth/logout",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"auth",
+								"logout"
+							]
+						},
+						"description": "Logout current user and revoke authentication token."
+					},
+					"response": []
+				}
+			],
+			"description": "User authentication endpoints including register, login, user profile, and logout."
+		},
+		{
+			"name": "Categories",
+			"item": [
+				{
+					"name": "Get All Categories",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/categories",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"categories"
+							]
+						},
+						"description": "Get all categories for the authenticated user with expense counts."
+					},
+					"response": []
+				},
+				{
+					"name": "Create Category",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"Groceries\",\n    \"description\": \"Food and household items\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/categories",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"categories"
+							]
+						},
+						"description": "Create a new expense category."
+					},
+					"response": []
+				},
+				{
+					"name": "Get Category by ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/categories/1",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"categories",
+								"1"
+							]
+						},
+						"description": "Get a specific category by ID."
+					},
+					"response": []
+				},
+				{
+					"name": "Update Category",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"Grocery Shopping\",\n    \"description\": \"Updated description for grocery category\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/categories/1",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"categories",
+								"1"
+							]
+						},
+						"description": "Update an existing category."
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Category",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/categories/1",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"categories",
+								"1"
+							]
+						},
+						"description": "Delete a category. Note: Cannot delete categories that have associated expenses."
+					},
+					"response": []
+				},
+				{
+					"name": "Debug Categories (Testing)",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/debug/categories",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"debug",
+								"categories"
+							]
+						},
+						"description": "Debug endpoint to test category counts and relationships."
+					},
+					"response": []
+				}
+			],
+			"description": "Category management endpoints for organizing expenses."
+		},
+		{
+			"name": "Expenses",
+			"item": [
+				{
+					"name": "Get All Expenses",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/expenses",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"expenses"
+							]
+						},
+						"description": "Get all expenses for the authenticated user without pagination."
+					},
+					"response": []
+				},
+				{
+					"name": "Get Expenses (Paginated)",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/expenses?paginate=true&page=1&per_page=15&search=coffee&category_id=1&start_date=2024-01-01&end_date=2024-12-31",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"expenses"
+							],
+							"query": [
+								{
+									"key": "paginate",
+									"value": "true",
+									"description": "Enable pagination"
+								},
+								{
+									"key": "page",
+									"value": "1",
+									"description": "Page number"
+								},
+								{
+									"key": "per_page",
+									"value": "15",
+									"description": "Items per page (default: 15)"
+								},
+								{
+									"key": "search",
+									"value": "coffee",
+									"description": "Search in description"
+								},
+								{
+									"key": "category_id",
+									"value": "1",
+									"description": "Filter by category ID"
+								},
+								{
+									"key": "start_date",
+									"value": "2024-01-01",
+									"description": "Filter from date (YYYY-MM-DD)"
+								},
+								{
+									"key": "end_date",
+									"value": "2024-12-31",
+									"description": "Filter to date (YYYY-MM-DD)"
+								}
+							]
+						},
+						"description": "Get paginated expenses with optional filtering by search term, category, and date range."
+					},
+					"response": []
+				},
+				{
+					"name": "Create Expense",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"description\": \"Lunch at restaurant\",\n    \"amount\": 25.50,\n    \"date\": \"2024-10-16\",\n    \"category_id\": 2,\n    \"notes\": \"Had lunch with colleagues\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/expenses",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"expenses"
+							]
+						},
+						"description": "Create a new expense record. Notes field is optional."
+					},
+					"response": []
+				},
+				{
+					"name": "Get Expense by ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/expenses/1",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"expenses",
+								"1"
+							]
+						},
+						"description": "Get a specific expense by ID."
+					},
+					"response": []
+				},
+				{
+					"name": "Update Expense",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"description\": \"Updated lunch expense\",\n    \"amount\": 30.00,\n    \"date\": \"2024-10-16\",\n    \"category_id\": 2,\n    \"notes\": \"Updated notes\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/expenses/1",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"expenses",
+								"1"
+							]
+						},
+						"description": "Update an existing expense."
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Expense",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/expenses/1",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"expenses",
+								"1"
+							]
+						},
+						"description": "Delete an expense record."
+					},
+					"response": []
+				},
+				{
+					"name": "Search Expenses",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/expenses/search?q=coffee&category_id=1&start_date=2024-01-01&end_date=2024-12-31",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"expenses",
+								"search"
+							],
+							"query": [
+								{
+									"key": "q",
+									"value": "coffee",
+									"description": "Search query"
+								},
+								{
+									"key": "category_id",
+									"value": "1",
+									"description": "Filter by category"
+								},
+								{
+									"key": "start_date",
+									"value": "2024-01-01",
+									"description": "Start date filter"
+								},
+								{
+									"key": "end_date",
+									"value": "2024-12-31",
+									"description": "End date filter"
+								}
+							]
+						},
+						"description": "Search expenses with advanced filtering options."
+					},
+					"response": []
+				},
+				{
+					"name": "Get Expenses by Date Range",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/expenses/date-range?start_date=2024-10-01&end_date=2024-10-31",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"expenses",
+								"date-range"
+							],
+							"query": [
+								{
+									"key": "start_date",
+									"value": "2024-10-01",
+									"description": "Start date (YYYY-MM-DD)"
+								},
+								{
+									"key": "end_date",
+									"value": "2024-10-31",
+									"description": "End date (YYYY-MM-DD)"
+								}
+							]
+						},
+						"description": "Get expenses within a specific date range."
+					},
+					"response": []
+				}
+			],
+			"description": "Expense management endpoints with full CRUD operations and advanced search capabilities."
+		},
+		{
+			"name": "Dashboard & Analytics",
+			"item": [
+				{
+					"name": "Dashboard Overview",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/dashboard",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"dashboard"
+							]
+						},
+						"description": "Get comprehensive dashboard statistics including total expenses, category breakdowns, and recent activities."
+					},
+					"response": []
+				},
+				{
+					"name": "Monthly Summary",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/dashboard/monthly-summary?period=current_month",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"dashboard",
+								"monthly-summary"
+							],
+							"query": [
+								{
+									"key": "period",
+									"value": "current_month",
+									"description": "Period filter (current_month, last_month, etc.)"
+								}
+							]
+						},
+						"description": "Get monthly spending summary with category analysis."
+					},
+					"response": []
+				},
+				{
+					"name": "Yearly Summary",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/dashboard/yearly-summary",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"dashboard",
+								"yearly-summary"
+							]
+						},
+						"description": "Get yearly spending statistics and patterns."
+					},
+					"response": []
+				},
+				{
+					"name": "Spending Trends",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/dashboard/trends?months=6",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"dashboard",
+								"trends"
+							],
+							"query": [
+								{
+									"key": "months",
+									"value": "6",
+									"description": "Number of months to analyze (default: 6)"
+								}
+							]
+						},
+						"description": "Get monthly spending trends over specified period."
+					},
+					"response": []
+				},
+				{
+					"name": "Daily Spending (Current Month)",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/dashboard/daily-spending",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"dashboard",
+								"daily-spending"
+							]
+						},
+						"description": "Get daily spending breakdown for the current month."
+					},
+					"response": []
+				}
+			],
+			"description": "Dashboard analytics endpoints providing insights into spending patterns and financial summaries."
+		}
+	]
+}
