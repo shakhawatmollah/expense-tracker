@@ -1,0 +1,35 @@
+# Laravel Backend
+backend/.env
+backend/vendor/
+backend/node_modules/
+backend/storage/app/*
+backend/storage/framework/cache/*
+backend/storage/framework/sessions/*
+backend/storage/framework/views/*
+backend/storage/logs/*
+backend/bootstrap/cache/*
+backend/public/hot
+backend/public/storage
+backend/.phpunit.result.cache
+
+# Vue.js Frontend
+frontend/.env
+frontend/node_modules/
+frontend/dist/
+frontend/.vite/
+frontend/.DS_Store
+
+# IDE and OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+*.tmp
+*.swp
+*.swo
+*~
+*.log
+.qodo
+
+# NPM and Composer
+*.lock
