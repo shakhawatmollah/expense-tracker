@@ -12,12 +12,19 @@
           
           <SummaryCards />
           
+          <!-- Budget Section -->
           <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
-            <ExpenseChart />
-            <CategoryBreakdown />
+            <BudgetSummaryWidget />
+            <BudgetAlertsWidget />
           </div>
           
-          <div class="mt-6">
+          <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
+            <BudgetProgressWidget />
+            <ExpenseChart />
+          </div>
+          
+          <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
+            <CategoryBreakdown />
             <RecentExpenses />
           </div>
         </div>
@@ -34,13 +41,18 @@ import SummaryCards from '@/components/dashboard/SummaryCards.vue'
 import ExpenseChart from '@/components/dashboard/ExpenseChart.vue'
 import CategoryBreakdown from '@/components/dashboard/CategoryBreakdown.vue'
 import RecentExpenses from '@/components/dashboard/RecentExpenses.vue'
+import BudgetSummaryWidget from '@/components/budgets/BudgetSummaryWidget.vue'
+import BudgetAlertsWidget from '@/components/budgets/BudgetAlertsWidget.vue'
+import BudgetProgressWidget from '@/components/budgets/BudgetProgressWidget.vue'
 import { useExpensesStore } from '@/stores/expenses'
 import { useCategoriesStore } from '@/stores/categories'
 import { useDashboardStore } from '@/stores/dashboard'
+import { useBudgetStore } from '@/stores/budget'
 
 const expensesStore = useExpensesStore()
 const categoriesStore = useCategoriesStore()
 const dashboardStore = useDashboardStore()
+const budgetStore = useBudgetStore()
 
 onMounted(async () => {
   try {
@@ -48,7 +60,10 @@ onMounted(async () => {
       expensesStore.fetchAllExpenses(), // Use non-paginated for dashboard
       categoriesStore.fetchCategories(),
       dashboardStore.fetchDashboardOverview(),
-      dashboardStore.fetchTrends(6)
+      dashboardStore.fetchTrends(6),
+      budgetStore.fetchCurrentBudgets(),
+      budgetStore.fetchBudgetSummary(),
+      budgetStore.fetchBudgetAlerts()
     ])
   } catch (error) {
     console.error('Failed to load dashboard data:', error)

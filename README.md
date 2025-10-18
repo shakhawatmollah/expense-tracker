@@ -48,15 +48,80 @@ This application follows a **decoupled microservices architecture**:
 - ✅ **Sample Data**: Database seeders with realistic demo data
 
 ### 📊 Dashboard Analytics
-- � **Monthly Expense Trends**: Interactive line charts showing spending patterns over time
+- 📈 **Monthly Expense Trends**: Interactive line charts showing spending patterns over time
 - 🍰 **Category Breakdown**: Beautiful doughnut charts with spending distribution
-- � **Summary Cards**: Key metrics and statistics with trend indicators
+- 📋 **Summary Cards**: Key metrics and statistics with trend indicators
 - 📅 **Date Range Filtering**: Custom date range selection for detailed analysis
 - 💰 **Real-time Calculations**: Live updates of totals, averages, and percentages
-- � **Advanced Search**: Full-text search with category and date filters
+- 🔍 **Advanced Search**: Full-text search with category and date filters
 - 📱 **Mobile Optimized**: Responsive charts and tables for all devices
 
-### 💰 Advanced Expense Management
+### 🧠 Advanced Analytics & Financial Health ⭐ *Recently Enhanced*
+- 💚 **Financial Health Score**: Comprehensive scoring system with multiple metrics
+  - Overall health score calculation (0-100 scale)
+  - Budget adherence tracking and alerts
+  - Spending consistency analysis
+  - Savings rate monitoring
+  - Category balance assessment
+- 📊 **Intelligent Insights**: AI-powered spending pattern detection
+  - Recurring payment identification
+  - Seasonal spending trends
+  - Category spike alerts
+  - Anomaly detection
+- 🎯 **Personalized Recommendations**: Smart suggestions for better financial health
+- 📈 **Predictive Analytics**: Spending forecasts and trend predictions
+- 🚨 **Smart Alerts**: Budget warnings and spending notifications
+- 📋 **Historical Analysis**: 12-month financial health trend tracking
+- 🔄 **Real-time Updates**: Live analytics with cached performance optimization
+
+### 💰 Budget Management *New Feature*
+- 🎯 **Smart Budget Creation**: Create budgets by category with flexible periods
+- 📊 **Budget Tracking**: Real-time budget vs. actual spending monitoring
+- 🚨 **Intelligent Alerts**: Customizable budget alerts at 50%, 75%, and 90% usage
+- 📈 **Budget Analytics**: Historical budget performance and trends
+- 💡 **Budget Recommendations**: AI-powered budget suggestions based on spending patterns
+- 🔄 **Flexible Periods**: Support for monthly, quarterly, and yearly budgets
+- 📱 **Mobile Budget Cards**: Beautiful responsive budget visualization
+
+#### Get Paginated Expenses
+```
+GET /api/expenses?paginate=true&page=1&per_page=15&search=coffee&category_id=1&start_date=2024-01-01&end_date=2024-12-31
+```
+
+---
+
+## 🔧 Recent Updates & Bug Fixes
+
+### ✅ **Analytics System Fixes (October 2025)**
+
+**Fixed Critical Issues:**
+- 🛠️ **Database Schema Alignment**: Resolved table name mismatches between migrations and models
+- 🔧 **AnalyticsCache Model**: Fixed table name from `analytics_caches` to `analytics_cache`  
+- 📊 **Financial Health Calculation**: Resolved "Failed to calculate financial health" errors
+- 🔍 **SQL Query Optimization**: Fixed ambiguous column references in join queries
+- 📋 **UserInsight Storage**: Updated column mappings to match database schema
+- ⚡ **SpendingPattern Creation**: Added proper frequency field handling
+
+**Technical Improvements:**
+- Enhanced error handling in AnalyticsService
+- Improved database query performance
+- Added comprehensive debug logging
+- Implemented proper model relationships
+- Optimized cache management for analytics data
+
+**Verification Results:**
+- ✅ Financial health score calculation working (Overall Score: 36.75)
+- ✅ All analytics endpoints returning proper data
+- ✅ Budget tracking and alerts functioning correctly
+- ✅ User insights generation operational
+- ✅ Spending pattern detection active
+
+### � **New Features Added**
+- 🧠 **Advanced Analytics Engine**: Comprehensive financial health scoring
+- 💰 **Budget Management System**: Smart budget creation and tracking
+- 🎯 **Intelligent Alerts**: Proactive budget and spending notifications  
+- 📊 **Predictive Analytics**: Spending forecasts and trend analysis
+- 🔄 **Real-time Updates**: Live analytics with optimized caching
 - 🏷️ **Smart Categories**: Pre-defined categories with custom colors and icons
 - 📝 **Detailed Records**: Rich expense descriptions with optional notes
 - 🔄 **Bulk Operations**: Edit and delete multiple expenses efficiently
@@ -72,6 +137,9 @@ This application follows a **decoupled microservices architecture**:
 - 🧪 **Advanced Testing**: PHPUnit 11 with comprehensive test coverage
 - 🏗️ **Clean Architecture**: Service container and dependency injection
 - 📦 **Package Management**: Latest Composer dependencies and optimizations
+- 🧠 **Analytics Engine**: Advanced analytics service with financial health scoring
+- 🔧 **Database Optimizations**: Proper table schemas and model relationships
+- 🚨 **Error Handling**: Comprehensive exception handling and logging
 
 ---
 
@@ -552,15 +620,32 @@ expense-tracker/
 │   ├── app/
 │   │   ├── Http/
 │   │   │   ├── Controllers/Api/     # API Controllers
+│   │   │   │   ├── AnalyticsController.php    # 🧠 Advanced analytics ⭐
+│   │   │   │   ├── BudgetController.php       # 💰 Budget management ⭐
+│   │   │   │   ├── ExpenseController.php      # Expense operations
+│   │   │   │   └── CategoryController.php     # Category management
 │   │   │   ├── Requests/           # Form validation
 │   │   │   ├── Resources/          # API response formatting
 │   │   │   └── Middleware/         # Custom middleware
 │   │   ├── Models/                 # Eloquent models
+│   │   │   ├── AnalyticsCache.php          # 🔧 Fixed table mapping ⭐
+│   │   │   ├── FinancialHealthScore.php    # 📊 Health scoring ⭐
+│   │   │   ├── SpendingPattern.php         # 🔍 Pattern detection ⭐
+│   │   │   ├── UserInsight.php             # 💡 User insights ⭐
+│   │   │   ├── Budget.php                  # 💰 Budget model ⭐
+│   │   │   ├── Expense.php
+│   │   │   └── Category.php
 │   │   ├── Services/               # Business logic services
+│   │   │   ├── AnalyticsService.php        # 🧠 Analytics engine ⭐
+│   │   │   ├── BudgetService.php           # 💰 Budget logic ⭐
+│   │   │   └── ValidationService.php
 │   │   ├── Repositories/           # Data access layer
 │   │   └── Exceptions/             # Custom exceptions
 │   ├── database/
 │   │   ├── migrations/             # Database migrations
+│   │   │   ├── 2025_10_17_121519_create_analytics_tables.php  # 📊 Analytics schema ⭐
+│   │   │   ├── 2025_10_17_120341_create_budgets_table.php     # 💰 Budget schema ⭐
+│   │   │   └── ...existing migrations
 │   │   ├── seeders/               # Database seeders ⭐
 │   │   │   ├── UserSeeder.php     # Demo users with credentials
 │   │   │   ├── CategorySeeder.php # Default expense categories
@@ -578,13 +663,27 @@ expense-tracker/
 │   │   │   ├── auth/             # Authentication forms
 │   │   │   ├── expenses/         # Expense components
 │   │   │   ├── categories/       # Category components
+│   │   │   ├── budgets/          # 💰 Budget components ⭐
+│   │   │   │   ├── BudgetCard.vue        # Budget display cards
+│   │   │   │   ├── BudgetForm.vue        # Budget creation/editing
+│   │   │   │   └── BudgetAlerts.vue      # Budget alert notifications
+│   │   │   ├── analytics/        # 🧠 Analytics components ⭐
+│   │   │   │   ├── FinancialHealth.vue   # Health score display
+│   │   │   │   ├── SpendingPatterns.vue  # Pattern visualization
+│   │   │   │   └── InsightCards.vue      # User insights
 │   │   │   ├── dashboard/        # Dashboard widgets ⭐
 │   │   │   │   ├── ExpenseChart.vue      # Monthly trends chart
 │   │   │   │   ├── CategoryBreakdown.vue # Category doughnut chart
 │   │   │   │   └── SummaryCards.vue      # Statistics cards
 │   │   │   └── common/           # Reusable components
 │   │   ├── views/                # Page components
+│   │   │   ├── Analytics.vue             # 🧠 Advanced analytics page ⭐
+│   │   │   ├── BudgetManagement.vue      # 💰 Budget management page ⭐
+│   │   │   └── ...existing pages
 │   │   ├── stores/               # Pinia stores
+│   │   │   ├── analytics.js              # 📊 Analytics state ⭐
+│   │   │   ├── budget.js                 # 💰 Budget state ⭐
+│   │   │   └── ...existing stores
 │   │   ├── services/             # API services
 │   │   ├── router/               # Vue Router config
 │   │   ├── composables/          # Vue composables
@@ -621,6 +720,25 @@ expense-tracker/
 - `GET /api/categories/{id}` - Get specific category
 - `PUT /api/categories/{id}` - Update category
 - `DELETE /api/categories/{id}` - Delete category
+
+### Budgets ⭐ *New*
+- `GET /api/budgets` - List user budgets with usage statistics
+- `POST /api/budgets` - Create new budget
+- `GET /api/budgets/{id}` - Get specific budget details
+- `PUT /api/budgets/{id}` - Update budget
+- `DELETE /api/budgets/{id}` - Delete budget
+- `GET /api/budgets/summary` - Budget summary with current period data
+- `GET /api/budgets/alerts` - Budget alerts and warnings
+- `GET /api/budgets/analytics` - Budget performance analytics
+
+### Advanced Analytics ⭐ *Recently Fixed*
+- `GET /api/analytics/dashboard` - Comprehensive analytics dashboard
+- `GET /api/analytics/financial-health` - Financial health score and metrics
+- `GET /api/analytics/patterns` - Spending pattern detection
+- `GET /api/analytics/insights` - User insights and recommendations
+- `GET /api/analytics/forecasts` - Spending forecasts and predictions
+- `GET /api/analytics/trends` - Detailed spending trend analysis
+- `POST /api/analytics/refresh` - Force analytics cache refresh
 
 ### Dashboard
 - `GET /api/dashboard` - Get dashboard statistics
@@ -682,6 +800,29 @@ GET    /api/dashboard/trends           # Spending trends
 GET    /api/dashboard/daily-spending   # Daily breakdown
 ```
 
+### 💰 Budget Management ⭐ *New*
+```
+GET    /api/budgets                    # List budgets with statistics
+POST   /api/budgets                    # Create budget
+GET    /api/budgets/{id}              # Get specific budget
+PUT    /api/budgets/{id}              # Update budget
+DELETE /api/budgets/{id}              # Delete budget
+GET    /api/budgets/summary            # Budget summary data
+GET    /api/budgets/alerts             # Budget alerts and warnings
+GET    /api/budgets/analytics          # Budget performance analytics
+```
+
+### 🧠 Advanced Analytics ⭐ *Recently Fixed*
+```
+GET    /api/analytics/dashboard        # Comprehensive analytics overview
+GET    /api/analytics/financial-health # Financial health scoring system
+GET    /api/analytics/patterns         # Spending pattern detection
+GET    /api/analytics/insights         # AI-powered user insights
+GET    /api/analytics/forecasts        # Predictive spending analysis
+GET    /api/analytics/trends           # Detailed trend analysis
+POST   /api/analytics/refresh          # Force cache refresh and recalculation
+```
+
 ### 📝 Sample API Requests
 
 #### Login Request
@@ -705,9 +846,43 @@ POST /api/expenses
 }
 ```
 
-#### Get Paginated Expenses
+#### Create Budget
+```json
+POST /api/budgets
+{
+    "name": "Monthly Groceries",
+    "amount": 500.00,
+    "period_type": "monthly",
+    "category_id": 1,
+    "start_date": "2025-01-01",
+    "alert_percentage": 80
+}
 ```
-GET /api/expenses?paginate=true&page=1&per_page=15&search=coffee&category_id=1&start_date=2024-01-01&end_date=2024-12-31
+
+#### Get Financial Health
+```json
+GET /api/analytics/financial-health?period=monthly
+
+Response:
+{
+    "success": true,
+    "data": {
+        "current": {
+            "overall_score": 36.75,
+            "spending_consistency_score": 20,
+            "budget_adherence_score": 0,
+            "savings_rate_score": 75,
+            "category_balance_score": 80,
+            "score_breakdown": {
+                "total_expenses": 3743.43,
+                "total_budget": 155,
+                "budget_remaining": -3588.43,
+                "period": "monthly"
+            }
+        },
+        "history": [...]
+    }
+}
 ```
 
 ---

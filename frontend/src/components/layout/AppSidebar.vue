@@ -32,12 +32,16 @@
 import { 
   HomeIcon, 
   CreditCardIcon, 
-  TagIcon 
+  TagIcon,
+  ChartBarIcon,
+  ChartPieIcon
 } from '@heroicons/vue/24/outline'
 
 const navigation = [
   { name: 'Dashboard', href: '/', icon: HomeIcon },
   { name: 'Expenses', href: '/expenses', icon: CreditCardIcon },
   { name: 'Categories', href: '/categories', icon: TagIcon },
+  { name: 'Budgets', href: '/budgets', icon: ChartBarIcon },
+  { name: 'Analytics', href: '/analytics', icon: ChartPieIcon },
 ]
 </script>

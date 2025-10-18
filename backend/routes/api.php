@@ -6,6 +6,8 @@ use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\CategoryController;
 use App\Http\Controllers\Api\ExpenseController;
 use App\Http\Controllers\Api\DashboardController;
+use App\Http\Controllers\Api\BudgetController;
+use App\Http\Controllers\Api\AnalyticsController;
 
 /*
 |--------------------------------------------------------------------------
@@ -59,4 +61,32 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::apiResource('expenses', ExpenseController::class);
     Route::get('expenses/search', [ExpenseController::class, 'search']);
     Route::get('expenses/date-range', [ExpenseController::class, 'getByDateRange']);
+    
+    // Budget routes - Custom routes MUST come before resource routes
+    Route::prefix('budgets')->group(function () {
+        Route::get('/current', [BudgetController::class, 'current']);
+        Route::get('/summary', [BudgetController::class, 'summary']);
+        Route::get('/alerts', [BudgetController::class, 'alerts']);
+        Route::get('/analytics', [BudgetController::class, 'analytics']);
+        Route::get('/periods', [BudgetController::class, 'periods']);
+        Route::get('/by-period', [BudgetController::class, 'byPeriod']);
+        Route::get('/search', [BudgetController::class, 'search']);
+        Route::get('/category/{categoryId}', [BudgetController::class, 'byCategory']);
+        Route::post('/recalculate', [BudgetController::class, 'recalculate']);
+        Route::post('/create-defaults', [BudgetController::class, 'createDefaults']);
+        Route::post('/{id}/duplicate', [BudgetController::class, 'duplicate']);
+    });
+    Route::apiResource('budgets', BudgetController::class);
+    
+    // Analytics routes
+    Route::prefix('analytics')->group(function () {
+        Route::get('/dashboard', [AnalyticsController::class, 'dashboard']);
+        Route::get('/patterns', [AnalyticsController::class, 'patterns']);
+        Route::get('/financial-health', [AnalyticsController::class, 'financialHealth']);
+        Route::get('/insights', [AnalyticsController::class, 'insights']);
+        Route::get('/forecasts', [AnalyticsController::class, 'forecasts']);
+        Route::get('/recommendations', [AnalyticsController::class, 'recommendations']);
+        Route::get('/trends', [AnalyticsController::class, 'trends']);
+        Route::post('/refresh', [AnalyticsController::class, 'refresh']);
+    });
 });

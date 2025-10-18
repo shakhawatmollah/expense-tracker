@@ -15,7 +15,10 @@ return Application::configure(basePath: dirname(__DIR__))
         App\Providers\RepositoryServiceProvider::class,
     ])
     ->withMiddleware(function (Middleware $middleware) {
-        //
+        // Enable CORS for API routes
+        $middleware->api([
+            \Illuminate\Http\Middleware\HandleCors::class,
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {
         //

@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Budget API Debug Test</title>
+    <style>
+        body { font-family: monospace; margin: 20px; }
+        .test-section { margin: 20px 0; padding: 15px; border: 1px solid #ccc; }
+        .success { color: green; }
+        .error { color: red; }
+        .info { color: blue; }
+        pre { background: #f5f5f5; padding: 10px; overflow-x: auto; }
+    </style>
+</head>
+<body>
+    <h1>Budget API Debug Test</h1>
+    
+    <div class="test-section">
+        <h2>Test 1: Login with admin@example.com</h2>
+        <button onclick="testLogin()">Test Login</button>
+        <div id="login-result"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>Test 2: Fetch Budgets with Token</h2>
+        <button onclick="testBudgets()">Test Budget API</button>
+        <div id="budget-result"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>Test 3: Check Local Storage</h2>
+        <button onclick="checkStorage()">Check Storage</button>
+        <div id="storage-result"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>Test 4: Simulate Frontend API Call</h2>
+        <button onclick="simulateFrontend()">Simulate Frontend</button>
+        <div id="frontend-result"></div>
+    </div>
+
+    <script>
+        let authToken = null;
+
+        async function testLogin() {
+            const resultDiv = document.getElementById('login-result');
+            resultDiv.innerHTML = '<div class="info">Testing login...</div>';
+            
+            try {
+                const response = await fetch('http://127.0.0.1:8000/api/auth/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        email: 'admin@example.com',
+                        password: 'admin123'
+                    })
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    authToken = data.token;
+                    resultDiv.innerHTML = `
+                        <div class="success">✅ Login successful!</div>
+                        <pre>Token: ${data.token.substring(0, 20)}...</pre>
+                        <pre>User: ${data.user.email}</pre>
+                    `;
+                } else {
+                    const errorData = await response.json();
+                    resultDiv.innerHTML = `
+                        <div class="error">❌ Login failed (${response.status})</div>
+                        <pre>${JSON.stringify(errorData, null, 2)}</pre>
+                    `;
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `
+                    <div class="error">❌ Network error: ${error.message}</div>
+                `;
+            }
+        }
+
+        async function testBudgets() {
+            const resultDiv = document.getElementById('budget-result');
+            
+            if (!authToken) {
+                resultDiv.innerHTML = '<div class="error">❌ Please login first!</div>';
+                return;
+            }
+
+            resultDiv.innerHTML = '<div class="info">Testing budget API...</div>';
+            
+            try {
+                const response = await fetch('http://127.0.0.1:8000/api/budgets', {
+                    method: 'GET',
+                    headers: {
+                        'Accept': 'application/json',
+                        'Authorization': `Bearer ${authToken}`
+                    }
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    resultDiv.innerHTML = `
+                        <div class="success">✅ Budget API successful!</div>
+                        <pre>Success: ${data.success}</pre>
+                        <pre>Budget Count: ${data.data.length}</pre>
+                        <pre>Total Records: ${data.meta.total}</pre>
+                        <pre>Response Structure:</pre>
+                        <pre>${JSON.stringify(data, null, 2)}</pre>
+                    `;
+                } else {
+                    const errorData = await response.json().catch(() => ({ message: 'Unknown error' }));
+                    resultDiv.innerHTML = `
+                        <div class="error">❌ Budget API failed (${response.status})</div>
+                        <pre>${JSON.stringify(errorData, null, 2)}</pre>
+                    `;
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `
+                    <div class="error">❌ Network error: ${error.message}</div>
+                `;
+            }
+        }
+
+        function checkStorage() {
+            const resultDiv = document.getElementById('storage-result');
+            const token = localStorage.getItem('token');
+            const user = localStorage.getItem('user');
+            
+            resultDiv.innerHTML = `
+                <div class="info">Local Storage Contents:</div>
+                <pre>Token: ${token ? token.substring(0, 20) + '...' : 'NULL'}</pre>
+                <pre>User: ${user || 'NULL'}</pre>
+            `;
+        }
+
+        async function simulateFrontend() {
+            const resultDiv = document.getElementById('frontend-result');
+            resultDiv.innerHTML = '<div class="info">Simulating frontend API call...</div>';
+            
+            // Use token from localStorage like the frontend does
+            const storedToken = localStorage.getItem('token');
+            const tokenToUse = storedToken || authToken;
+            
+            if (!tokenToUse) {
+                resultDiv.innerHTML = '<div class="error">❌ No token available! Please login first.</div>';
+                return;
+            }
+
+            try {
+                // Simulate the exact API call the frontend makes
+                const response = await fetch('http://127.0.0.1:8000/api/budgets', {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json',
+                        'Authorization': `Bearer ${tokenToUse}`
+                    }
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    
+                    // Simulate frontend processing
+                    const budgets = data.data || [];
+                    const pagination = data.meta || {};
+                    
+                    resultDiv.innerHTML = `
+                        <div class="success">✅ Frontend simulation successful!</div>
+                        <pre>Processed Budgets: ${budgets.length}</pre>
+                        <pre>Pagination: ${JSON.stringify(pagination, null, 2)}</pre>
+                        <div class="info">Budget Details:</div>
+                        ${budgets.map(budget => `
+                            <pre>- ${budget.name}: $${budget.amount.formatted} (${budget.is_active ? 'Active' : 'Inactive'})</pre>
+                        `).join('')}
+                    `;
+                } else {
+                    const errorText = await response.text();
+                    resultDiv.innerHTML = `
+                        <div class="error">❌ Frontend simulation failed (${response.status})</div>
+                        <pre>${errorText}</pre>
+                    `;
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `
+                    <div class="error">❌ Network error: ${error.message}</div>
+                `;
+            }
+        }
+
+        // Store token in localStorage when login succeeds
+        window.addEventListener('load', () => {
+            document.querySelector('#login-result').addEventListener('DOMSubtreeModified', () => {
+                if (authToken) {
+                    localStorage.setItem('token', authToken);
+                }
+            });
+        });
+    </script>
+</body>
+</html>

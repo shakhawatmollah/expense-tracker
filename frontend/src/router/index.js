@@ -5,6 +5,8 @@ import { useAuthStore } from '@/stores/auth'
 import Dashboard from '@/views/Dashboard.vue'
 import Expenses from '@/views/Expenses.vue'
 import Categories from '@/views/Categories.vue'
+import Budgets from '@/views/Budgets.vue'
+import Analytics from '@/views/Analytics.vue'
 import Login from '@/views/Login.vue'
 import Register from '@/views/Register.vue'
 
@@ -25,6 +27,18 @@ const routes = [
     path: '/categories',
     name: 'Categories',
     component: Categories,
+    meta: { requiresAuth: true }
+  },
+  {
+    path: '/budgets',
+    name: 'Budgets',
+    component: Budgets,
+    meta: { requiresAuth: true }
+  },
+  {
+    path: '/analytics',
+    name: 'Analytics',
+    component: Analytics,
     meta: { requiresAuth: true }
   },
   {
