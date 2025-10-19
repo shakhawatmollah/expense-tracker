@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia'
-import analyticsService from '@/services/analytics'
+import analyticsService from '@/services/analytics.js'
 
 export const useAnalyticsStore = defineStore('analytics', {
   state: () => ({

@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia'
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 import { dashboardService } from '@/services/dashboardService'
 
 export const useDashboardStore = defineStore('dashboard', () => {
@@ -99,6 +99,22 @@ export const useDashboardStore = defineStore('dashboard', () => {
     ])
   }
 
+  // Computed properties for safe numeric calculations
+  const totalBalance = computed(() => {
+    if (!overview.value) return 0
+    return parseFloat(overview.value.total_balance || 0)
+  })
+
+  const todaysExpenses = computed(() => {
+    if (!overview.value) return 0
+    return parseFloat(overview.value.todays_expenses || 0)
+  })
+
+  const monthlyExpenses = computed(() => {
+    if (!overview.value) return 0
+    return parseFloat(overview.value.monthly_expenses || 0)
+  })
+
   return {
     overview,
     monthlySummary,
@@ -107,6 +123,11 @@ export const useDashboardStore = defineStore('dashboard', () => {
     dailySpending,
     loading,
     error,
+    // Computed properties
+    totalBalance,
+    todaysExpenses,
+    monthlyExpenses,
+    // Methods
     fetchDashboardOverview,
     fetchMonthlySummary,
     fetchYearlySummary,

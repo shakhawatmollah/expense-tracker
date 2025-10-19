@@ -1,82 +1,108 @@
 <template>
-  <div class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50" v-if="isOpen" @click.self="closeModal">
-    <div class="relative top-20 mx-auto p-5 border w-full max-w-md shadow-lg rounded-md bg-white">
-      <div class="mt-3">
-        <div class="flex items-center justify-between mb-4">
-          <h3 class="text-lg font-medium text-gray-900">{{ isEditing ? 'Edit Expense' : 'Add New Expense' }}</h3>
-          <button @click="closeModal" class="text-gray-400 hover:text-gray-600">
-            <XMarkIcon class="h-6 w-6" />
-          </button>
+  <div class="modal-overlay" v-if="isOpen" @click.self="closeModal">
+    <div class="modern-modal">
+      <!-- Modal Header -->
+      <div class="modal-header">
+        <div class="header-content">
+          <div class="header-icon">
+            <i class="fas fa-receipt"></i>
+          </div>
+          <div class="header-text">
+            <h3 class="modal-title">{{ isEditing ? 'Edit Expense' : 'Add New Expense' }}</h3>
+            <p class="modal-subtitle">{{ isEditing ? 'Update expense details' : 'Track your spending' }}</p>
+          </div>
         </div>
-        
-        <form @submit.prevent="submitForm" class="space-y-4">
-          <div>
-            <label for="description" class="block text-sm font-medium text-gray-700">Description</label>
-            <input
-              type="text"
-              id="description"
-              v-model="form.description"
-              required
-              class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-              placeholder="Enter expense description"
-            />
-            <p v-if="errors.description" class="mt-1 text-sm text-red-600">{{ errors.description[0] }}</p>
-          </div>
+        <button @click="closeModal" class="modal-close" aria-label="Close modal">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+      
+      <!-- Modal Body -->
+      <div class="modal-body">
+        <form @submit.prevent="submitForm" class="expense-form">
+          <!-- Description Field -->
+          <FormInput
+            v-model="form.description"
+            label="Description"
+            placeholder="Enter expense description"
+            :error="errors.description"
+            required
+            clearable
+            maxlength="255"
+            show-character-count
+            help-text="Brief description of your expense"
+          />
           
-          <div>
-            <label for="amount" class="block text-sm font-medium text-gray-700">Amount</label>
-            <div class="mt-1 relative rounded-md shadow-sm">
-              <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <span class="text-gray-500 sm:text-sm">$</span>
+          <!-- Amount Field -->
+          <FormInput
+            v-model="form.amount"
+            type="number"
+            step="0.01"
+            min="0"
+            label="Amount"
+            placeholder="0.00"
+            prefix="$"
+            :error="errors.amount"
+            required
+            help-text="Enter the expense amount"
+          />
+          
+          <!-- Date Field -->
+          <FormInput
+            v-model="form.date"
+            type="date"
+            label="Date"
+            :error="errors.date"
+            required
+            help-text="When did this expense occur?"
+          />
+          
+          <!-- Category Field -->
+          <FormSelect
+            v-model="form.category_id"
+            :options="categoryOptions"
+            option-label="name"
+            option-value="id"
+            label="Category"
+            placeholder="Select a category"
+            :error="errors.category_id"
+            required
+            searchable
+            help-text="Choose the expense category"
+          >
+            <template #option="{ option }">
+              <div class="category-option">
+                <i :class="option.icon || 'fas fa-tag'" class="category-icon"></i>
+                <span class="category-name">{{ option.name }}</span>
               </div>
-              <input
-                type="number"
-                step="0.01"
-                id="amount"
-                v-model="form.amount"
-                required
-                class="block w-full pl-7 pr-12 border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-                placeholder="0.00"
-              />
-            </div>
-            <p v-if="errors.amount" class="mt-1 text-sm text-red-600">{{ errors.amount[0] }}</p>
-          </div>
+            </template>
+          </FormSelect>
           
-          <div>
-            <label for="date" class="block text-sm font-medium text-gray-700">Date</label>
-            <input
-              type="date"
-              id="date"
-              v-model="form.date"
-              required
-              class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-            />
-            <p v-if="errors.date" class="mt-1 text-sm text-red-600">{{ errors.date[0] }}</p>
-          </div>
-          
-          <div>
-            <label for="category_id" class="block text-sm font-medium text-gray-700">Category</label>
-            <select
-              id="category_id"
-              v-model="form.category_id"
-              required
-              class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+          <!-- Form Actions -->
+          <div class="form-actions">
+            <Button 
+              variant="outline" 
+              @click="closeModal"
+              :disabled="loading"
             >
-              <option value="">Select a category</option>
-              <option v-for="category in categories" :key="category.id" :value="category.id">
-                {{ category.name }}
-              </option>
-            </select>
-            <p v-if="errors.category_id" class="mt-1 text-sm text-red-600">{{ errors.category_id[0] }}</p>
-          </div>
-          
-          <div class="flex justify-end space-x-3 pt-4">
-            <Button type="button" variant="outline" @click="closeModal">
               Cancel
             </Button>
-            <Button type="submit" :loading="loading">
+            <button 
+              type="submit" 
+              :disabled="loading"
+              :class="[
+                'colorful-budget-btn',
+                isEditing ? 'update-expense-btn' : 'create-expense-btn'
+              ]"
+            >
+              <i class="fas fa-save"></i>
               {{ isEditing ? 'Update' : 'Create' }} Expense
-            </Button>
+              <div class="btn-sparkles">
+                <div class="sparkle sparkle-1"></div>
+                <div class="sparkle sparkle-2"></div>
+                <div class="sparkle sparkle-3"></div>
+              </div>
+            </button>
           </div>
         </form>
       </div>
@@ -86,9 +112,10 @@
 
 <script setup>
 import { ref, reactive, computed, watch } from 'vue'
-import { XMarkIcon } from '@heroicons/vue/24/outline'
 import { useExpensesStore } from '@/stores/expenses'
 import { useCategoriesStore } from '@/stores/categories'
+import FormInput from '@/components/common/FormInput.vue'
+import FormSelect from '@/components/common/FormSelect.vue'
 import Button from '@/components/common/Button.vue'
 
 const props = defineProps({
@@ -119,6 +146,15 @@ const form = reactive({
 
 const isEditing = computed(() => !!props.expense)
 const categories = computed(() => categoriesStore.categories)
+
+// Transform categories for FormSelect component
+const categoryOptions = computed(() => {
+  return categories.value.map(category => ({
+    id: category.id,
+    name: category.name,
+    icon: category.icon || 'fas fa-tag'
+  }))
+})
 
 // Define resetForm function before it's used
 const resetForm = () => {
@@ -187,3 +223,377 @@ const submitForm = async () => {
   }
 }
 </script>
+
+<style scoped>
+/* Modal Overlay */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(8px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 1rem;
+  overflow-y: auto;
+}
+
+/* Modern Modal */
+.modern-modal {
+  background: white;
+  border-radius: 24px;
+  box-shadow: 0 25px 80px rgba(0, 0, 0, 0.15);
+  width: 100%;
+  max-width: 500px;
+  max-height: 90vh;
+  overflow: hidden;
+  position: relative;
+  animation: modalSlideIn 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@keyframes modalSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(30px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* Modal Header */
+.modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 2rem 2rem 1rem;
+  border-bottom: 1px solid #f3f4f6;
+  background: linear-gradient(135deg, rgba(102, 126, 234, 0.05), rgba(118, 75, 162, 0.05));
+}
+
+.header-content {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.header-icon {
+  width: 48px;
+  height: 48px;
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  border-radius: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 1.25rem;
+}
+
+.header-text {
+  flex: 1;
+}
+
+.modal-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #1f2937;
+  margin: 0 0 0.25rem 0;
+}
+
+.modal-subtitle {
+  font-size: 0.875rem;
+  color: #6b7280;
+  margin: 0;
+}
+
+.modal-close {
+  width: 40px;
+  height: 40px;
+  border: none;
+  background: rgba(107, 114, 128, 0.1);
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #6b7280;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.modal-close:hover {
+  background: rgba(239, 68, 68, 0.1);
+  color: #ef4444;
+  transform: scale(1.05);
+}
+
+/* Modal Body */
+.modal-body {
+  padding: 2rem;
+  overflow-y: auto;
+  max-height: calc(90vh - 120px);
+}
+
+.expense-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+/* Category Option Styling */
+.category-option {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.category-icon {
+  width: 20px;
+  color: #667eea;
+  text-align: center;
+}
+
+.category-name {
+  font-weight: 500;
+}
+
+/* Form Actions */
+.form-actions {
+  display: flex;
+  gap: 1rem;
+  justify-content: flex-end;
+  padding-top: 1rem;
+  margin-top: 1rem;
+  border-top: 1px solid #f3f4f6;
+}
+
+/* Responsive Design */
+@media (max-width: 640px) {
+  .modal-overlay {
+    padding: 0.5rem;
+  }
+  
+  .modern-modal {
+    max-width: none;
+    border-radius: 20px;
+    margin: 0.5rem;
+  }
+  
+  .modal-header {
+    padding: 1.5rem 1.5rem 1rem;
+  }
+  
+  .modal-body {
+    padding: 1.5rem;
+  }
+  
+  .form-actions {
+    flex-direction: column-reverse;
+  }
+  
+  .header-content {
+    gap: 0.75rem;
+  }
+  
+  .header-icon {
+    width: 40px;
+    height: 40px;
+    font-size: 1rem;
+  }
+  
+  .modal-title {
+    font-size: 1.25rem;
+  }
+}
+
+/* Focus trap for accessibility */
+.modern-modal {
+  isolation: isolate;
+}
+
+/* Smooth transitions for form validation */
+.expense-form :deep(.form-field) {
+  transition: all 0.3s ease;
+}
+
+.expense-form :deep(.has-error) {
+  animation: shake 0.5s ease-in-out;
+}
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-5px); }
+  75% { transform: translateX(5px); }
+}
+
+/* Colorful Budget Buttons */
+.colorful-budget-btn {
+  position: relative;
+  padding: 12px 24px;
+  border: none;
+  border-radius: 16px;
+  font-weight: 700;
+  font-size: 0.875rem;
+  color: white;
+  cursor: pointer;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  overflow: hidden;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+}
+
+.colorful-budget-btn:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+  transform: none !important;
+}
+
+.colorful-budget-btn:not(:disabled):hover {
+  transform: translateY(-2px) scale(1.02);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4);
+}
+
+.colorful-budget-btn:not(:disabled):active {
+  transform: translateY(0) scale(0.98);
+}
+
+/* Create Expense Button - Green/Blue Gradient */
+.create-expense-btn {
+  background: linear-gradient(45deg, 
+    #22c55e 0%, 
+    #10b981 25%, 
+    #06b6d4 50%, 
+    #3b82f6 75%, 
+    #6366f1 100%);
+  background-size: 300% 300%;
+  animation: expense-flow 3s ease infinite;
+}
+
+.create-expense-btn:not(:disabled):hover {
+  background-size: 400% 400%;
+  animation-duration: 1.5s;
+  box-shadow: 0 12px 40px rgba(34, 197, 94, 0.5);
+}
+
+/* Update Expense Button - Orange/Red Gradient */
+.update-expense-btn {
+  background: linear-gradient(45deg, 
+    #f97316 0%, 
+    #ef4444 25%, 
+    #ec4899 50%, 
+    #a855f7 75%, 
+    #8b5cf6 100%);
+  background-size: 300% 300%;
+  animation: update-expense-flow 3s ease infinite;
+}
+
+.update-expense-btn:not(:disabled):hover {
+  background-size: 400% 400%;
+  animation-duration: 1.5s;
+  box-shadow: 0 12px 40px rgba(249, 115, 22, 0.5);
+}
+
+/* Button Sparkles Animation */
+.btn-sparkles {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  pointer-events: none;
+  overflow: hidden;
+  border-radius: 16px;
+}
+
+.sparkle {
+  position: absolute;
+  width: 4px;
+  height: 4px;
+  background: white;
+  border-radius: 50%;
+  opacity: 0;
+  animation: sparkle-twinkle 2s infinite;
+}
+
+.sparkle-1 {
+  top: 20%;
+  left: 20%;
+  animation-delay: 0s;
+}
+
+.sparkle-2 {
+  top: 60%;
+  right: 30%;
+  animation-delay: 0.7s;
+}
+
+.sparkle-3 {
+  bottom: 25%;
+  left: 70%;
+  animation-delay: 1.4s;
+}
+
+/* Keyframe Animations */
+@keyframes expense-flow {
+  0%, 100% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+}
+
+@keyframes update-expense-flow {
+  0%, 100% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+}
+
+@keyframes sparkle-twinkle {
+  0%, 100% {
+    opacity: 0;
+    transform: scale(0);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Pulse effect on hover */
+.colorful-budget-btn:not(:disabled)::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: inherit;
+  border-radius: inherit;
+  opacity: 0;
+  animation: btn-pulse 2s infinite;
+}
+
+@keyframes btn-pulse {
+  0% {
+    transform: scale(1);
+    opacity: 0;
+  }
+  50% {
+    transform: scale(1.05);
+    opacity: 0.3;
+  }
+  100% {
+    transform: scale(1.1);
+    opacity: 0;
+  }
+}
+</style>

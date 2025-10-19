@@ -75,11 +75,15 @@ export const useBudgetStore = defineStore('budget', () => {
     let period = b.period
     let periodLabel = ''
     let daysRemaining = null
+    let startDate = null
+    let endDate = null
     
     if (period && typeof period === 'object') {
       periodLabel = period.label || period.type || ''
       daysRemaining = period.days_remaining || null
-      period = period.type || 'monthly' // Extract the actual period type
+      startDate = period.start_date || null
+      endDate = period.end_date || null
+      period = period.type || 'monthly' // Extract the actual period type for backward compatibility
     }
 
     return {
@@ -89,7 +93,11 @@ export const useBudgetStore = defineStore('budget', () => {
       remaining_amount: remaining,
       period,
       period_label: periodLabel,
-      days_remaining: daysRemaining
+      days_remaining: daysRemaining,
+      // PRESERVE the original period object AND add individual date fields
+      period_object: b.period, // Keep original period object with dates
+      start_date: startDate || b.start_date, // Extract dates to root level too
+      end_date: endDate || b.end_date
     }
   }
 

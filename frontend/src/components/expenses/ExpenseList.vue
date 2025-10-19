@@ -6,10 +6,15 @@
         <h2 class="text-lg font-medium text-gray-900">Expenses</h2>
         <p class="text-sm text-gray-600">Manage your expenses</p>
       </div>
-      <Button @click="openAddModal" class="bg-indigo-600 hover:bg-indigo-700">
-        <PlusIcon class="h-4 w-4 mr-2" />
+      <button @click="openAddModal" class="colorful-budget-btn create-expense-btn">
+        <PlusIcon class="h-4 w-4" />
         Add Expense
-      </Button>
+        <div class="btn-sparkles">
+          <div class="sparkle sparkle-1"></div>
+          <div class="sparkle sparkle-2"></div>
+          <div class="sparkle sparkle-3"></div>
+        </div>
+      </button>
     </div>
 
     <!-- Filters -->
@@ -67,9 +72,14 @@
         <p class="mt-1 text-sm text-gray-500">
           {{ pagination.total === 0 ? 'Get started by creating a new expense.' : 'Try adjusting your filters.' }}
         </p>
-        <Button v-if="pagination.total === 0" @click="openAddModal" class="mt-4">
+        <button v-if="pagination.total === 0" @click="openAddModal" class="colorful-budget-btn create-expense-btn mt-4">
           Add Your First Expense
-        </Button>
+          <div class="btn-sparkles">
+            <div class="sparkle sparkle-1"></div>
+            <div class="sparkle sparkle-2"></div>
+            <div class="sparkle sparkle-3"></div>
+          </div>
+        </button>
       </div>
       <ul v-else class="divide-y divide-gray-200">
         <li v-for="expense in expenses" :key="expense.id" class="px-6 py-4 hover:bg-gray-50">
@@ -150,6 +160,7 @@
 
 <script setup>
 import { computed, onMounted, ref, watch } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
 import { 
   CreditCardIcon, 
   PlusIcon, 
@@ -164,6 +175,8 @@ import Button from '@/components/common/Button.vue'
 import Pagination from '@/components/common/Pagination.vue'
 import ExpenseForm from './ExpenseForm.vue'
 
+const route = useRoute()
+const router = useRouter()
 const expenseStore = useExpensesStore()
 const categoryStore = useCategoriesStore()
 
@@ -288,5 +301,157 @@ watch([searchQuery, selectedCategory, startDate, endDate], () => {
 onMounted(() => {
   fetchExpensesWithFilters()
   categoryStore.fetchCategories()
+  
+  // Check if we should auto-open the create form from Quick Action
+  if (route.query.action === 'create') {
+    openAddModal()
+    // Clear the query parameter after opening modal
+    router.replace({ path: route.path })
+  }
 })
 </script>
+
+<style scoped>
+/* Colorful Budget Buttons */
+.colorful-budget-btn {
+  position: relative;
+  padding: 12px 24px;
+  border: none;
+  border-radius: 16px;
+  font-weight: 700;
+  font-size: 0.875rem;
+  color: white;
+  cursor: pointer;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  overflow: hidden;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+}
+
+.colorful-budget-btn:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+  transform: none !important;
+}
+
+.colorful-budget-btn:not(:disabled):hover {
+  transform: translateY(-2px) scale(1.02);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4);
+}
+
+.colorful-budget-btn:not(:disabled):active {
+  transform: translateY(0) scale(0.98);
+}
+
+/* Create Expense Button - Green/Blue Gradient */
+.create-expense-btn {
+  background: linear-gradient(45deg, 
+    #22c55e 0%, 
+    #10b981 25%, 
+    #06b6d4 50%, 
+    #3b82f6 75%, 
+    #6366f1 100%);
+  background-size: 300% 300%;
+  animation: expense-flow 3s ease infinite;
+}
+
+.create-expense-btn:not(:disabled):hover {
+  background-size: 400% 400%;
+  animation-duration: 1.5s;
+  box-shadow: 0 12px 40px rgba(34, 197, 94, 0.5);
+}
+
+/* Button Sparkles Animation */
+.btn-sparkles {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  pointer-events: none;
+  overflow: hidden;
+  border-radius: 16px;
+}
+
+.sparkle {
+  position: absolute;
+  width: 4px;
+  height: 4px;
+  background: white;
+  border-radius: 50%;
+  opacity: 0;
+  animation: sparkle-twinkle 2s infinite;
+}
+
+.sparkle-1 {
+  top: 20%;
+  left: 20%;
+  animation-delay: 0s;
+}
+
+.sparkle-2 {
+  top: 60%;
+  right: 30%;
+  animation-delay: 0.7s;
+}
+
+.sparkle-3 {
+  bottom: 25%;
+  left: 70%;
+  animation-delay: 1.4s;
+}
+
+/* Keyframe Animations */
+@keyframes expense-flow {
+  0%, 100% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+}
+
+@keyframes sparkle-twinkle {
+  0%, 100% {
+    opacity: 0;
+    transform: scale(0);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Pulse effect on hover */
+.colorful-budget-btn:not(:disabled)::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: inherit;
+  border-radius: inherit;
+  opacity: 0;
+  animation: btn-pulse 2s infinite;
+}
+
+@keyframes btn-pulse {
+  0% {
+    transform: scale(1);
+    opacity: 0;
+  }
+  50% {
+    transform: scale(1.05);
+    opacity: 0.3;
+  }
+  100% {
+    transform: scale(1.1);
+    opacity: 0;
+  }
+}
+</style>

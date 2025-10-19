@@ -9,10 +9,15 @@
       <div class="header-right">
         <button 
           @click="showCreateModal = true" 
-          class="btn btn-primary"
+          class="colorful-budget-btn create-budget-btn"
         >
           <i class="fas fa-plus"></i>
           Create Budget
+          <div class="btn-sparkles">
+            <div class="sparkle sparkle-1"></div>
+            <div class="sparkle sparkle-2"></div>
+            <div class="sparkle sparkle-3"></div>
+          </div>
         </button>
       </div>
     </div>
@@ -166,8 +171,14 @@
         </div>
         <h3>No budgets found</h3>
         <p>Create your first budget to start tracking your spending</p>
-        <button @click="showCreateModal = true" class="btn btn-primary">
+        <button @click="showCreateModal = true" class="colorful-budget-btn create-budget-btn">
+          <i class="fas fa-plus"></i>
           Create Budget
+          <div class="btn-sparkles">
+            <div class="sparkle sparkle-1"></div>
+            <div class="sparkle sparkle-2"></div>
+            <div class="sparkle sparkle-3"></div>
+          </div>
         </button>
       </div>
     </div>
@@ -213,13 +224,19 @@ import { formatCurrency } from '@/utils/formatters'
 
 export default {
   name: 'BudgetList',
+  props: {
+    autoOpenCreate: {
+      type: Boolean,
+      default: false
+    }
+  },
   components: {
     BudgetCard,
     BudgetModal,
     Pagination,
     ConfirmDialog
   },
-  setup() {
+  setup(props) {
     const budgetStore = useBudgetStore()
     const categoryStore = useCategoriesStore()
     
@@ -324,6 +341,11 @@ export default {
         categoryStore.fetchCategories(),
         loadBudgets()
       ])
+      
+      // Check if we should auto-open create modal
+      if (props.autoOpenCreate) {
+        showCreateModal.value = true
+      }
     })
     
     return {
@@ -352,134 +374,378 @@ export default {
 
 <style scoped>
 .budget-list {
-  @apply p-6;
+  padding: 1.5rem;
 }
 
 .budget-header {
-  @apply flex justify-between items-start mb-6;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 1.5rem;
 }
 
 .header-left {
-  @apply flex-1;
+  flex: 1;
 }
 
 .page-title {
-  @apply text-2xl font-bold text-gray-800 mb-1;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #1f2937;
+  margin-bottom: 0.25rem;
 }
 
 .page-subtitle {
-  @apply text-gray-600;
+  color: #6b7280;
 }
 
 .header-right {
-  @apply flex-shrink-0;
+  flex-shrink: 0;
 }
 
 .budget-summary-cards {
-  @apply grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+@media (min-width: 768px) {
+  .budget-summary-cards {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: 1024px) {
+  .budget-summary-cards {
+    grid-template-columns: repeat(4, 1fr);
+  }
 }
 
 .summary-card {
-  @apply bg-white rounded-lg shadow-sm border p-4 flex items-center;
+  background-color: white;
+  border-radius: 0.5rem;
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  border: 1px solid #e5e7eb;
+  padding: 1rem;
+  display: flex;
+  align-items: center;
 }
 
 .card-icon {
-  @apply mr-3 text-2xl;
+  margin-right: 0.75rem;
+  font-size: 1.5rem;
 }
 
 .card-content h3 {
-  @apply text-xl font-bold text-gray-800;
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #1f2937;
 }
 
 .card-content p {
-  @apply text-sm text-gray-600;
+  font-size: 0.875rem;
+  color: #6b7280;
 }
 
 .budget-alerts {
-  @apply bg-yellow-50 border border-yellow-200 rounded-lg p-4;
+  background-color: #fffbeb;
+  border: 1px solid #fed7aa;
+  border-radius: 0.5rem;
+  padding: 1rem;
 }
 
 .alert-header {
-  @apply mb-3;
+  margin-bottom: 0.75rem;
 }
 
-.alert-list {
-  @apply space-y-2;
+.alert-list > * + * {
+  margin-top: 0.5rem;
 }
 
 .alert-item {
-  @apply flex items-center p-3 rounded-md;
+  display: flex;
+  align-items: center;
+  padding: 0.75rem;
+  border-radius: 0.375rem;
 }
 
 .alert-critical {
-  @apply bg-red-100 border border-red-200;
+  background-color: #fef2f2;
+  border: 1px solid #fecaca;
 }
 
 .alert-warning {
-  @apply bg-yellow-100 border border-yellow-200;
+  background-color: #fffbeb;
+  border: 1px solid #fed7aa;
 }
 
 .alert-icon {
-  @apply mr-3 text-lg;
+  margin-right: 0.75rem;
+  font-size: 1.125rem;
 }
 
 .alert-critical .alert-icon {
-  @apply text-red-500;
+  color: #ef4444;
 }
 
 .alert-warning .alert-icon {
-  @apply text-yellow-600;
+  color: #d97706;
 }
 
 .budget-filters {
-  @apply bg-white rounded-lg shadow-sm border p-4 mb-6;
+  background-color: white;
+  border-radius: 0.5rem;
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  border: 1px solid #e5e7eb;
+  padding: 1rem;
+  margin-bottom: 1.5rem;
 }
 
 .filters-row {
-  @apply flex flex-wrap gap-4 items-end;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  align-items: flex-end;
 }
 
 .filter-group {
-  @apply flex flex-col;
+  display: flex;
+  flex-direction: column;
 }
 
 .filter-group label {
-  @apply text-sm font-medium text-gray-700 mb-1;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #374151;
+  margin-bottom: 0.25rem;
 }
 
 .budget-grid {
-  @apply grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.5rem;
+}
+
+@media (min-width: 768px) {
+  .budget-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: 1024px) {
+  .budget-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
 }
 
 .loading-state {
-  @apply flex flex-col items-center justify-center py-12;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem 0;
 }
 
 .loading-spinner {
-  @apply w-8 h-8 border-4 border-blue-200 border-t-blue-600 rounded-full animate-spin mb-4;
+  width: 2rem;
+  height: 2rem;
+  border: 4px solid #dbeafe;
+  border-top: 4px solid #2563eb;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-bottom: 1rem;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
 }
 
 .error-state {
-  @apply flex flex-col items-center justify-center py-12 text-center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem 0;
+  text-align: center;
 }
 
 .error-icon {
-  @apply text-4xl text-red-500 mb-4;
+  font-size: 2.25rem;
+  color: #ef4444;
+  margin-bottom: 1rem;
 }
 
 .empty-state {
-  @apply col-span-full flex flex-col items-center justify-center py-12 text-center;
+  grid-column: 1 / -1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem 0;
+  text-align: center;
 }
 
 .empty-icon {
-  @apply text-6xl text-gray-400 mb-4;
+  font-size: 3.75rem;
+  color: #9ca3af;
+  margin-bottom: 1rem;
 }
 
 .empty-state h3 {
-  @apply text-xl font-semibold text-gray-700 mb-2;
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #374151;
+  margin-bottom: 0.5rem;
 }
 
 .empty-state p {
-  @apply text-gray-600 mb-6;
+  color: #6b7280;
+  margin-bottom: 1.5rem;
+}
+
+/* Colorful Budget Buttons */
+.colorful-budget-btn {
+  position: relative;
+  padding: 12px 24px;
+  border: none;
+  border-radius: 16px;
+  font-weight: 700;
+  font-size: 0.875rem;
+  color: white;
+  cursor: pointer;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  overflow: hidden;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+}
+
+.colorful-budget-btn:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+  transform: none !important;
+}
+
+.colorful-budget-btn:not(:disabled):hover {
+  transform: translateY(-2px) scale(1.02);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4);
+}
+
+.colorful-budget-btn:not(:disabled):active {
+  transform: translateY(0) scale(0.98);
+}
+
+/* Create Budget Button - Rainbow Gradient */
+.create-budget-btn {
+  background: linear-gradient(45deg, 
+    #667eea 0%, 
+    #764ba2 20%, 
+    #f093fb 40%, 
+    #f5576c 60%, 
+    #4facfe 80%, 
+    #00f2fe 100%);
+  background-size: 300% 300%;
+  animation: rainbow-flow 3s ease infinite;
+}
+
+.create-budget-btn:not(:disabled):hover {
+  background-size: 400% 400%;
+  animation-duration: 1.5s;
+  box-shadow: 0 12px 40px rgba(102, 126, 234, 0.5);
+}
+
+/* Button Sparkles Animation */
+.btn-sparkles {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  pointer-events: none;
+  overflow: hidden;
+  border-radius: 16px;
+}
+
+.sparkle {
+  position: absolute;
+  width: 4px;
+  height: 4px;
+  background: white;
+  border-radius: 50%;
+  opacity: 0;
+  animation: sparkle-twinkle 2s infinite;
+}
+
+.sparkle-1 {
+  top: 20%;
+  left: 20%;
+  animation-delay: 0s;
+}
+
+.sparkle-2 {
+  top: 60%;
+  right: 30%;
+  animation-delay: 0.7s;
+}
+
+.sparkle-3 {
+  bottom: 25%;
+  left: 70%;
+  animation-delay: 1.4s;
+}
+
+/* Keyframe Animations */
+@keyframes rainbow-flow {
+  0%, 100% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+}
+
+@keyframes sparkle-twinkle {
+  0%, 100% {
+    opacity: 0;
+    transform: scale(0);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Pulse effect on hover */
+.colorful-budget-btn:not(:disabled)::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: inherit;
+  border-radius: inherit;
+  opacity: 0;
+  animation: btn-pulse 2s infinite;
+}
+
+@keyframes btn-pulse {
+  0% {
+    transform: scale(1);
+    opacity: 0;
+  }
+  50% {
+    transform: scale(1.05);
+    opacity: 0.3;
+  }
+  100% {
+    transform: scale(1.1);
+    opacity: 0;
+  }
 }
 </style>

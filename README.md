@@ -83,16 +83,11 @@ This application follows a **decoupled microservices architecture**:
 - 🔄 **Flexible Periods**: Support for monthly, quarterly, and yearly budgets
 - 📱 **Mobile Budget Cards**: Beautiful responsive budget visualization
 
-#### Get Paginated Expenses
-```
-GET /api/expenses?paginate=true&page=1&per_page=15&search=coffee&category_id=1&start_date=2024-01-01&end_date=2024-12-31
-```
-
 ---
 
 ## 🔧 Recent Updates & Bug Fixes
 
-### ✅ **Analytics System Fixes (October 2025)**
+### ✅ **Analytics System Fixes**
 
 **Fixed Critical Issues:**
 - 🛠️ **Database Schema Alignment**: Resolved table name mismatches between migrations and models
@@ -110,7 +105,7 @@ GET /api/expenses?paginate=true&page=1&per_page=15&search=coffee&category_id=1&s
 - Optimized cache management for analytics data
 
 **Verification Results:**
-- ✅ Financial health score calculation working (Overall Score: 36.75)
+- ✅ Financial health score calculation working
 - ✅ All analytics endpoints returning proper data
 - ✅ Budget tracking and alerts functioning correctly
 - ✅ User insights generation operational
@@ -1084,19 +1079,11 @@ We welcome contributions! Please follow these guidelines:
 - **GitHub Issues**: [Create an issue](https://github.com/shakhawatmollah/expense-tracker/issues)
 - **Bug Template**: Please use the provided issue template
 
-### 💬 Community & Discussion
-- **Discussions**: [GitHub Discussions](https://github.com/shakhawatmollah/expense-tracker/discussions)
-- **Documentation**: Check the [Wiki](https://github.com/shakhawatmollah/expense-tracker/wiki)
-
 ### 📧 Contact Information
 - **Developer**: Shakhawat Mollah
 - **Project**: [GitHub Repository](https://github.com/shakhawatmollah/expense-tracker)
 
 ---
-
-## 📜 License
-
-This project is licensed under the **MIT License** - see the [LICENSE](LICENSE) file for details.
 
 ### 🙏 Acknowledgments
 - **Laravel Community** for the amazing framework
