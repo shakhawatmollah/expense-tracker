@@ -41,61 +41,83 @@
       <span>{{ isSyncing ? 'Syncing...' : 'Refresh' }}</span>
     </button>
 
-    <!-- Sync Settings -->
-    <div class="sync-settings" v-if="showSettings">
-      <div class="settings-header">
-        <h4>Sync Settings</h4>
-        <button @click="closeSettings" class="close-btn">
-          <i class="fas fa-times"></i>
-        </button>
-      </div>
-      
-      <div class="settings-content">
-        <div class="setting-item">
-          <label class="setting-label">
-            <input 
-              type="checkbox" 
-              v-model="isAutoRefreshEnabled"
-              @change="handleAutoRefreshToggle"
-            />
-            <span>Enable auto-refresh</span>
-          </label>
+    <!-- Sync Settings Button (if controls are hidden, show settings toggle) -->
+    <button 
+      v-if="!showControls || (showControls && isAutoRefreshEnabled)"
+      @click="toggleSettings"
+      class="settings-btn"
+      :class="{ 'active': showSettings }"
+      title="Sync settings"
+    >
+      <i class="fas fa-cog"></i>
+    </button>
+  </div>
+
+  <!-- Sync Settings (Teleported to body to avoid clipping) -->
+  <Teleport to="body">
+    <div v-if="showSettings" class="settings-overlay" @click="closeSettings">
+      <div class="sync-settings-modal" @click.stop ref="settingsModal">
+        <div class="settings-header">
+          <h4>Sync Settings</h4>
+          <button @click="closeSettings" class="close-btn">
+            <i class="fas fa-times"></i>
+          </button>
         </div>
         
-        <div class="setting-item" v-if="isAutoRefreshEnabled">
-          <label class="setting-label">Refresh interval</label>
-          <select v-model="refreshInterval" @change="handleIntervalChange" class="setting-select">
-            <option value="30000">30 seconds</option>
-            <option value="60000">1 minute</option>
-            <option value="300000">5 minutes</option>
-            <option value="600000">10 minutes</option>
-          </select>
-        </div>
-        
-        <div class="setting-item">
-          <label class="setting-label">
-            <input 
-              type="checkbox" 
-              v-model="syncOnFocus"
-              @change="handleSyncOnFocusToggle"
-            />
-            <span>Sync when tab becomes active</span>
-          </label>
-        </div>
-        
-        <div class="setting-item">
-          <label class="setting-label">
-            <input 
-              type="checkbox" 
-              v-model="showNotifications"
-              @change="handleNotificationToggle"
-            />
-            <span>Show sync notifications</span>
-          </label>
+        <div class="settings-content">
+          <div class="setting-item">
+            <label class="setting-label">
+              <input 
+                type="checkbox" 
+                v-model="isAutoRefreshEnabled"
+                @change="handleAutoRefreshToggle"
+              />
+              <span>Enable auto-refresh</span>
+            </label>
+          </div>
+          
+          <div class="setting-item" v-if="isAutoRefreshEnabled">
+            <label class="setting-label">Refresh interval</label>
+            <select v-model="refreshInterval" @change="handleIntervalChange" class="setting-select">
+              <option value="30000">30 seconds</option>
+              <option value="60000">1 minute</option>
+              <option value="300000">5 minutes</option>
+              <option value="600000">10 minutes</option>
+            </select>
+          </div>
+          
+          <div class="setting-item">
+            <label class="setting-label">
+              <input 
+                type="checkbox" 
+                v-model="syncOnFocus"
+                @change="handleSyncOnFocusToggle"
+              />
+              <span>Sync when tab becomes active</span>
+            </label>
+          </div>
+          
+          <div class="setting-item">
+            <label class="setting-label">
+              <input 
+                type="checkbox" 
+                v-model="showNotifications"
+                @change="handleNotificationToggle"
+              />
+              <span>Show sync notifications</span>
+            </label>
+          </div>
+          
+          <div class="setting-item">
+            <button @click="manualRefresh" class="refresh-all-btn" :disabled="isSyncing">
+              <i class="fas fa-sync-alt" :class="{ 'fa-spin': isSyncing }"></i>
+              <span>{{ isSyncing ? 'Refreshing...' : 'Refresh Now' }}</span>
+            </button>
+          </div>
         </div>
       </div>
     </div>
-  </div>
+  </Teleport>
 </template>
 
 <script>
@@ -290,6 +312,10 @@ export default {
         return
       }
       
+      showSettings.value = !showSettings.value
+    }
+
+    const toggleSettings = () => {
       showSettings.value = !showSettings.value
     }
 
@@ -622,30 +648,72 @@ export default {
 }
 
 /* Sync Settings */
-.sync-settings {
-  position: absolute;
-  top: 100%;
+/* Settings Button */
+.settings-btn {
+  padding: 0.5rem;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  color: #374151;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+}
+
+.settings-btn:hover {
+  background: rgba(255, 255, 255, 0.2);
+  border-color: rgba(255, 255, 255, 0.4);
+  transform: translateY(-1px);
+}
+
+.settings-btn.active {
+  background: rgba(59, 130, 246, 0.2);
+  border-color: rgba(59, 130, 246, 0.4);
+  color: #3b82f6;
+}
+
+/* Settings Overlay */
+.settings-overlay {
+  position: fixed;
+  top: 0;
   left: 0;
-  right: 0;
-  margin-top: 0.5rem;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.3);
+  backdrop-filter: blur(4px);
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+}
+
+/* Settings Modal */
+.sync-settings-modal {
   background: rgba(255, 255, 255, 0.95);
   backdrop-filter: blur(20px);
   border: 1px solid rgba(255, 255, 255, 0.3);
   border-radius: 16px;
   box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
-  z-index: 1000;
+  width: 100%;
+  max-width: 400px;
   overflow: hidden;
-  animation: settingsSlideDown 0.3s ease-out;
+  animation: settingsSlideIn 0.3s ease-out;
 }
 
-@keyframes settingsSlideDown {
+@keyframes settingsSlideIn {
   from {
     opacity: 0;
-    transform: translateY(-10px);
+    transform: translateY(-20px) scale(0.95);
   }
   to {
     opacity: 1;
-    transform: translateY(0);
+    transform: translateY(0) scale(1);
   }
 }
 
@@ -731,6 +799,35 @@ export default {
   box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
 }
 
+.refresh-all-btn {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border: none;
+  border-radius: 8px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.refresh-all-btn:hover:not(:disabled) {
+  background: linear-gradient(135deg, #5a67d8 0%, #6b46c1 100%);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+}
+
+.refresh-all-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
 /* Mobile Styles */
 @media (max-width: 768px) {
   .refresh-indicator {
@@ -758,14 +855,14 @@ export default {
     min-width: 100px;
   }
   
-  .sync-settings {
-    position: fixed;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    margin-top: 0;
-    width: 90vw;
-    max-width: 320px;
+  .sync-settings-modal {
+    max-width: 90vw;
+    width: 320px;
+  }
+  
+  .settings-btn {
+    width: 32px;
+    height: 32px;
   }
 }
 
@@ -788,9 +885,20 @@ export default {
     color: #94a3b8;
   }
   
-  .sync-settings {
+  .sync-settings-modal {
     background: rgba(30, 41, 59, 0.95);
     border-color: rgba(71, 85, 105, 0.3);
+  }
+  
+  .settings-btn {
+    background: rgba(30, 41, 59, 0.6);
+    border-color: rgba(71, 85, 105, 0.4);
+    color: #e2e8f0;
+  }
+  
+  .settings-btn:hover {
+    background: rgba(30, 41, 59, 0.8);
+    border-color: rgba(71, 85, 105, 0.6);
   }
   
   .settings-header h4 {
