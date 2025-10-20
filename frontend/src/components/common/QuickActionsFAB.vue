@@ -68,16 +68,8 @@
         <span class="fab-label">Export</span>
       </button>
 
-      <!-- Search -->
-      <button 
-        @click="handleAction('search')"
-        class="fab-action search"
-        title="Search (Ctrl+/)"
-        data-action="search"
-      >
-        <i class="fas fa-search"></i>
-        <span class="fab-label">Search</span>
-      </button>
+
+
     </div>
 
     <!-- Background Overlay -->
@@ -143,10 +135,7 @@ export default {
             event.preventDefault()
             handleAction('view-analytics')
             break
-          case '/':
-            event.preventDefault()
-            handleAction('search')
-            break
+
         }
       } else if (isCtrl && isShift) {
         switch (event.key.toLowerCase()) {
@@ -361,11 +350,6 @@ export default {
 
 .fab-action.export i {
   background: linear-gradient(135deg, #6b7280, #4b5563);
-  color: white;
-}
-
-.fab-action.search i {
-  background: linear-gradient(135deg, #ef4444, #dc2626);
   color: white;
 }
 

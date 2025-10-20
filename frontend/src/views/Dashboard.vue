@@ -423,14 +423,6 @@
     <!-- Quick Actions FAB -->
     <QuickActionsFAB @action="handleQuickAction" />
     
-    <!-- Global Smart Search -->
-    <Teleport to="body">
-      <SmartSearch 
-        @select-result="handleSearchResult" 
-        @quick-action="handleQuickAction"
-      />
-    </Teleport>
-    
     <!-- Notification System -->
     <NotificationSystem ref="notificationSystem" @notification-action="handleNotificationAction" />
     
@@ -462,7 +454,6 @@ import EmptyState from '@/components/common/EmptyState.vue'
 import TransitionWrapper from '@/components/common/TransitionWrapper.vue'
 import LoadingSpinner from '@/components/common/LoadingSpinner.vue'
 import QuickActionsFAB from '@/components/common/QuickActionsFAB.vue'
-import SmartSearch from '@/components/common/SmartSearch.vue'
 import NotificationSystem from '@/components/common/NotificationSystem.vue'
 import RealTimeData from '@/components/common/RealTimeData.vue'
 import MobileNavigation from '@/components/mobile/MobileNavigation.vue'
@@ -772,20 +763,7 @@ const handleDataExport = () => {
   // Implement data export functionality
 }
 
-const activateGlobalSearch = () => {
-  console.log('Activate global search')
-  // This will be handled by the SmartSearch component
-}
 
-const showAdvancedSearch = () => {
-  console.log('Show advanced search modal')
-  // Implement advanced search functionality
-}
-
-const exportSearchResults = () => {
-  console.log('Export search results')
-  // Implement search results export
-}
 
 const editItem = (item) => {
   console.log('Edit item:', item)

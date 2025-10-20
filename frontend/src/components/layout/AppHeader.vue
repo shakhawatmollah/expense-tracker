@@ -15,47 +15,7 @@
         
         <!-- Header Actions -->
         <div class="header-actions">
-          <!-- Enhanced Search Bar -->
-          <div class="modern-search-container">
-            <div class="search-wrapper">
-              <i class="fas fa-search search-icon"></i>
-              <input 
-                type="text" 
-                v-model="searchQuery"
-                @focus="onSearchFocus"
-                @blur="onSearchBlur"
-                @input="onSearchInput"
-                placeholder="Search expenses, categories..." 
-                class="modern-search-input"
-                :class="{ 'focused': isSearchFocused }"
-              />
-              <div v-if="searchQuery" @click="clearSearch" class="search-clear">
-                <i class="fas fa-times"></i>
-              </div>
-            </div>
-            
-            <!-- Search Suggestions Dropdown -->
-            <div v-if="showSearchSuggestions" class="search-suggestions">
-              <div class="suggestion-group">
-                <h6 class="suggestion-title">Recent Searches</h6>
-                <div class="suggestion-item" v-for="item in recentSearches" :key="item">
-                  <i class="fas fa-history"></i>
-                  <span>{{ item }}</span>
-                </div>
-              </div>
-              <div class="suggestion-group">
-                <h6 class="suggestion-title">Quick Actions</h6>
-                <div class="suggestion-item action-item">
-                  <i class="fas fa-plus-circle"></i>
-                  <span>Add Expense</span>
-                </div>
-                <div class="suggestion-item action-item">
-                  <i class="fas fa-chart-bar"></i>
-                  <span>View Analytics</span>
-                </div>
-              </div>
-            </div>
-          </div>
+
           
           <!-- Enhanced Notifications -->
           <div class="notifications-container">
@@ -190,9 +150,6 @@ const authStore = useAuthStore()
 // Reactive state
 const showDropdown = ref(false)
 const showNotifications = ref(false)
-const showSearchSuggestions = ref(false)
-const isSearchFocused = ref(false)
-const searchQuery = ref('')
 
 // User data
 const user = computed(() => authStore.user)
@@ -228,15 +185,11 @@ const notifications = ref([
   }
 ])
 
-// Search suggestions
-const recentSearches = ref(['Coffee', 'Groceries', 'Transportation'])
-
 // User profile methods
 const toggleDropdown = (event) => {
   event.stopPropagation()
   showDropdown.value = !showDropdown.value
   showNotifications.value = false
-  showSearchSuggestions.value = false
 }
 
 const getInitials = (name) => {
@@ -251,38 +204,11 @@ const scrollToTop = () => {
   })
 }
 
-// Search methods
-const onSearchFocus = () => {
-  isSearchFocused.value = true
-  showSearchSuggestions.value = true
-  showDropdown.value = false
-  showNotifications.value = false
-}
-
-const onSearchBlur = () => {
-  isSearchFocused.value = false
-  // Delay hiding suggestions to allow clicking
-  setTimeout(() => {
-    showSearchSuggestions.value = false
-  }, 200)
-}
-
-const onSearchInput = () => {
-  // Implement search logic here
-  console.log('Searching for:', searchQuery.value)
-}
-
-const clearSearch = () => {
-  searchQuery.value = ''
-  showSearchSuggestions.value = false
-}
-
 // Notification methods
 const toggleNotifications = (event) => {
   event.stopPropagation()
   showNotifications.value = !showNotifications.value
   showDropdown.value = false
-  showSearchSuggestions.value = false
 }
 
 const markAllAsRead = () => {
@@ -351,11 +277,9 @@ const handleLogout = async (event) => {
 const closeDropdown = (event) => {
   // Don't close if clicking inside any dropdown
   if (!event.target.closest('.user-profile') && 
-      !event.target.closest('.notifications-container') &&
-      !event.target.closest('.modern-search-container')) {
+      !event.target.closest('.notifications-container')) {
     showDropdown.value = false
     showNotifications.value = false
-    showSearchSuggestions.value = false
   }
 }
 
@@ -364,7 +288,6 @@ const handleKeyDown = (event) => {
   if (event.key === 'Escape') {
     showDropdown.value = false
     showNotifications.value = false
-    showSearchSuggestions.value = false
   }
 }
 
@@ -464,167 +387,6 @@ onUnmounted(() => {
   display: flex;
   align-items: center;
   gap: 1.5rem;
-}
-
-/* Modern Search Bar */
-.modern-search-container {
-  position: relative;
-  display: flex;
-  align-items: center;
-}
-
-.search-wrapper {
-  position: relative;
-  display: flex;
-  align-items: center;
-}
-
-.modern-search-input {
-  background: rgba(255, 255, 255, 0.15);
-  backdrop-filter: blur(20px);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  border-radius: 24px;
-  padding: 0.875rem 3rem 0.875rem 3rem;
-  color: white;
-  font-size: 0.9rem;
-  font-weight: 500;
-  width: 320px;
-  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
-}
-
-.modern-search-input::placeholder {
-  color: rgba(255, 255, 255, 0.7);
-  font-weight: 400;
-}
-
-.modern-search-input:focus,
-.modern-search-input.focused {
-  outline: none;
-  background: rgba(255, 255, 255, 0.25);
-  border-color: rgba(255, 255, 255, 0.4);
-  transform: scale(1.03);
-  box-shadow: 0 8px 40px rgba(0, 0, 0, 0.15);
-  width: 400px;
-}
-
-.search-icon {
-  position: absolute;
-  left: 1.25rem;
-  color: rgba(255, 255, 255, 0.8);
-  z-index: 2;
-  font-size: 0.9rem;
-}
-
-.search-clear {
-  position: absolute;
-  right: 1.25rem;
-  color: rgba(255, 255, 255, 0.6);
-  cursor: pointer;
-  z-index: 2;
-  padding: 0.25rem;
-  border-radius: 50%;
-  transition: all 0.2s ease;
-}
-
-.search-clear:hover {
-  color: rgba(255, 255, 255, 0.9);
-  background: rgba(255, 255, 255, 0.1);
-}
-
-/* Search Suggestions */
-.search-suggestions {
-  position: absolute;
-  top: calc(100% + 0.5rem);
-  left: 0;
-  right: 0;
-  background: rgba(255, 255, 255, 0.95);
-  backdrop-filter: blur(20px);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  border-radius: 20px;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
-  z-index: 1000;
-  overflow: hidden;
-  animation: slideDown 0.3s ease-out;
-}
-
-@keyframes slideDown {
-  from {
-    opacity: 0;
-    transform: translateY(-10px) scale(0.95);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0) scale(1);
-  }
-}
-
-@keyframes slideUp {
-  from {
-    opacity: 1;
-    transform: translateY(0) scale(1);
-  }
-  to {
-    opacity: 0;
-    transform: translateY(-10px) scale(0.95);
-  }
-}
-
-@keyframes fadeInUp {
-  from {
-    opacity: 0;
-    transform: translateY(20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-.suggestion-group {
-  padding: 1rem;
-}
-
-.suggestion-group:not(:last-child) {
-  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
-}
-
-.suggestion-title {
-  font-size: 0.75rem;
-  font-weight: 700;
-  color: #64748b;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  margin-bottom: 0.75rem;
-}
-
-.suggestion-item {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  padding: 0.75rem;
-  border-radius: 12px;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  color: #334155;
-}
-
-.suggestion-item:hover {
-  background: rgba(102, 126, 234, 0.1);
-  color: #1e293b;
-}
-
-.suggestion-item i {
-  width: 16px;
-  color: #64748b;
-}
-
-.action-item {
-  font-weight: 500;
-}
-
-.action-item:hover {
-  background: linear-gradient(135deg, rgba(102, 126, 234, 0.1), rgba(118, 75, 162, 0.1));
 }
 
 /* Modern Notifications */
@@ -928,10 +690,6 @@ onUnmounted(() => {
   
   .header-content {
     height: 60px;
-  }
-  
-  .search-container {
-    display: none;
   }
   
   .brand-title {
