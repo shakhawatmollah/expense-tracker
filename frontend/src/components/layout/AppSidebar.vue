@@ -87,11 +87,13 @@ import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useExpensesStore } from '@/stores/expenses'
 import { useCategoriesStore } from '@/stores/categories'
+import { useBudgetStore } from '@/stores/budget'
 
 const router = useRouter()
 const isCollapsed = ref(false)
 const expensesStore = useExpensesStore()
 const categoriesStore = useCategoriesStore()
+const budgetStore = useBudgetStore()
 
 // Dynamic navigation with computed badges
 const navigation = computed(() => [
@@ -117,7 +119,7 @@ const navigation = computed(() => [
     name: 'Budgets', 
     href: '/budgets', 
     iconClass: 'fas fa-chart-bar',
-    badge: null // TODO: Add budget store and count
+    badge: budgetStore.activeBudgets.length > 0 ? budgetStore.activeBudgets.length.toString() : null
   },
   { 
     name: 'Analytics', 
@@ -145,8 +147,39 @@ const monthlyExpensesTotal = computed(() => {
 })
 
 const monthlyBudgetTotal = computed(() => {
-  // TODO: Replace with actual budget store data when available
-  return '3,000.00'
+  // If we have budget summary data, use that first
+  if (budgetStore.budgetSummary?.total_budget_amount) {
+    const totalBudget = typeof budgetStore.budgetSummary.total_budget_amount === 'object' 
+      ? budgetStore.budgetSummary.total_budget_amount.raw 
+      : budgetStore.budgetSummary.total_budget_amount
+    return parseFloat(totalBudget || 0).toFixed(2)
+  }
+  
+  // Otherwise calculate from active budgets for current period
+  const currentDate = new Date()
+  const currentMonth = currentDate.getMonth()
+  const currentYear = currentDate.getFullYear()
+  
+  // Filter budgets for current month/year and sum their amounts
+  const monthlyTotal = budgetStore.activeBudgets
+    .filter(budget => {
+      // Include monthly budgets or budgets active in current period
+      if (budget.period === 'monthly') return true
+      
+      if (!budget.start_date) return true // Include budgets without specific dates
+      
+      const budgetStart = new Date(budget.start_date)
+      const budgetEnd = budget.end_date ? new Date(budget.end_date) : null
+      
+      // Check if budget is active for current month
+      const isCurrentMonth = budgetStart.getMonth() === currentMonth && budgetStart.getFullYear() === currentYear
+      const isWithinRange = !budgetEnd || (budgetStart <= currentDate && budgetEnd >= currentDate)
+      
+      return isCurrentMonth || isWithinRange
+    })
+    .reduce((total, budget) => total + parseFloat(budget.amount || 0), 0)
+  
+  return monthlyTotal.toFixed(2)
 })
 
 const toggleSidebar = () => {
@@ -156,10 +189,12 @@ const toggleSidebar = () => {
 // Load data on component mount
 onMounted(async () => {
   try {
-    // Load expenses and categories for badge counts
+    // Load expenses, categories, and budgets for badge counts and stats
     await Promise.all([
       expensesStore.fetchExpenses(),
-      categoriesStore.fetchCategories()
+      categoriesStore.fetchCategories(),
+      budgetStore.fetchCurrentBudgets(), // Load current active budgets
+      budgetStore.fetchBudgetSummary()   // Load budget summary for accurate totals
     ])
   } catch (error) {
     console.error('Failed to load sidebar data:', error)
