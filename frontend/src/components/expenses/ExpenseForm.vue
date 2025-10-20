@@ -20,6 +20,20 @@
       <!-- Modal Body -->
       <div class="modal-body">
         <form @submit.prevent="submitForm" class="expense-form">
+          <!-- General Error Message -->
+          <div v-if="errors.general" class="error-banner">
+            <div class="flex">
+              <div class="flex-shrink-0">
+                <i class="fas fa-exclamation-circle text-red-400"></i>
+              </div>
+              <div class="ml-3">
+                <p class="text-sm text-red-800">
+                  {{ errors.general[0] }}
+                </p>
+              </div>
+            </div>
+          </div>
+          
           <!-- Description Field -->
           <FormInput
             v-model="form.description"
@@ -168,9 +182,13 @@ const resetForm = () => {
 watch(() => props.expense, (newExpense) => {
   if (newExpense) {
     form.description = newExpense.description
+    // Handle both old and new API response formats
     form.amount = newExpense.amount
     form.date = newExpense.date
-    form.category_id = newExpense.category_id
+    // Handle both old and new category formats
+    form.category_id = typeof newExpense.category === 'object'
+      ? newExpense.category.id
+      : newExpense.category_id
   } else {
     resetForm()
   }
@@ -197,12 +215,35 @@ const submitForm = async () => {
     loading.value = true
     errors.value = {}
     
+    // Validate form data
+    if (!form.description?.trim()) {
+      errors.value.description = ['Description is required']
+      return
+    }
+    
+    if (!form.amount || isNaN(parseFloat(form.amount)) || parseFloat(form.amount) <= 0) {
+      errors.value.amount = ['Please enter a valid amount greater than 0']
+      return
+    }
+    
+    if (!form.date) {
+      errors.value.date = ['Date is required']
+      return
+    }
+    
+    if (!form.category_id) {
+      errors.value.category_id = ['Please select a category']
+      return
+    }
+    
     const formData = {
-      description: form.description,
+      description: form.description.trim(),
       amount: parseFloat(form.amount),
       date: form.date,
       category_id: parseInt(form.category_id)
     }
+    
+    console.log('Submitting expense data:', formData)
     
     if (isEditing.value) {
       await expensesStore.updateExpense(props.expense.id, formData)
@@ -213,10 +254,15 @@ const submitForm = async () => {
     emit('saved')
     closeModal()
   } catch (error) {
+    console.error('Error saving expense:', error)
+    
     if (error.response?.data?.errors) {
       errors.value = error.response.data.errors
+    } else if (error.response?.data?.message) {
+      // Show general error message
+      errors.value.general = [error.response.data.message]
     } else {
-      console.error('Error saving expense:', error)
+      errors.value.general = ['An unexpected error occurred. Please try again.']
     }
   } finally {
     loading.value = false
@@ -339,6 +385,16 @@ const submitForm = async () => {
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
+}
+
+/* Error Banner */
+.error-banner {
+  background: linear-gradient(135deg, #fef2f2, #fee2e2);
+  border: 1px solid #fecaca;
+  border-radius: 12px;
+  padding: 1rem;
+  margin-bottom: 1rem;
+  box-shadow: 0 4px 12px rgba(220, 38, 38, 0.1);
 }
 
 /* Category Option Styling */

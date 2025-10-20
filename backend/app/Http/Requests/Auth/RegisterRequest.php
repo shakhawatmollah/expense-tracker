@@ -24,7 +24,13 @@ class RegisterRequest extends FormRequest
         return [
             'name' => ['required', 'string', 'min:2', 'max:255'],
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
-            'password' => ['required', 'string', 'min:8', 'confirmed'],
+            'password' => [
+                'required', 
+                'string', 
+                'min:12', 
+                'confirmed',
+                'regex:/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]/'
+            ],
         ];
     }
 
@@ -40,7 +46,8 @@ class RegisterRequest extends FormRequest
             'email.email' => 'Please enter a valid email address',
             'email.unique' => 'This email address is already registered',
             'password.required' => 'Password is required',
-            'password.min' => 'Password must be at least 8 characters',
+            'password.min' => 'Password must be at least 12 characters',
+            'password.regex' => 'Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character (@$!%*?&)',
             'password.confirmed' => 'Password confirmation does not match',
         ];
     }

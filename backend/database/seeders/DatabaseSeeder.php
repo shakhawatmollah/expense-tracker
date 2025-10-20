@@ -31,10 +31,8 @@ class DatabaseSeeder extends Seeder
         ]);
 
         $this->command->info('✅ Database seeding completed successfully!');
-        $this->command->info('📊 You can now login with:');
-        $this->command->info('   Email: demo@example.com | Password: demo123');
-        $this->command->info('   Email: john@example.com | Password: password123');
-        $this->command->info('   Email: jane@example.com | Password: password123');
-        $this->command->info('   Email: admin@example.com | Password: admin123');
+        $this->command->info('📊 Demo users have been created.');
+        $this->command->info('ℹ️  Check the UserSeeder class for login credentials.');
+        $this->command->warn('⚠️  Remember to change default passwords in production!');
     }
 }

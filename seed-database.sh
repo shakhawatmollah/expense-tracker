@@ -13,10 +13,8 @@ php artisan migrate:fresh --seed
 
 echo "✅ Database seeding completed!"
 echo ""
-echo "📊 Demo Login Credentials:"
-echo "   Email: demo@example.com | Password: demo123"
-echo "   Email: shakhawat@example.com | Password: password123"
-echo "   Email: tawfiq@example.com | Password: password123"
-echo "   Email: admin@example.com | Password: admin123"
+echo "📊 Demo users have been created."
+echo "ℹ️  Check backend/database/seeders/UserSeeder.php for login credentials."
+echo "⚠️  Remember to change default passwords in production!"
 echo ""
 echo "🎯 Visit http://localhost:8000 to view the application"

@@ -1,14 +1,17 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 
-// Views
-import Dashboard from '@/views/Dashboard.vue'
-import Expenses from '@/views/Expenses.vue'
-import Categories from '@/views/Categories.vue'
-import Budgets from '@/views/Budgets.vue'
-import Analytics from '@/views/Analytics.vue'
+// Views - Using lazy loading for better performance
+// Keep auth pages as regular imports for faster login experience
 import Login from '@/views/Login.vue'
 import Register from '@/views/Register.vue'
+
+// Lazy load main application views
+const Dashboard = () => import('@/views/Dashboard.vue')
+const Expenses = () => import('@/views/Expenses.vue')  
+const Categories = () => import('@/views/Categories.vue')
+const Budgets = () => import('@/views/Budgets.vue')
+const Analytics = () => import('@/views/Analytics.vue')
 
 const routes = [
   {

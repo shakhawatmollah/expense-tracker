@@ -63,7 +63,7 @@
               <i class="fas fa-arrow-down"></i>
             </div>
             <div class="stat-content">
-              <span class="stat-value">$2,450</span>
+              <span class="stat-value">${{ monthlyExpensesTotal }}</span>
               <span class="stat-label">Expenses</span>
             </div>
           </div>
@@ -72,7 +72,7 @@
               <i class="fas fa-target"></i>
             </div>
             <div class="stat-content">
-              <span class="stat-value">$3,000</span>
+              <span class="stat-value">${{ monthlyBudgetTotal }}</span>
               <span class="stat-label">Budget</span>
             </div>
           </div>
@@ -83,13 +83,18 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
+import { useExpensesStore } from '@/stores/expenses'
+import { useCategoriesStore } from '@/stores/categories'
 
 const router = useRouter()
 const isCollapsed = ref(false)
+const expensesStore = useExpensesStore()
+const categoriesStore = useCategoriesStore()
 
-const navigation = [
+// Dynamic navigation with computed badges
+const navigation = computed(() => [
   { 
     name: 'Dashboard', 
     href: '/', 
@@ -100,19 +105,19 @@ const navigation = [
     name: 'Expenses', 
     href: '/expenses', 
     iconClass: 'fas fa-credit-card',
-    badge: '12'
+    badge: expensesStore.totalExpenses > 0 ? expensesStore.totalExpenses.toString() : null
   },
   { 
     name: 'Categories', 
     href: '/categories', 
     iconClass: 'fas fa-tags',
-    badge: null
+    badge: categoriesStore.categories.length > 0 ? categoriesStore.categories.length.toString() : null
   },
   { 
     name: 'Budgets', 
     href: '/budgets', 
     iconClass: 'fas fa-chart-bar',
-    badge: '3'
+    badge: null // TODO: Add budget store and count
   },
   { 
     name: 'Analytics', 
@@ -120,11 +125,46 @@ const navigation = [
     iconClass: 'fas fa-chart-pie',
     badge: null
   },
-]
+])
+
+// Computed properties for dynamic stats
+const monthlyExpensesTotal = computed(() => {
+  const currentDate = new Date()
+  const currentMonth = currentDate.getMonth()
+  const currentYear = currentDate.getFullYear()
+  
+  const monthlyTotal = expensesStore.expenses
+    .filter(expense => {
+      if (!expense.date) return false
+      const expenseDate = new Date(expense.date)
+      return expenseDate.getMonth() === currentMonth && expenseDate.getFullYear() === currentYear
+    })
+    .reduce((total, expense) => total + parseFloat(expense.amount || 0), 0)
+  
+  return monthlyTotal.toFixed(2)
+})
+
+const monthlyBudgetTotal = computed(() => {
+  // TODO: Replace with actual budget store data when available
+  return '3,000.00'
+})
 
 const toggleSidebar = () => {
   isCollapsed.value = !isCollapsed.value
 }
+
+// Load data on component mount
+onMounted(async () => {
+  try {
+    // Load expenses and categories for badge counts
+    await Promise.all([
+      expensesStore.fetchExpenses(),
+      categoriesStore.fetchCategories()
+    ])
+  } catch (error) {
+    console.error('Failed to load sidebar data:', error)
+  }
+})
 
 // Quick Actions Functions
 const addExpense = () => {

@@ -20,10 +20,13 @@ use App\Http\Controllers\Api\AnalyticsController;
 |
 */
 
-// Authentication routes
+// Authentication routes with rate limiting
 Route::prefix('auth')->group(function () {
-    Route::post('register', [AuthController::class, 'register']);
-    Route::post('login', [AuthController::class, 'login']);
+    // Strict rate limiting for authentication endpoints
+    Route::middleware('throttle:5,1')->group(function () {
+        Route::post('register', [AuthController::class, 'register']);
+        Route::post('login', [AuthController::class, 'login']);
+    });
     
     Route::middleware('auth:sanctum')->group(function () {
         Route::get('me', [AuthController::class, 'me']);
@@ -31,8 +34,8 @@ Route::prefix('auth')->group(function () {
     });
 });
 
-// Protected routes
-Route::middleware('auth:sanctum')->group(function () {
+// Protected routes with rate limiting
+Route::middleware(['auth:sanctum', 'throttle:60,1'])->group(function () {
     // Debug route for testing category counts
     Route::get('debug/categories', function (Request $request) {
         $categories = App\Models\Category::where('user_id', $request->user()->id)

@@ -196,7 +196,7 @@ const showDetails = (type) => {
 
 const totalExpenses = computed(() => {
   return expensesStore.expenses
-    .reduce((total, expense) => total + parseFloat(expense.amount), 0)
+    .reduce((total, expense) => total + parseFloat(expense.amount || 0), 0)
     .toFixed(2)
 })
 
@@ -206,7 +206,7 @@ const thisMonthExpenses = computed(() => {
   
   return expensesStore.expenses
     .filter(expense => expense.date >= currentMonthStart && expense.date <= currentMonthEnd)
-    .reduce((total, expense) => total + parseFloat(expense.amount), 0)
+    .reduce((total, expense) => total + parseFloat(expense.amount || 0), 0)
     .toFixed(2)
 })
 
@@ -217,7 +217,7 @@ const lastMonthExpenses = computed(() => {
   
   return expensesStore.expenses
     .filter(expense => expense.date >= lastMonthStart && expense.date <= lastMonthEnd)
-    .reduce((total, expense) => total + parseFloat(expense.amount), 0)
+    .reduce((total, expense) => total + parseFloat(expense.amount || 0), 0)
 })
 
 const monthlyChange = computed(() => {

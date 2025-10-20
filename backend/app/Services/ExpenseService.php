@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Models\Expense;
 use App\Repositories\ExpenseRepositoryInterface;
+use App\Exceptions\ExpenseNotFoundException;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Pagination\LengthAwarePaginator;
 
@@ -45,7 +46,7 @@ class ExpenseService
         $expense = $this->expenseRepository->findForUser($expenseId, $userId);
         
         if (!$expense) {
-            throw new \Exception('Expense not found or access denied');
+            throw new ExpenseNotFoundException();
         }
 
         return $expense;
