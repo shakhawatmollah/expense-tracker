@@ -143,7 +143,9 @@ This application follows a **decoupled microservices architecture**:
 ### 🏠 Dashboard Overview
 > *Comprehensive analytics with interactive charts and real-time insights*
 
-![Dashboard](./screenshots/dashboard.png)
+![Dashboard](./screenshots/dashboard-1.png)
+
+![Dashboard](./screenshots/dashboard-2.png)
 
 **Key Features Shown:**
 - Monthly spending trends with interactive line charts
@@ -175,10 +177,33 @@ This application follows a **decoupled microservices architecture**:
 - Real-time updates when expenses are added or removed
 - Category-based filtering and search functionality
 
+### Budget Management
+
+![Budget](./screenshots/budget.png)
+
+**Budget Management Features:**
+
+- **Real-time Calculations**: Spent amounts calculated dynamically from expenses
+- **Usage Percentages**: Progress tracking with visual indicators
+- **Remaining Amounts**: Shows available budget left
+- **Day-by-day Tracking**: Daily average and projected totals
+
+### Advanced Analytics
+
+![Analytics](./screenshots/analytics.png)
+
+**Analytics Features:**
+- Total Spending
+- Daily average
+- Monthly forecast
+
+
 ### 🔐 Authentication
 > *Secure login system with modern UI design*
 
 ![Login](./screenshots/login.png)
+
+![Registration](./screenshots/registration.png)
 
 **Security Features:**
 - JWT/Sanctum token-based authentication
