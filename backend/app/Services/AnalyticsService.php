@@ -471,7 +471,7 @@ class AnalyticsService
         foreach ($budgets as $budget) {
             $spent = Expense::where('user_id', $user->id)
                 ->where('category_id', $budget->category_id)
-                ->whereBetween('date', [$budget->period_start, $budget->period_end])
+                ->whereBetween('date', [$budget->start_date, $budget->end_date])
                 ->sum('amount');
                 
             $performance[] = [

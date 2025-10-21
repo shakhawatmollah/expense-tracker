@@ -78,53 +78,53 @@
 </template>
 
 <script setup>
-import { computed } from 'vue'
-import { ChevronLeftIcon, ChevronRightIcon } from '@heroicons/vue/24/outline'
+  import { computed } from 'vue'
+  import { ChevronLeftIcon, ChevronRightIcon } from '@heroicons/vue/24/outline'
 
-const props = defineProps({
-  pagination: {
-    type: Object,
-    required: true
-  }
-})
+  const props = defineProps({
+    pagination: {
+      type: Object,
+      required: true
+    }
+  })
 
-defineEmits(['page-changed'])
+  defineEmits(['page-changed'])
 
-const pageNumbers = computed(() => {
-  const current = props.pagination.current_page
-  const last = props.pagination.last_page
-  const delta = 2 // Number of pages to show around current page
-  const pages = []
+  const pageNumbers = computed(() => {
+    const current = props.pagination.current_page
+    const last = props.pagination.last_page
+    const delta = 2 // Number of pages to show around current page
+    const pages = []
 
-  // Always show first page
-  if (last > 0) {
-    pages.push(1)
-  }
+    // Always show first page
+    if (last > 0) {
+      pages.push(1)
+    }
 
-  // Calculate start and end for middle pages
-  const start = Math.max(2, current - delta)
-  const end = Math.min(last - 1, current + delta)
+    // Calculate start and end for middle pages
+    const start = Math.max(2, current - delta)
+    const end = Math.min(last - 1, current + delta)
 
-  // Add ellipsis after first page if needed
-  if (start > 2) {
-    pages.push('...')
-  }
+    // Add ellipsis after first page if needed
+    if (start > 2) {
+      pages.push('...')
+    }
 
-  // Add middle pages
-  for (let i = start; i <= end; i++) {
-    pages.push(i)
-  }
+    // Add middle pages
+    for (let i = start; i <= end; i++) {
+      pages.push(i)
+    }
 
-  // Add ellipsis before last page if needed
-  if (end < last - 1) {
-    pages.push('...')
-  }
+    // Add ellipsis before last page if needed
+    if (end < last - 1) {
+      pages.push('...')
+    }
 
-  // Always show last page (if it's not the first page)
-  if (last > 1) {
-    pages.push(last)
-  }
+    // Always show last page (if it's not the first page)
+    if (last > 1) {
+      pages.push(last)
+    }
 
-  return pages
-})
+    return pages
+  })
 </script>

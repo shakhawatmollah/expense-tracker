@@ -6,9 +6,14 @@ use App\Models\Budget;
 use App\Models\Expense;
 use App\Repositories\BudgetRepository;
 use App\Repositories\CategoryRepository;
+use App\Exceptions\BudgetNotFoundException;
+use App\Exceptions\BudgetValidationException;
+use App\Exceptions\BudgetDatabaseException;
 use Carbon\Carbon;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\ValidationException;
 
 class BudgetService
@@ -31,89 +36,200 @@ class BudgetService
 
     public function getBudgetById(int $id, int $userId): ?Budget
     {
-        return $this->budgetRepository->findByIdForUser($id, $userId);
+        $budget = $this->budgetRepository->findByIdForUser($id, $userId);
+        
+        if (!$budget) {
+            throw new BudgetNotFoundException($id, ['user_id' => $userId]);
+        }
+        
+        return $budget;
     }
 
     public function createBudget(array $data, int $userId): Budget
     {
-        $data['user_id'] = $userId;
+        try {
+            $data['user_id'] = $userId;
 
-        // Validate category ownership if provided
-        if (!empty($data['category_id'])) {
-            $category = $this->categoryRepository->findForUser($data['category_id'], $userId);
-            if (!$category) {
-                throw ValidationException::withMessages([
-                    'category_id' => ['The selected category is invalid or does not belong to you.']
-                ]);
+            // Validate category ownership if provided
+            if (!empty($data['category_id'])) {
+                $category = $this->categoryRepository->findForUser($data['category_id'], $userId);
+                if (!$category) {
+                    throw new BudgetValidationException(
+                        'Invalid category',
+                        ['category_id' => ['The selected category is invalid or does not belong to you.']],
+                        ['user_id' => $userId, 'category_id' => $data['category_id']]
+                    );
+                }
             }
+
+            // Validate date ranges for custom periods
+            if ($data['period'] === Budget::PERIOD_CUSTOM) {
+                if (empty($data['start_date']) || empty($data['end_date'])) {
+                    throw new BudgetValidationException(
+                        'Invalid custom period dates',
+                        [
+                            'start_date' => ['Start date is required for custom periods.'],
+                            'end_date' => ['End date is required for custom periods.']
+                        ],
+                        ['user_id' => $userId]
+                    );
+                }
+
+                $startDate = Carbon::parse($data['start_date']);
+                $endDate = Carbon::parse($data['end_date']);
+
+                if ($endDate->lte($startDate)) {
+                    throw new BudgetValidationException(
+                        'Invalid date range',
+                        ['end_date' => ['End date must be after start date.']],
+                        ['user_id' => $userId]
+                    );
+                }
+            }
+
+            // Check for overlapping budgets with same category
+            if (!empty($data['category_id'])) {
+                $overlapping = $this->checkOverlappingBudgets($userId, $data);
+                if ($overlapping) {
+                    throw new BudgetValidationException(
+                        'Overlapping budget exists',
+                        ['period' => ['A budget for this category already exists in the selected period.']],
+                        ['user_id' => $userId, 'category_id' => $data['category_id']]
+                    );
+                }
+            }
+
+            // Use transaction to ensure atomicity
+            return DB::transaction(function () use ($data, $userId) {
+                $budget = $this->budgetRepository->create($data);
+                
+                Log::info('Budget created successfully', [
+                    'budget_id' => $budget->id,
+                    'user_id' => $userId,
+                    'amount' => $data['amount'] ?? null,
+                    'period' => $data['period'] ?? null
+                ]);
+                
+                return $budget;
+            });
+            
+        } catch (BudgetValidationException $e) {
+            throw $e;
+            
+        } catch (\Exception $e) {
+            Log::error('Failed to create budget', [
+                'user_id' => $userId,
+                'error' => $e->getMessage(),
+                'data' => $data
+            ]);
+            
+            throw new BudgetDatabaseException(
+                'budget creation',
+                $e->getMessage(),
+                ['user_id' => $userId]
+            );
         }
-
-        // Validate date ranges for custom periods
-        if ($data['period'] === Budget::PERIOD_CUSTOM) {
-            if (empty($data['start_date']) || empty($data['end_date'])) {
-                throw ValidationException::withMessages([
-                    'start_date' => ['Start date is required for custom periods.'],
-                    'end_date' => ['End date is required for custom periods.']
-                ]);
-            }
-
-            $startDate = Carbon::parse($data['start_date']);
-            $endDate = Carbon::parse($data['end_date']);
-
-            if ($endDate->lte($startDate)) {
-                throw ValidationException::withMessages([
-                    'end_date' => ['End date must be after start date.']
-                ]);
-            }
-        }
-
-        // Check for overlapping budgets with same category
-        if (!empty($data['category_id'])) {
-            $overlapping = $this->checkOverlappingBudgets($userId, $data);
-            if ($overlapping) {
-                throw ValidationException::withMessages([
-                    'period' => ['A budget for this category already exists in the selected period.']
-                ]);
-            }
-        }
-
-        return $this->budgetRepository->create($data);
     }
 
     public function updateBudget(int $id, array $data, int $userId): bool
     {
-        $budget = $this->getBudgetById($id, $userId);
-        
-        if (!$budget) {
-            return false;
-        }
+        try {
+            $budget = $this->getBudgetById($id, $userId);
 
-        // Validate category ownership if being updated
-        if (!empty($data['category_id'])) {
-            $category = $this->categoryRepository->findForUser($data['category_id'], $userId);
-            if (!$category) {
-                throw ValidationException::withMessages([
-                    'category_id' => ['The selected category is invalid or does not belong to you.']
-                ]);
+            // Validate category ownership if being updated
+            if (!empty($data['category_id'])) {
+                $category = $this->categoryRepository->findForUser($data['category_id'], $userId);
+                if (!$category) {
+                    throw new BudgetValidationException(
+                        'Invalid category',
+                        ['category_id' => ['The selected category is invalid or does not belong to you.']],
+                        ['user_id' => $userId, 'budget_id' => $id]
+                    );
+                }
             }
-        }
 
-        // Validate custom period dates
-        if (isset($data['period']) && $data['period'] === Budget::PERIOD_CUSTOM) {
-            if (empty($data['start_date']) || empty($data['end_date'])) {
-                throw ValidationException::withMessages([
-                    'start_date' => ['Start date is required for custom periods.'],
-                    'end_date' => ['End date is required for custom periods.']
-                ]);
+            // Validate custom period dates
+            if (isset($data['period']) && $data['period'] === Budget::PERIOD_CUSTOM) {
+                if (empty($data['start_date']) || empty($data['end_date'])) {
+                    throw new BudgetValidationException(
+                        'Invalid custom period dates',
+                        [
+                            'start_date' => ['Start date is required for custom periods.'],
+                            'end_date' => ['End date is required for custom periods.']
+                        ],
+                        ['user_id' => $userId, 'budget_id' => $id]
+                    );
+                }
             }
-        }
 
-        return $this->budgetRepository->update($id, $userId, $data);
+            // Use transaction to ensure atomicity
+            return DB::transaction(function () use ($id, $userId, $data) {
+                $updated = $this->budgetRepository->update($id, $userId, $data);
+                
+                if ($updated) {
+                    Log::info('Budget updated successfully', [
+                        'budget_id' => $id,
+                        'user_id' => $userId,
+                        'updated_fields' => array_keys($data)
+                    ]);
+                }
+                
+                return $updated;
+            });
+            
+        } catch (BudgetNotFoundException | BudgetValidationException $e) {
+            throw $e;
+            
+        } catch (\Exception $e) {
+            Log::error('Failed to update budget', [
+                'budget_id' => $id,
+                'user_id' => $userId,
+                'error' => $e->getMessage()
+            ]);
+            
+            throw new BudgetDatabaseException(
+                'budget update',
+                $e->getMessage(),
+                ['budget_id' => $id, 'user_id' => $userId]
+            );
+        }
     }
 
     public function deleteBudget(int $id, int $userId): bool
     {
-        return $this->budgetRepository->delete($id, $userId);
+        try {
+            $budget = $this->getBudgetById($id, $userId);
+            
+            // Use transaction to ensure atomicity
+            return DB::transaction(function () use ($id, $userId) {
+                $deleted = $this->budgetRepository->delete($id, $userId);
+                
+                if ($deleted) {
+                    Log::info('Budget deleted successfully', [
+                        'budget_id' => $id,
+                        'user_id' => $userId
+                    ]);
+                }
+                
+                return $deleted;
+            });
+            
+        } catch (BudgetNotFoundException $e) {
+            throw $e;
+            
+        } catch (\Exception $e) {
+            Log::error('Failed to delete budget', [
+                'budget_id' => $id,
+                'user_id' => $userId,
+                'error' => $e->getMessage()
+            ]);
+            
+            throw new BudgetDatabaseException(
+                'budget deletion',
+                $e->getMessage(),
+                ['budget_id' => $id, 'user_id' => $userId]
+            );
+        }
     }
 
     public function getCurrentBudgets(int $userId): Collection

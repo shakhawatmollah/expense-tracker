@@ -17,12 +17,8 @@ export const useBudgetStore = defineStore('budget', () => {
     last_page: 1
   })
 
-
-
   // Getters
-  const activeBudgets = computed(() => 
-    budgets.value.filter(budget => budget.is_active)
-  )
+  const activeBudgets = computed(() => budgets.value.filter(budget => budget.is_active))
 
   const budgetsByCategory = computed(() => {
     const grouped = {}
@@ -36,25 +32,15 @@ export const useBudgetStore = defineStore('budget', () => {
     return grouped
   })
 
-  const criticalAlerts = computed(() => 
-    budgetAlerts.value.filter(alert => alert.level === 'critical')
-  )
+  const criticalAlerts = computed(() => budgetAlerts.value.filter(alert => alert.level === 'critical'))
 
-  const warningAlerts = computed(() => 
-    budgetAlerts.value.filter(alert => alert.level === 'warning')
-  )
+  const warningAlerts = computed(() => budgetAlerts.value.filter(alert => alert.level === 'warning'))
 
-  const totalBudgetAmount = computed(() => 
-    activeBudgets.value.reduce((sum, budget) => sum + budget.amount, 0)
-  )
+  const totalBudgetAmount = computed(() => activeBudgets.value.reduce((sum, budget) => sum + budget.amount, 0))
 
-  const totalSpentAmount = computed(() => 
-    activeBudgets.value.reduce((sum, budget) => sum + budget.spent_amount, 0)
-  )
+  const totalSpentAmount = computed(() => activeBudgets.value.reduce((sum, budget) => sum + budget.spent_amount, 0))
 
-  const totalRemainingAmount = computed(() => 
-    totalBudgetAmount.value - totalSpentAmount.value
-  )
+  const totalRemainingAmount = computed(() => totalBudgetAmount.value - totalSpentAmount.value)
 
   const overallBudgetProgress = computed(() => {
     if (totalBudgetAmount.value === 0) return 0
@@ -68,8 +54,12 @@ export const useBudgetStore = defineStore('budget', () => {
 
     // API returns amount/spent_amount/remaining_amount as { raw, formatted }
     const amount = b.amount && typeof b.amount === 'object' ? (b.amount.raw ?? 0) : (b.amount ?? 0)
-    const spent = b.spent_amount && typeof b.spent_amount === 'object' ? (b.spent_amount.raw ?? 0) : (b.spent_amount ?? 0)
-    const remaining = b.remaining_amount && typeof b.remaining_amount === 'object' ? (b.remaining_amount.raw ?? 0) : (b.remaining_amount ?? (amount - spent))
+    const spent =
+      b.spent_amount && typeof b.spent_amount === 'object' ? (b.spent_amount.raw ?? 0) : (b.spent_amount ?? 0)
+    const remaining =
+      b.remaining_amount && typeof b.remaining_amount === 'object'
+        ? (b.remaining_amount.raw ?? 0)
+        : (b.remaining_amount ?? amount - spent)
 
     // Handle period object - API might return period as object with type, label, etc.
     let period = b.period
@@ -77,7 +67,7 @@ export const useBudgetStore = defineStore('budget', () => {
     let daysRemaining = null
     let startDate = null
     let endDate = null
-    
+
     if (period && typeof period === 'object') {
       periodLabel = period.label || period.type || ''
       daysRemaining = period.days_remaining || null
@@ -110,14 +100,14 @@ export const useBudgetStore = defineStore('budget', () => {
     try {
       isLoading.value = true
       error.value = null
-      
+
       const response = await budgetService.getBudgets(params)
       budgets.value = normalizeBudgets(response.data) || []
-      
+
       if (response.meta) {
         pagination.value = response.meta
       }
-      
+
       return response
     } catch (err) {
       error.value = err.response?.data?.message || 'Failed to fetch budgets'
@@ -131,10 +121,10 @@ export const useBudgetStore = defineStore('budget', () => {
     try {
       isLoading.value = true
       error.value = null
-      
+
       const response = await budgetService.getCurrentBudgets()
       currentBudgets.value = normalizeBudgets(response.data) || []
-      
+
       return response
     } catch (err) {
       error.value = err.response?.data?.message || 'Failed to fetch current budgets'
@@ -147,7 +137,7 @@ export const useBudgetStore = defineStore('budget', () => {
   async function fetchBudgetSummary() {
     try {
       error.value = null
-      
+
       const response = await budgetService.getBudgetSummary()
       // Normalize budget summary data in case it contains budget objects
       const summary = response.data
@@ -162,7 +152,7 @@ export const useBudgetStore = defineStore('budget', () => {
         }
       }
       budgetSummary.value = summary
-      
+
       return response
     } catch (err) {
       error.value = err.response?.data?.message || 'Failed to fetch budget summary'
@@ -173,17 +163,19 @@ export const useBudgetStore = defineStore('budget', () => {
   async function fetchBudgetAlerts() {
     try {
       error.value = null
-      
+
       const response = await budgetService.getBudgetAlerts()
       // Normalize alerts data in case it contains budget objects
       const alerts = response.data || []
-      budgetAlerts.value = Array.isArray(alerts) ? alerts.map(alert => {
-        if (alert.budget) {
-          alert.budget = normalizeBudget(alert.budget)
-        }
-        return alert
-      }) : []
-      
+      budgetAlerts.value = Array.isArray(alerts)
+        ? alerts.map(alert => {
+            if (alert.budget) {
+              alert.budget = normalizeBudget(alert.budget)
+            }
+            return alert
+          })
+        : []
+
       return response
     } catch (err) {
       error.value = err.response?.data?.message || 'Failed to fetch budget alerts'
@@ -195,17 +187,17 @@ export const useBudgetStore = defineStore('budget', () => {
     try {
       isLoading.value = true
       error.value = null
-      
+
       const response = await budgetService.createBudget(budgetData)
-      
+
       // Add to budgets array (normalize shape)
       budgets.value.push(normalizeBudget(response.data))
-      
+
       // If it's an active budget, add to current budgets
       if (response.data.is_active) {
         currentBudgets.value.push(normalizeBudget(response.data))
       }
-      
+
       return response
     } catch (err) {
       error.value = err.response?.data?.message || 'Failed to create budget'
@@ -219,15 +211,15 @@ export const useBudgetStore = defineStore('budget', () => {
     try {
       isLoading.value = true
       error.value = null
-      
+
       const response = await budgetService.updateBudget(id, budgetData)
-      
+
       // Update in budgets array
       const index = budgets.value.findIndex(budget => budget.id === id)
       if (index !== -1) {
         budgets.value[index] = normalizeBudget(response.data)
       }
-      
+
       // Update in current budgets array if exists
       const currentIndex = currentBudgets.value.findIndex(budget => budget.id === id)
       if (currentIndex !== -1) {
@@ -239,7 +231,7 @@ export const useBudgetStore = defineStore('budget', () => {
       } else if (response.data.is_active) {
         currentBudgets.value.push(normalizeBudget(response.data))
       }
-      
+
       return response
     } catch (err) {
       error.value = err.response?.data?.message || 'Failed to update budget'
@@ -253,15 +245,15 @@ export const useBudgetStore = defineStore('budget', () => {
     try {
       isLoading.value = true
       error.value = null
-      
+
       await budgetService.deleteBudget(id)
-      
+
       // Remove from budgets array
       budgets.value = budgets.value.filter(budget => budget.id !== id)
-      
+
       // Remove from current budgets array
       currentBudgets.value = currentBudgets.value.filter(budget => budget.id !== id)
-      
+
       return true
     } catch (err) {
       error.value = err.response?.data?.message || 'Failed to delete budget'
@@ -275,12 +267,12 @@ export const useBudgetStore = defineStore('budget', () => {
     try {
       isLoading.value = true
       error.value = null
-      
+
       const response = await budgetService.duplicateBudget(id, overrides)
-      
+
       // Add duplicated budget to array
       budgets.value.push(normalizeBudget(response.data))
-      
+
       return response
     } catch (err) {
       error.value = err.response?.data?.message || 'Failed to duplicate budget'
@@ -294,19 +286,19 @@ export const useBudgetStore = defineStore('budget', () => {
     try {
       isLoading.value = true
       error.value = null
-      
+
       const response = await budgetService.createDefaultBudgets()
-      
+
       // Add new budgets to array
       if (response.data && Array.isArray(response.data)) {
         const normalized = normalizeBudgets(response.data)
         budgets.value.push(...normalized)
-        
+
         // Add active ones to current budgets
         const activeBudgets = normalized.filter(budget => budget.is_active)
         currentBudgets.value.push(...activeBudgets)
       }
-      
+
       return response
     } catch (err) {
       error.value = err.response?.data?.message || 'Failed to create default budgets'
@@ -319,16 +311,12 @@ export const useBudgetStore = defineStore('budget', () => {
   async function recalculateBudgets(budgetId = null) {
     try {
       error.value = null
-      
+
       const response = await budgetService.recalculateBudgets(budgetId)
-      
+
       // Refresh current data
-      await Promise.all([
-        fetchCurrentBudgets(),
-        fetchBudgetSummary(),
-        fetchBudgetAlerts()
-      ])
-      
+      await Promise.all([fetchCurrentBudgets(), fetchBudgetSummary(), fetchBudgetAlerts()])
+
       return response
     } catch (err) {
       error.value = err.response?.data?.message || 'Failed to recalculate budgets'
@@ -368,7 +356,7 @@ export const useBudgetStore = defineStore('budget', () => {
     isLoading,
     error,
     pagination,
-    
+
     // Getters
     activeBudgets,
     budgetsByCategory,
@@ -378,7 +366,7 @@ export const useBudgetStore = defineStore('budget', () => {
     totalSpentAmount,
     totalRemainingAmount,
     overallBudgetProgress,
-    
+
     // Actions
     fetchBudgets,
     fetchCurrentBudgets,

@@ -1,3 +1,5 @@
+import debug from '@/utils/debug'
+
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import { dashboardService } from '@/services/dashboardService'
@@ -14,7 +16,7 @@ export const useDashboardStore = defineStore('dashboard', () => {
   const fetchDashboardOverview = async () => {
     loading.value = true
     error.value = null
-    
+
     try {
       const response = await dashboardService.getDashboardOverview()
       overview.value = response.data
@@ -29,7 +31,7 @@ export const useDashboardStore = defineStore('dashboard', () => {
   const fetchMonthlySummary = async (period = 'current_month') => {
     loading.value = true
     error.value = null
-    
+
     try {
       const response = await dashboardService.getMonthlySummary(period)
       monthlySummary.value = response.data
@@ -44,7 +46,7 @@ export const useDashboardStore = defineStore('dashboard', () => {
   const fetchYearlySummary = async () => {
     loading.value = true
     error.value = null
-    
+
     try {
       const response = await dashboardService.getYearlySummary()
       yearlySummary.value = response.data
@@ -59,7 +61,7 @@ export const useDashboardStore = defineStore('dashboard', () => {
   const fetchTrends = async (months = 6) => {
     loading.value = true
     error.value = null
-    
+
     try {
       console.log('Fetching trends for', months, 'months...')
       const response = await dashboardService.getTrends(months)
@@ -79,7 +81,7 @@ export const useDashboardStore = defineStore('dashboard', () => {
   const fetchDailySpending = async () => {
     loading.value = true
     error.value = null
-    
+
     try {
       const response = await dashboardService.getDailySpending()
       dailySpending.value = response.data
@@ -92,11 +94,7 @@ export const useDashboardStore = defineStore('dashboard', () => {
   }
 
   const refreshAll = async () => {
-    await Promise.all([
-      fetchDashboardOverview(),
-      fetchTrends(),
-      fetchDailySpending()
-    ])
+    await Promise.all([fetchDashboardOverview(), fetchTrends(), fetchDailySpending()])
   }
 
   // Computed properties for safe numeric calculations

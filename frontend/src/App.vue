@@ -6,20 +6,20 @@
 </template>
 
 <script setup>
-import { onMounted } from 'vue'
-import { useAuthStore } from '@/stores/auth'
-import ToastContainer from '@/components/common/ToastContainer.vue'
+  import { onMounted } from 'vue'
+  import { useAuthStore } from '@/stores/auth'
+  import ToastContainer from '@/components/common/ToastContainer.vue'
 
-const authStore = useAuthStore()
+  const authStore = useAuthStore()
 
-onMounted(() => {
-  // Initialize auth state from localStorage
-  authStore.initializeAuth()
-})
+  onMounted(() => {
+    // Initialize auth state from localStorage
+    authStore.initializeAuth()
+  })
 </script>
 
 <style scoped>
-#app {
-  min-height: 100vh;
-}
+  #app {
+    min-height: 100vh;
+  }
 </style>

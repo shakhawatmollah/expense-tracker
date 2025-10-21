@@ -18,6 +18,13 @@ return Application::configure(basePath: dirname(__DIR__))
         // Enable CORS for API routes
         $middleware->api([
             \Illuminate\Http\Middleware\HandleCors::class,
+            \App\Http\Middleware\SanitizeInput::class,
+        ]);
+        
+        // Register custom middleware aliases
+        $middleware->alias([
+            'rate.limit' => \App\Http\Middleware\RateLimitMiddleware::class,
+            'sanitize' => \App\Http\Middleware\SanitizeInput::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {

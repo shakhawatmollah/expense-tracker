@@ -17,23 +17,25 @@ export function useMemoize(computeFn, dependencies = [], options = {}) {
   const lastAccess = ref(new Map())
 
   // Generate cache key from dependencies
-  const generateKey = keyGenerator || (() => {
-    return JSON.stringify(dependencies.map(dep => 
-      typeof dep === 'object' && dep.value !== undefined ? dep.value : dep
-    ))
-  })
+  const generateKey =
+    keyGenerator ||
+    (() => {
+      return JSON.stringify(
+        dependencies.map(dep => (typeof dep === 'object' && dep.value !== undefined ? dep.value : dep))
+      )
+    })
 
   // Clean expired entries
   const cleanCache = () => {
     const now = Date.now()
     const expiredKeys = []
-    
+
     for (const [key, timestamp] of lastAccess.value.entries()) {
       if (now - timestamp > ttl) {
         expiredKeys.push(key)
       }
     }
-    
+
     expiredKeys.forEach(key => {
       cache.value.delete(key)
       lastAccess.value.delete(key)
@@ -44,9 +46,8 @@ export function useMemoize(computeFn, dependencies = [], options = {}) {
   const manageCacheSize = () => {
     if (cache.value.size > maxCacheSize) {
       // Remove oldest entries
-      const entries = Array.from(lastAccess.value.entries())
-        .sort((a, b) => a[1] - b[1])
-      
+      const entries = Array.from(lastAccess.value.entries()).sort((a, b) => a[1] - b[1])
+
       const toRemove = entries.slice(0, cache.value.size - maxCacheSize)
       toRemove.forEach(([key]) => {
         cache.value.delete(key)
@@ -57,29 +58,33 @@ export function useMemoize(computeFn, dependencies = [], options = {}) {
 
   const memoizedValue = computed(() => {
     cleanCache()
-    
+
     const key = generateKey()
     const now = Date.now()
-    
+
     if (cache.value.has(key)) {
       lastAccess.value.set(key, now)
       return cache.value.get(key)
     }
-    
+
     const result = computeFn()
-    
+
     cache.value.set(key, result)
     lastAccess.value.set(key, now)
-    
+
     manageCacheSize()
-    
+
     return result
   })
 
   // Watch dependencies for changes
-  watch(dependencies, () => {
-    // Dependencies changed, cache will be invalidated on next access
-  }, { deep: true })
+  watch(
+    dependencies,
+    () => {
+      // Dependencies changed, cache will be invalidated on next access
+    },
+    { deep: true }
+  )
 
   // Clear cache method
   const clearCache = () => {

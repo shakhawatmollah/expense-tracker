@@ -1,3 +1,5 @@
+import debug from '@/utils/debug'
+
 import { ref, onMounted, onUnmounted } from 'vue'
 
 /**
@@ -25,7 +27,7 @@ export function usePerformance() {
   const endMeasurement = (label = 'default') => {
     const endTime = performance.now()
     performance.mark(`${label}-end`)
-    
+
     try {
       performance.measure(label, `${label}-start`, `${label}-end`)
       const measure = performance.getEntriesByName(label)[0]
@@ -65,7 +67,7 @@ export function usePerformance() {
   const monitorWebVitals = () => {
     if ('PerformanceObserver' in window) {
       // Largest Contentful Paint
-      const lcpObserver = new PerformanceObserver((list) => {
+      const lcpObserver = new PerformanceObserver(list => {
         const entries = list.getEntries()
         const lcp = entries[entries.length - 1]
         metrics.value.lcp = lcp.startTime
@@ -74,9 +76,9 @@ export function usePerformance() {
       observers.value.push(lcpObserver)
 
       // First Input Delay
-      const fidObserver = new PerformanceObserver((list) => {
+      const fidObserver = new PerformanceObserver(list => {
         const entries = list.getEntries()
-        entries.forEach((entry) => {
+        entries.forEach(entry => {
           metrics.value.fid = entry.processingStart - entry.startTime
         })
       })
@@ -85,7 +87,7 @@ export function usePerformance() {
 
       // Cumulative Layout Shift
       let clsValue = 0
-      const clsObserver = new PerformanceObserver((list) => {
+      const clsObserver = new PerformanceObserver(list => {
         for (const entry of list.getEntries()) {
           if (!entry.hadRecentInput) {
             clsValue += entry.value
@@ -133,7 +135,8 @@ export function usePerformance() {
     }
 
     // Check API performance
-    const avgApiTime = metrics.value.apiCallTimes.reduce((sum, call) => sum + call.duration, 0) / metrics.value.apiCallTimes.length
+    const avgApiTime =
+      metrics.value.apiCallTimes.reduce((sum, call) => sum + call.duration, 0) / metrics.value.apiCallTimes.length
     if (avgApiTime > 1000) {
       insights.push({
         type: 'warning',
@@ -149,10 +152,10 @@ export function usePerformance() {
   // Log performance data (development only)
   const logPerformanceData = () => {
     if (import.meta.env.DEV) {
-      console.group('🚀 Performance Metrics')
+      console.group('?? Performance Metrics')
       console.log('Page Load Time:', metrics.value.pageLoadTime, 'ms')
       console.log('LCP:', metrics.value.lcp, 'ms')
-      console.log('FID:', metrics.value.fid, 'ms') 
+      console.log('FID:', metrics.value.fid, 'ms')
       console.log('CLS:', metrics.value.cls)
       console.log('Memory Usage:', metrics.value.memoryUsage)
       console.log('API Calls:', metrics.value.apiCallTimes.length)
@@ -176,7 +179,7 @@ export function usePerformance() {
 
     // Update memory usage every 30 seconds
     const memoryInterval = setInterval(updateMemoryUsage, 30000)
-    
+
     onUnmounted(() => {
       clearInterval(memoryInterval)
       observers.value.forEach(observer => observer.disconnect())

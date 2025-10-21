@@ -13,11 +13,7 @@
 
     <!-- Table Rows -->
     <div class="divide-y divide-gray-200">
-      <div 
-        v-for="n in rows" 
-        :key="n" 
-        class="px-6 py-4 flex space-x-4 items-center"
-      >
+      <div v-for="n in rows" :key="n" class="px-6 py-4 flex space-x-4 items-center">
         <div class="h-4 bg-gray-200 rounded w-1/6"></div>
         <div class="h-4 bg-gray-200 rounded w-1/4"></div>
         <div class="h-4 bg-gray-200 rounded w-1/6"></div>
@@ -32,25 +28,26 @@
 </template>
 
 <script setup>
-defineProps({
-  rows: {
-    type: Number,
-    default: 5
-  }
-})
+  defineProps({
+    rows: {
+      type: Number,
+      default: 5
+    }
+  })
 </script>
 
 <style scoped>
-.animate-pulse {
-  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
-}
+  .animate-pulse {
+    animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  }
 
-@keyframes pulse {
-  0%, 100% {
-    opacity: 1;
+  @keyframes pulse {
+    0%,
+    100% {
+      opacity: 1;
+    }
+    50% {
+      opacity: 0.5;
+    }
   }
-  50% {
-    opacity: .5;
-  }
-}
 </style>

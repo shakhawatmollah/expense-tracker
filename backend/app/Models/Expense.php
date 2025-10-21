@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Traits\Sanitizable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -34,7 +35,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  */
 class Expense extends Model
 {
-    use HasFactory;
+    use HasFactory, Sanitizable;
 
     /**
      * The attributes that are mass assignable.
@@ -63,6 +64,56 @@ class Expense extends Model
             'created_at' => 'datetime',
             'updated_at' => 'datetime',
         ];
+    }
+
+    /**
+     * Override setAttribute to sanitize string inputs
+     *
+     * @param string $key
+     * @param mixed $value
+     * @return mixed
+     */
+    public function setAttribute($key, $value): mixed
+    {
+        // Sanitize string fields before setting
+        if (in_array($key, ['description', 'notes']) && is_string($value)) {
+            $value = $this->sanitizeString($value);
+        }
+
+        return parent::setAttribute($key, $value);
+    }
+
+    /**
+     * Scope for expenses within date range
+     */
+    public function scopeInDateRange($query, $startDate, $endDate)
+    {
+        return $query->whereBetween('date', [$startDate, $endDate]);
+    }
+
+    /**
+     * Scope for expenses by category
+     */
+    public function scopeByCategory($query, $categoryId)
+    {
+        return $query->where('category_id', $categoryId);
+    }
+
+    /**
+     * Scope for current month expenses
+     */
+    public function scopeCurrentMonth($query)
+    {
+        return $query->whereMonth('date', now()->month)
+                    ->whereYear('date', now()->year);
+    }
+
+    /**
+     * Scope for expenses above certain amount
+     */
+    public function scopeAboveAmount($query, $amount)
+    {
+        return $query->where('amount', '>', $amount);
     }
 
     /**

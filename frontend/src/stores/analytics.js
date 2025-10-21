@@ -5,25 +5,25 @@ export const useAnalyticsStore = defineStore('analytics', {
   state: () => ({
     // Dashboard data
     dashboardData: null,
-    
+
     // Spending patterns
     patterns: [],
-    
+
     // Financial health
     financialHealth: null,
-    
+
     // User insights
     insights: [],
-    
+
     // Forecasts
     forecasts: null,
-    
+
     // Recommendations
     recommendations: [],
-    
+
     // Trends
     trends: null,
-    
+
     // UI state
     loading: false,
     error: null,
@@ -32,24 +32,24 @@ export const useAnalyticsStore = defineStore('analytics', {
 
   getters: {
     // Get patterns by type
-    getPatternsByType: (state) => (type) => {
+    getPatternsByType: state => type => {
       return state.patterns.filter(pattern => pattern.pattern_type === type)
     },
 
     // Get active patterns
-    getActivePatterns: (state) => {
+    getActivePatterns: state => {
       return state.patterns.filter(pattern => pattern.is_active)
     },
 
     // Get high confidence patterns
-    getHighConfidencePatterns: (state) => {
+    getHighConfidencePatterns: state => {
       return state.patterns.filter(pattern => pattern.confidence_score >= 80)
     },
 
     // Get financial health status
-    getHealthStatus: (state) => {
+    getHealthStatus: state => {
       if (!state.financialHealth?.data?.current) return null
-      
+
       const score = state.financialHealth.data.current.overall_score
       if (score >= 90) return { status: 'Excellent', color: '#22c55e' }
       if (score >= 80) return { status: 'Very Good', color: '#84cc16' }
@@ -60,12 +60,12 @@ export const useAnalyticsStore = defineStore('analytics', {
     },
 
     // Get recent insights
-    getRecentInsights: (state) => {
+    getRecentInsights: state => {
       return state.insights.slice(0, 5)
     },
 
     // Get priority recommendations
-    getPriorityRecommendations: (state) => {
+    getPriorityRecommendations: state => {
       return state.recommendations.slice(0, 3)
     }
   },
@@ -75,7 +75,7 @@ export const useAnalyticsStore = defineStore('analytics', {
     async loadDashboard(period = 'monthly') {
       this.loading = true
       this.error = null
-      
+
       try {
         const response = await analyticsService.getDashboard(period)
         this.dashboardData = response.data
@@ -92,7 +92,7 @@ export const useAnalyticsStore = defineStore('analytics', {
     async loadPatterns(type = null) {
       this.loading = true
       this.error = null
-      
+
       try {
         const response = await analyticsService.getPatterns(type)
         this.patterns = response.data
@@ -108,7 +108,7 @@ export const useAnalyticsStore = defineStore('analytics', {
     async loadFinancialHealth(period = 'monthly') {
       this.loading = true
       this.error = null
-      
+
       try {
         const response = await analyticsService.getFinancialHealth(period)
         this.financialHealth = response
@@ -124,7 +124,7 @@ export const useAnalyticsStore = defineStore('analytics', {
     async loadInsights(period = 'monthly', type = null) {
       this.loading = true
       this.error = null
-      
+
       try {
         const response = await analyticsService.getInsights(period, type)
         this.insights = response.data
@@ -140,7 +140,7 @@ export const useAnalyticsStore = defineStore('analytics', {
     async loadForecasts(period = 'monthly') {
       this.loading = true
       this.error = null
-      
+
       try {
         const response = await analyticsService.getForecasts(period)
         this.forecasts = response.data
@@ -156,7 +156,7 @@ export const useAnalyticsStore = defineStore('analytics', {
     async loadRecommendations(period = 'monthly') {
       this.loading = true
       this.error = null
-      
+
       try {
         const response = await analyticsService.getRecommendations(period)
         this.recommendations = response.data
@@ -172,7 +172,7 @@ export const useAnalyticsStore = defineStore('analytics', {
     async loadTrends(period = 'monthly', categoryId = null) {
       this.loading = true
       this.error = null
-      
+
       try {
         const response = await analyticsService.getTrends(period, categoryId)
         this.trends = response.data
@@ -188,11 +188,11 @@ export const useAnalyticsStore = defineStore('analytics', {
     async refreshAnalytics(period = 'monthly') {
       this.loading = true
       this.error = null
-      
+
       try {
         const response = await analyticsService.refreshAnalytics(period)
         this.dashboardData = response.data
-        
+
         // Reload other data as well
         await Promise.all([
           this.loadPatterns(),
@@ -212,7 +212,7 @@ export const useAnalyticsStore = defineStore('analytics', {
     async loadAllAnalytics(period = 'monthly') {
       this.loading = true
       this.error = null
-      
+
       try {
         await Promise.all([
           this.loadDashboard(period),

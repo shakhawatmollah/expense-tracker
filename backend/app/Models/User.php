@@ -3,6 +3,7 @@
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
+use App\Traits\Sanitizable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -42,7 +43,7 @@ use Laravel\Sanctum\HasApiTokens;
  */
 class User extends Authenticatable
 {
-    use HasFactory, Notifiable, HasApiTokens;
+    use HasFactory, Notifiable, HasApiTokens, Sanitizable;
 
     /**
      * The attributes that are mass assignable.
@@ -76,6 +77,28 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
         ];
+    }
+
+    /**
+     * Override setAttribute to sanitize string inputs
+     *
+     * @param string $key
+     * @param mixed $value
+     * @return mixed
+     */
+    public function setAttribute($key, $value): mixed
+    {
+        // Sanitize name field
+        if ($key === 'name' && is_string($value)) {
+            $value = $this->sanitizeString($value);
+        }
+
+        // Sanitize email field
+        if ($key === 'email' && is_string($value)) {
+            $value = $this->sanitizeEmail($value);
+        }
+
+        return parent::setAttribute($key, $value);
     }
 
     /**

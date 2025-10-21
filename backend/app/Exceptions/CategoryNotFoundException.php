@@ -2,12 +2,20 @@
 
 namespace App\Exceptions;
 
-use Exception;
-
-class CategoryNotFoundException extends Exception
+class CategoryNotFoundException extends CategoryException
 {
-    public function __construct(string $message = 'Category not found or access denied')
+    protected $statusCode = 404;
+
+    public function __construct($identifier = null, array $context = [])
     {
-        parent::__construct($message);
+        if ($identifier === null) {
+            $message = "Category not found or access denied";
+            $userMessage = "The requested category could not be found.";
+        } else {
+            $message = "Category not found with identifier: {$identifier}";
+            $userMessage = "The requested category could not be found.";
+        }
+        
+        parent::__construct($message, $userMessage, 404, $context);
     }
 }

@@ -10,7 +10,7 @@ export const useCategoriesStore = defineStore('categories', () => {
   const fetchCategories = async () => {
     loading.value = true
     error.value = null
-    
+
     try {
       const response = await categoryService.getCategories()
       categories.value = response.data
@@ -23,10 +23,10 @@ export const useCategoriesStore = defineStore('categories', () => {
     }
   }
 
-  const createCategory = async (categoryData) => {
+  const createCategory = async categoryData => {
     loading.value = true
     error.value = null
-    
+
     try {
       const response = await categoryService.createCategory(categoryData)
       categories.value.push(response.data)
@@ -42,7 +42,7 @@ export const useCategoriesStore = defineStore('categories', () => {
   const updateCategory = async (id, categoryData) => {
     loading.value = true
     error.value = null
-    
+
     try {
       const response = await categoryService.updateCategory(id, categoryData)
       const index = categories.value.findIndex(category => category.id === id)
@@ -58,10 +58,10 @@ export const useCategoriesStore = defineStore('categories', () => {
     }
   }
 
-  const deleteCategory = async (id) => {
+  const deleteCategory = async id => {
     loading.value = true
     error.value = null
-    
+
     try {
       await categoryService.deleteCategory(id)
       categories.value = categories.value.filter(category => category.id !== id)
@@ -73,7 +73,7 @@ export const useCategoriesStore = defineStore('categories', () => {
     }
   }
 
-  const getCategoryById = (id) => {
+  const getCategoryById = id => {
     return categories.value.find(category => category.id === id)
   }
 

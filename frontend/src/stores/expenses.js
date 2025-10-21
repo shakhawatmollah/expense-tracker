@@ -7,7 +7,7 @@ export const useExpensesStore = defineStore('expenses', () => {
   const loading = ref(false)
   const error = ref(null)
   const totalExpenses = ref(0)
-  
+
   // Pagination state
   const pagination = ref({
     current_page: 1,
@@ -17,7 +17,7 @@ export const useExpensesStore = defineStore('expenses', () => {
     from: 0,
     to: 0
   })
-  
+
   const links = ref({
     first: null,
     last: null,
@@ -28,11 +28,11 @@ export const useExpensesStore = defineStore('expenses', () => {
   const fetchExpenses = async (filters = {}) => {
     loading.value = true
     error.value = null
-    
+
     try {
       const response = await expenseService.getExpenses(filters)
       expenses.value = response.data
-      
+
       // Update pagination info if available
       if (response.meta) {
         pagination.value = response.meta
@@ -40,7 +40,7 @@ export const useExpensesStore = defineStore('expenses', () => {
       if (response.links) {
         links.value = response.links
       }
-      
+
       totalExpenses.value = response.meta?.total || response.data.length
     } catch (err) {
       error.value = err.response?.data?.message || 'Failed to fetch expenses'
@@ -53,7 +53,7 @@ export const useExpensesStore = defineStore('expenses', () => {
   const fetchAllExpenses = async (filters = {}) => {
     loading.value = true
     error.value = null
-    
+
     try {
       const response = await expenseService.getAllExpenses(filters)
       expenses.value = response.data
@@ -66,10 +66,10 @@ export const useExpensesStore = defineStore('expenses', () => {
     }
   }
 
-  const createExpense = async (expenseData) => {
+  const createExpense = async expenseData => {
     loading.value = true
     error.value = null
-    
+
     try {
       const response = await expenseService.createExpense(expenseData)
       expenses.value.unshift(response.data)
@@ -86,7 +86,7 @@ export const useExpensesStore = defineStore('expenses', () => {
   const updateExpense = async (id, expenseData) => {
     loading.value = true
     error.value = null
-    
+
     try {
       const response = await expenseService.updateExpense(id, expenseData)
       const index = expenses.value.findIndex(expense => expense.id === id)
@@ -102,10 +102,10 @@ export const useExpensesStore = defineStore('expenses', () => {
     }
   }
 
-  const deleteExpense = async (id) => {
+  const deleteExpense = async id => {
     loading.value = true
     error.value = null
-    
+
     try {
       await expenseService.deleteExpense(id)
       expenses.value = expenses.value.filter(expense => expense.id !== id)
@@ -118,10 +118,10 @@ export const useExpensesStore = defineStore('expenses', () => {
     }
   }
 
-  const searchExpenses = async (query) => {
+  const searchExpenses = async query => {
     loading.value = true
     error.value = null
-    
+
     try {
       const response = await expenseService.searchExpenses(query)
       expenses.value = response.data
@@ -136,7 +136,7 @@ export const useExpensesStore = defineStore('expenses', () => {
   const getExpensesByDateRange = async (startDate, endDate) => {
     loading.value = true
     error.value = null
-    
+
     try {
       const response = await expenseService.getExpensesByDateRange(startDate, endDate)
       expenses.value = response.data

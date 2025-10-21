@@ -8,7 +8,7 @@ const api = axios.create({
   timeout: 10000,
   headers: {
     'Content-Type': 'application/json',
-    'Accept': 'application/json'
+    Accept: 'application/json'
   }
 })
 
@@ -21,9 +21,9 @@ const { trackApiCall } = usePerformance()
 
 // Request interceptor
 api.interceptors.request.use(
-  (config) => {
+  config => {
     const authStore = useAuthStore()
-    
+
     // Add auth token
     if (authStore.token) {
       config.headers.Authorization = `Bearer ${authStore.token}`
@@ -36,7 +36,7 @@ api.interceptors.request.use(
     if (config.method === 'get' && config.cache !== false) {
       const cacheKey = `${config.url}?${JSON.stringify(config.params)}`
       const cachedResponse = requestCache.get(cacheKey)
-      
+
       if (cachedResponse && Date.now() - cachedResponse.timestamp < CACHE_TTL) {
         // Return cached response as a resolved promise
         return Promise.reject({
@@ -48,14 +48,14 @@ api.interceptors.request.use(
 
     return config
   },
-  (error) => {
+  error => {
     return Promise.reject(error)
   }
 )
 
 // Response interceptor
 api.interceptors.response.use(
-  (response) => {
+  response => {
     const config = response.config
     const duration = Date.now() - config.metadata.startTime
 
@@ -79,7 +79,7 @@ api.interceptors.response.use(
 
     return response
   },
-  (error) => {
+  error => {
     // Handle cached responses
     if (error.__cached) {
       return Promise.resolve({ data: error.data })
@@ -106,10 +106,10 @@ api.interceptors.response.use(
 export const apiService = {
   // GET with caching
   get: (url, params = {}, options = {}) => {
-    return api.get(url, { 
-      params, 
+    return api.get(url, {
+      params,
       cache: options.cache !== false,
-      ...options 
+      ...options
     })
   },
 
@@ -132,12 +132,12 @@ export const apiService = {
         requestCache.delete(key)
       }
     }
-    
+
     return api.delete(url, { cache: false, ...options })
   },
 
   // Batch requests
-  batch: async (requests) => {
+  batch: async requests => {
     const promises = requests.map(({ method, url, data, params }) => {
       switch (method.toLowerCase()) {
         case 'get':

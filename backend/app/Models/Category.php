@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Traits\Sanitizable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -32,7 +33,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  */
 class Category extends Model
 {
-    use HasFactory;
+    use HasFactory, Sanitizable;
 
     /**
      * The attributes that are mass assignable.
@@ -57,6 +58,23 @@ class Category extends Model
             'created_at' => 'datetime',
             'updated_at' => 'datetime',
         ];
+    }
+
+    /**
+     * Override setAttribute to sanitize string inputs
+     *
+     * @param string $key
+     * @param mixed $value
+     * @return mixed
+     */
+    public function setAttribute($key, $value): mixed
+    {
+        // Sanitize string fields before setting
+        if (in_array($key, ['name', 'description', 'color']) && is_string($value)) {
+            $value = $this->sanitizeString($value);
+        }
+
+        return parent::setAttribute($key, $value);
     }
 
     /**

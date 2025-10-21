@@ -8,7 +8,7 @@ import Register from '@/views/Register.vue'
 
 // Lazy load main application views
 const Dashboard = () => import('@/views/Dashboard.vue')
-const Expenses = () => import('@/views/Expenses.vue')  
+const Expenses = () => import('@/views/Expenses.vue')
 const Categories = () => import('@/views/Categories.vue')
 const Budgets = () => import('@/views/Budgets.vue')
 const Analytics = () => import('@/views/Analytics.vue')
@@ -67,9 +67,12 @@ const router = createRouter({
 router.beforeEach((to, from, next) => {
   const authStore = useAuthStore()
   
-  if (to.meta.requiresAuth && !authStore.isAuthenticated) {
+  // Check token directly from store for reliable auth check
+  const hasToken = !!authStore.token
+
+  if (to.meta.requiresAuth && !hasToken) {
     next('/login')
-  } else if (to.meta.requiresGuest && authStore.isAuthenticated) {
+  } else if (to.meta.requiresGuest && hasToken) {
     next('/')
   } else {
     next()

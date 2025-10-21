@@ -1,4 +1,7 @@
 import axios from 'axios'
+import storage from '@/utils/storage'
+import { useAuthStore } from '@/stores/auth'
+import router from '@/router'
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000/api'
 
@@ -7,33 +10,35 @@ const api = axios.create({
   baseURL: API_BASE_URL,
   headers: {
     'Content-Type': 'application/json',
-    'Accept': 'application/json',
-  },
+    Accept: 'application/json'
+  }
 })
 
 // Request interceptor to add auth token
 api.interceptors.request.use(
-  (config) => {
-    const token = localStorage.getItem('token')
+  config => {
+    const token = storage.getItem('token')
     if (token) {
       config.headers.Authorization = `Bearer ${token}`
     }
     return config
   },
-  (error) => {
+  error => {
     return Promise.reject(error)
   }
 )
 
 // Response interceptor to handle auth errors
 api.interceptors.response.use(
-  (response) => response,
-  (error) => {
+  response => response,
+  error => {
     if (error.response?.status === 401) {
       // Token expired or invalid
-      localStorage.removeItem('token')
-      localStorage.removeItem('user')
-      window.location.href = '/login'
+      const authStore = useAuthStore()
+      authStore.logout()
+      
+      // Use router for navigation instead of window.location
+      router.push('/login')
     }
     return Promise.reject(error)
   }

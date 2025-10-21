@@ -9,7 +9,7 @@
             <h1 class="text-2xl font-bold text-gray-900">Categories</h1>
             <p class="text-gray-600">Manage your expense categories</p>
           </div>
-          
+
           <CategoryList />
         </div>
       </main>
@@ -18,19 +18,19 @@
 </template>
 
 <script setup>
-import { onMounted } from 'vue'
-import AppHeader from '@/components/layout/AppHeader.vue'
-import AppSidebar from '@/components/layout/AppSidebar.vue'
-import CategoryList from '@/components/categories/CategoryList.vue'
-import { useCategoriesStore } from '@/stores/categories'
+  import { onMounted } from 'vue'
+  import AppHeader from '@/components/layout/AppHeader.vue'
+  import AppSidebar from '@/components/layout/AppSidebar.vue'
+  import CategoryList from '@/components/categories/CategoryList.vue'
+  import { useCategoriesStore } from '@/stores/categories'
 
-const categoriesStore = useCategoriesStore()
+  const categoriesStore = useCategoriesStore()
 
-onMounted(async () => {
-  try {
-    await categoriesStore.fetchCategories()
-  } catch (error) {
-    console.error('Failed to load categories:', error)
-  }
-})
+  onMounted(async () => {
+    try {
+      await categoriesStore.fetchCategories()
+    } catch (error) {
+      console.error('Failed to load categories:', error)
+    }
+  })
 </script>

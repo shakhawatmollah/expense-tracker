@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Auth\LoginRequest;
 use App\Http\Requests\Auth\RegisterRequest;
 use App\Http\Resources\UserResource;
+use App\Http\Helpers\ApiResponse;
 use App\Services\AuthService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -25,16 +26,19 @@ class AuthController extends Controller
             $user = $this->authService->register($request->validated());
             $token = $user->createToken('auth-token')->plainTextToken;
 
-            return response()->json([
-                'message' => 'User registered successfully',
-                'user' => new UserResource($user),
-                'token' => $token
-            ], 201);
+            return ApiResponse::created(
+                [
+                    'user' => new UserResource($user),
+                    'token' => $token
+                ],
+                'User registered successfully'
+            );
         } catch (\Exception $e) {
-            return response()->json([
-                'message' => 'Registration failed',
-                'error' => $e->getMessage()
-            ], 422);
+            return ApiResponse::error(
+                'Registration failed',
+                ['exception' => $e->getMessage()],
+                422
+            );
         }
     }
 
@@ -47,23 +51,24 @@ class AuthController extends Controller
             $result = $this->authService->login($request->validated());
             
             if (!$result) {
-                return response()->json([
-                    'message' => 'Invalid credentials'
-                ], 401);
+                return ApiResponse::unauthorized('Invalid credentials');
             }
 
             $token = $result['user']->createToken('auth-token')->plainTextToken;
 
-            return response()->json([
-                'message' => 'Login successful',
-                'user' => new UserResource($result['user']),
-                'token' => $token
-            ]);
+            return ApiResponse::success(
+                [
+                    'user' => new UserResource($result['user']),
+                    'token' => $token
+                ],
+                'Login successful'
+            );
         } catch (\Exception $e) {
-            return response()->json([
-                'message' => 'Login failed',
-                'error' => $e->getMessage()
-            ], 422);
+            return ApiResponse::error(
+                'Login failed',
+                ['exception' => $e->getMessage()],
+                422
+            );
         }
     }
 
@@ -72,9 +77,9 @@ class AuthController extends Controller
      */
     public function me(Request $request): JsonResponse
     {
-        return response()->json([
-            'user' => new UserResource($request->user())
-        ]);
+        return ApiResponse::success(
+            ['user' => new UserResource($request->user())]
+        );
     }
 
     /**
@@ -84,8 +89,6 @@ class AuthController extends Controller
     {
         $request->user()->currentAccessToken()->delete();
 
-        return response()->json([
-            'message' => 'Logged out successfully'
-        ]);
+        return ApiResponse::message('Logged out successfully');
     }
 }

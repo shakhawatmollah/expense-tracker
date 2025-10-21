@@ -5,10 +5,18 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Expense\StoreExpenseRequest;
 use App\Http\Requests\Expense\UpdateExpenseRequest;
+use App\Http\Requests\Expense\SearchExpenseRequest;
+use App\Http\Requests\Expense\DateRangeRequest;
 use App\Http\Resources\ExpenseResource;
+use App\Http\Helpers\ApiResponse;
 use App\Services\ExpenseService;
+use App\Exceptions\ExpenseNotFoundException;
+use App\Exceptions\ExpenseValidationException;
+use App\Exceptions\ExpenseDatabaseException;
+use App\Exceptions\ExpenseUnauthorizedException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 
 class ExpenseController extends Controller
 {
@@ -28,23 +36,24 @@ class ExpenseController extends Controller
                 $request->all()
             );
 
-            return response()->json([
-                'data' => ExpenseResource::collection($expenses->items()),
-                'meta' => [
+            return ApiResponse::success(
+                ExpenseResource::collection($expenses->items()),
+                null,
+                [
                     'current_page' => $expenses->currentPage(),
                     'from' => $expenses->firstItem(),
                     'last_page' => $expenses->lastPage(),
                     'per_page' => $expenses->perPage(),
                     'to' => $expenses->lastItem(),
                     'total' => $expenses->total(),
-                ],
-                'links' => [
-                    'first' => $expenses->url(1),
-                    'last' => $expenses->url($expenses->lastPage()),
-                    'prev' => $expenses->previousPageUrl(),
-                    'next' => $expenses->nextPageUrl(),
+                    'links' => [
+                        'first' => $expenses->url(1),
+                        'last' => $expenses->url($expenses->lastPage()),
+                        'prev' => $expenses->previousPageUrl(),
+                        'next' => $expenses->nextPageUrl(),
+                    ]
                 ]
-            ]);
+            );
         }
 
         // Return all expenses without pagination
@@ -53,9 +62,9 @@ class ExpenseController extends Controller
             $request->all()
         );
 
-        return response()->json([
-            'data' => ExpenseResource::collection($expenses)
-        ]);
+        return ApiResponse::collection(
+            ExpenseResource::collection($expenses)
+        );
     }
 
     /**
@@ -68,15 +77,39 @@ class ExpenseController extends Controller
                 array_merge($request->validated(), ['user_id' => $request->user()->id])
             );
 
-            return response()->json([
-                'message' => 'Expense created successfully',
-                'data' => new ExpenseResource($expense)
-            ], 201);
+            return ApiResponse::created(
+                new ExpenseResource($expense),
+                'Expense created successfully'
+            );
+            
+        } catch (ExpenseValidationException $e) {
+            Log::warning('Expense validation failed', [
+                'user_id' => $request->user()->id,
+                'error' => $e->getMessage(),
+                'context' => $e->getContext()
+            ]);
+            throw $e;
+            
+        } catch (ExpenseDatabaseException $e) {
+            Log::error('Database error creating expense', [
+                'user_id' => $request->user()->id,
+                'error' => $e->getMessage(),
+                'context' => $e->getContext()
+            ]);
+            throw $e;
+            
         } catch (\Exception $e) {
-            return response()->json([
-                'message' => 'Failed to create expense',
-                'error' => $e->getMessage()
-            ], 422);
+            Log::critical('Unexpected error creating expense', [
+                'user_id' => $request->user()->id,
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+            
+            throw new ExpenseDatabaseException(
+                'expense creation',
+                $e->getMessage(),
+                ['user_id' => $request->user()->id]
+            );
         }
     }
 
@@ -88,14 +121,36 @@ class ExpenseController extends Controller
         try {
             $expense = $this->expenseService->findForUser($id, $request->user()->id);
 
-            return response()->json([
-                'data' => new ExpenseResource($expense)
+            return ApiResponse::success(
+                new ExpenseResource($expense)
+            );
+            
+        } catch (ExpenseNotFoundException $e) {
+            Log::info('Expense not found', [
+                'expense_id' => $id,
+                'user_id' => $request->user()->id
             ]);
+            throw $e;
+            
+        } catch (ExpenseUnauthorizedException $e) {
+            Log::warning('Unauthorized expense access attempt', [
+                'expense_id' => $id,
+                'user_id' => $request->user()->id
+            ]);
+            throw $e;
+            
         } catch (\Exception $e) {
-            return response()->json([
-                'message' => 'Expense not found',
+            Log::error('Unexpected error fetching expense', [
+                'expense_id' => $id,
+                'user_id' => $request->user()->id,
                 'error' => $e->getMessage()
-            ], 404);
+            ]);
+            
+            throw new ExpenseDatabaseException(
+                'expense retrieval',
+                $e->getMessage(),
+                ['expense_id' => $id, 'user_id' => $request->user()->id]
+            );
         }
     }
 
@@ -107,15 +162,54 @@ class ExpenseController extends Controller
         try {
             $expense = $this->expenseService->update($id, $request->user()->id, $request->validated());
 
-            return response()->json([
-                'message' => 'Expense updated successfully',
-                'data' => new ExpenseResource($expense)
+            return ApiResponse::success(
+                new ExpenseResource($expense),
+                'Expense updated successfully'
+            );
+            
+        } catch (ExpenseNotFoundException $e) {
+            Log::info('Expense not found for update', [
+                'expense_id' => $id,
+                'user_id' => $request->user()->id
             ]);
-        } catch (\Exception $e) {
-            return response()->json([
-                'message' => 'Failed to update expense',
+            throw $e;
+            
+        } catch (ExpenseUnauthorizedException $e) {
+            Log::warning('Unauthorized expense update attempt', [
+                'expense_id' => $id,
+                'user_id' => $request->user()->id
+            ]);
+            throw $e;
+            
+        } catch (ExpenseValidationException $e) {
+            Log::warning('Expense update validation failed', [
+                'expense_id' => $id,
+                'user_id' => $request->user()->id,
+                'errors' => $e->getErrors()
+            ]);
+            throw $e;
+            
+        } catch (ExpenseDatabaseException $e) {
+            Log::error('Database error updating expense', [
+                'expense_id' => $id,
+                'user_id' => $request->user()->id,
                 'error' => $e->getMessage()
-            ], 422);
+            ]);
+            throw $e;
+            
+        } catch (\Exception $e) {
+            Log::critical('Unexpected error updating expense', [
+                'expense_id' => $id,
+                'user_id' => $request->user()->id,
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+            
+            throw new ExpenseDatabaseException(
+                'expense update',
+                $e->getMessage(),
+                ['expense_id' => $id, 'user_id' => $request->user()->id]
+            );
         }
     }
 
@@ -127,45 +221,92 @@ class ExpenseController extends Controller
         try {
             $this->expenseService->delete($id, $request->user()->id);
 
-            return response()->json([
-                'message' => 'Expense deleted successfully'
+            return ApiResponse::message(
+                'Expense deleted successfully'
+            );
+            
+        } catch (ExpenseNotFoundException $e) {
+            Log::info('Expense not found for deletion', [
+                'expense_id' => $id,
+                'user_id' => $request->user()->id
             ]);
-        } catch (\Exception $e) {
-            return response()->json([
-                'message' => 'Failed to delete expense',
+            throw $e;
+            
+        } catch (ExpenseUnauthorizedException $e) {
+            Log::warning('Unauthorized expense deletion attempt', [
+                'expense_id' => $id,
+                'user_id' => $request->user()->id
+            ]);
+            throw $e;
+            
+        } catch (ExpenseDatabaseException $e) {
+            Log::error('Database error deleting expense', [
+                'expense_id' => $id,
+                'user_id' => $request->user()->id,
                 'error' => $e->getMessage()
-            ], 422);
+            ]);
+            throw $e;
+            
+        } catch (\Exception $e) {
+            Log::critical('Unexpected error deleting expense', [
+                'expense_id' => $id,
+                'user_id' => $request->user()->id,
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+            
+            throw new ExpenseDatabaseException(
+                'expense deletion',
+                $e->getMessage(),
+                ['expense_id' => $id, 'user_id' => $request->user()->id]
+            );
         }
     }
 
     /**
      * Get expenses by date range
      */
-    public function getByDateRange(Request $request): JsonResponse
+    public function getByDateRange(DateRangeRequest $request): JsonResponse
     {
+        $validated = $request->validated();
+        
         $expenses = $this->expenseService->getByDateRange(
             $request->user()->id,
-            $request->get('start_date'),
-            $request->get('end_date')
+            $validated['start_date'],
+            $validated['end_date']
         );
 
-        return response()->json([
-            'data' => ExpenseResource::collection($expenses)
-        ]);
+        return ApiResponse::success(
+            ExpenseResource::collection($expenses),
+            null,
+            [
+                'start_date' => $validated['start_date'],
+                'end_date' => $validated['end_date'],
+                'total_expenses' => $expenses->count(),
+                'total_amount' => $expenses->sum('amount'),
+            ]
+        );
     }
 
     /**
      * Search expenses
      */
-    public function search(Request $request): JsonResponse
+    public function search(SearchExpenseRequest $request): JsonResponse
     {
+        $validated = $request->validated();
+        
         $expenses = $this->expenseService->search(
             $request->user()->id,
-            $request->get('query')
+            $validated['query'] ?? null
         );
 
-        return response()->json([
-            'data' => ExpenseResource::collection($expenses)
-        ]);
+        return ApiResponse::success(
+            ExpenseResource::collection($expenses),
+            null,
+            [
+                'query' => $validated['query'] ?? '',
+                'results_count' => $expenses->count(),
+            ]
+        );
     }
 }

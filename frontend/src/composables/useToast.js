@@ -47,7 +47,7 @@ export function useToast() {
   }
 
   // Remove toast
-  const removeToast = (id) => {
+  const removeToast = id => {
     const index = toasts.value.findIndex(toast => toast.id === id)
     if (index > -1) {
       toasts.value.splice(index, 1)
@@ -100,7 +100,7 @@ export function useToast() {
           break
         case 403:
           title = 'Forbidden'
-          message = 'You don\'t have permission to perform this action'
+          message = "You don't have permission to perform this action"
           break
         case 404:
           title = 'Not Found'
@@ -139,44 +139,44 @@ export function useToast() {
     loginSuccess: (name = 'User') => success(`Welcome back, ${name}!`, 'Login Successful'),
     loginError: () => error('Invalid credentials', 'Login Failed'),
     logoutSuccess: () => info('You have been logged out', 'Goodbye'),
-    
+
     // CRUD templates
-    itemCreated: (itemType) => success(`${itemType} created successfully`, 'Created'),
-    itemUpdated: (itemType) => success(`${itemType} updated successfully`, 'Updated'),
-    itemDeleted: (itemType) => success(`${itemType} deleted successfully`, 'Deleted'),
-    
+    itemCreated: itemType => success(`${itemType} created successfully`, 'Created'),
+    itemUpdated: itemType => success(`${itemType} updated successfully`, 'Updated'),
+    itemDeleted: itemType => success(`${itemType} deleted successfully`, 'Deleted'),
+
     // Expense templates
-    expenseAdded: (amount) => success(`Expense of $${amount} added`, 'Expense Added'),
-    expenseUpdated: (amount) => success(`Expense updated to $${amount}`, 'Expense Updated'),
+    expenseAdded: amount => success(`Expense of $${amount} added`, 'Expense Added'),
+    expenseUpdated: amount => success(`Expense updated to $${amount}`, 'Expense Updated'),
     expenseDeleted: () => success('Expense deleted successfully', 'Expense Deleted'),
-    
+
     // Category templates
-    categoryCreated: (name) => success(`Category "${name}" created`, 'Category Added'),
-    categoryUpdated: (name) => success(`Category "${name}" updated`, 'Category Updated'),
-    categoryDeleted: (name) => success(`Category "${name}" deleted`, 'Category Deleted'),
-    
+    categoryCreated: name => success(`Category "${name}" created`, 'Category Added'),
+    categoryUpdated: name => success(`Category "${name}" updated`, 'Category Updated'),
+    categoryDeleted: name => success(`Category "${name}" deleted`, 'Category Deleted'),
+
     // Budget templates
     budgetCreated: (name, amount) => success(`Budget "${name}" created with limit of $${amount}`, 'Budget Created'),
     budgetUpdated: (name, amount) => success(`Budget "${name}" updated with limit of $${amount}`, 'Budget Updated'),
     budgetWarning: (name, percentage) => warning(`Budget "${name}" is ${percentage}% used`, 'Budget Warning'),
-    budgetExceeded: (name) => error(`Budget "${name}" has been exceeded!`, 'Budget Exceeded'),
-    
+    budgetExceeded: name => error(`Budget "${name}" has been exceeded!`, 'Budget Exceeded'),
+
     // File templates
-    exportSuccess: (type) => success(`${type} exported successfully`, 'Export Complete'),
-    importSuccess: (count) => success(`${count} items imported successfully`, 'Import Complete'),
-    
+    exportSuccess: type => success(`${type} exported successfully`, 'Export Complete'),
+    importSuccess: count => success(`${count} items imported successfully`, 'Import Complete'),
+
     // Network templates
     offline: () => warning('You are currently offline', 'Connection Lost'),
     online: () => info('Connection restored', 'Back Online'),
-    
+
     // Feature templates
-    featureComingSoon: (feature) => info(`${feature} feature coming soon!`, 'Feature Preview'),
+    featureComingSoon: feature => info(`${feature} feature coming soon!`, 'Feature Preview'),
     maintenanceMode: () => warning('The application is in maintenance mode', 'Maintenance'),
-    
+
     // Validation templates
-    requiredField: (field) => error(`${field} is required`, 'Validation Error'),
-    invalidFormat: (field) => error(`Invalid ${field} format`, 'Validation Error'),
-    
+    requiredField: field => error(`${field} is required`, 'Validation Error'),
+    invalidFormat: field => error(`Invalid ${field} format`, 'Validation Error'),
+
     // Save templates
     saveSuccess: () => success('Changes saved successfully', 'Saved'),
     saveError: () => error('Failed to save changes', 'Save Error'),
@@ -186,22 +186,22 @@ export function useToast() {
   return {
     // State
     toasts,
-    
+
     // Core methods
     addToast,
     removeToast,
     clearAll,
-    
+
     // Convenience methods
     success,
     error,
     warning,
     info,
-    
+
     // Utility methods
     handleApiError,
     templates,
-    
+
     // Constants
     TOAST_TYPES
   }

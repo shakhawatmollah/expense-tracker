@@ -33,6 +33,60 @@ class Handler extends ExceptionHandler
      */
     public function register(): void
     {
+        // Handle custom expense exceptions
+        $this->renderable(function (ExpenseException $e, Request $request) {
+            if ($request->expectsJson()) {
+                Log::warning('Expense Exception', [
+                    'exception' => get_class($e),
+                    'message' => $e->getMessage(),
+                    'context' => $e->getContext(),
+                    'user_id' => $request->user()?->id,
+                ]);
+
+                return response()->json([
+                    'success' => false,
+                    'message' => $e->getUserMessage(),
+                    'errors' => method_exists($e, 'getErrors') ? $e->getErrors() : null,
+                ], $e->getStatusCode());
+            }
+        });
+
+        // Handle custom budget exceptions
+        $this->renderable(function (BudgetException $e, Request $request) {
+            if ($request->expectsJson()) {
+                Log::warning('Budget Exception', [
+                    'exception' => get_class($e),
+                    'message' => $e->getMessage(),
+                    'context' => $e->getContext(),
+                    'user_id' => $request->user()?->id,
+                ]);
+
+                return response()->json([
+                    'success' => false,
+                    'message' => $e->getUserMessage(),
+                    'errors' => method_exists($e, 'getErrors') ? $e->getErrors() : null,
+                ], $e->getStatusCode());
+            }
+        });
+
+        // Handle custom category exceptions
+        $this->renderable(function (CategoryException $e, Request $request) {
+            if ($request->expectsJson()) {
+                Log::warning('Category Exception', [
+                    'exception' => get_class($e),
+                    'message' => $e->getMessage(),
+                    'context' => $e->getContext(),
+                    'user_id' => $request->user()?->id,
+                ]);
+
+                return response()->json([
+                    'success' => false,
+                    'message' => $e->getUserMessage(),
+                    'errors' => method_exists($e, 'getErrors') ? $e->getErrors() : null,
+                ], $e->getStatusCode());
+            }
+        });
+
         $this->reportable(function (Throwable $e) {
             //
         });

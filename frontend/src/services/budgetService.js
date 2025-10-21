@@ -1,3 +1,5 @@
+import debug from '@/utils/debug'
+
 import api from './api'
 
 export const budgetService = {
@@ -40,12 +42,12 @@ export const budgetService = {
   // Get budget summary with analytics
   async getBudgetSummary() {
     try {
-      console.log('🔍 [budgetService] getBudgetSummary called')
+      console.log('?? [budgetService] getBudgetSummary called')
       const response = await api.get('/budgets/summary')
-      console.log('✅ [budgetService] getBudgetSummary response:', response)
+      console.log('? [budgetService] getBudgetSummary response:', response)
       return response.data
     } catch (error) {
-      console.error('❌ [budgetService] getBudgetSummary error:', error)
+      console.error('? [budgetService] getBudgetSummary error:', error)
       throw error
     }
   },
@@ -53,20 +55,20 @@ export const budgetService = {
   // Get budget alerts
   async getBudgetAlerts() {
     try {
-      console.log('🔍 [budgetService] getBudgetAlerts called')
+      console.log('?? [budgetService] getBudgetAlerts called')
       const response = await api.get('/budgets/alerts')
-      console.log('✅ [budgetService] getBudgetAlerts response:', response)
+      console.log('? [budgetService] getBudgetAlerts response:', response)
       return response.data
     } catch (error) {
-      console.error('❌ [budgetService] getBudgetAlerts error:', error)
+      console.error('? [budgetService] getBudgetAlerts error:', error)
       throw error
     }
   },
 
   // Get budget analytics
   async getBudgetAnalytics(period = 'monthly') {
-    const response = await api.get('/budgets/analytics', { 
-      params: { period } 
+    const response = await api.get('/budgets/analytics', {
+      params: { period }
     })
     return response.data
   },
@@ -79,16 +81,16 @@ export const budgetService = {
 
   // Get budgets by period
   async getBudgetsByPeriod(period) {
-    const response = await api.get('/budgets/by-period', { 
-      params: { period } 
+    const response = await api.get('/budgets/by-period', {
+      params: { period }
     })
     return response.data
   },
 
   // Search budgets with filters
   async searchBudgets(filters = {}) {
-    const response = await api.get('/budgets/search', { 
-      params: filters 
+    const response = await api.get('/budgets/search', {
+      params: filters
     })
     return response.data
   },
@@ -113,8 +115,8 @@ export const budgetService = {
 
   // Recalculate budget spending
   async recalculateBudgets(budgetId = null) {
-    const response = await api.post('/budgets/recalculate', { 
-      budget_id: budgetId 
+    const response = await api.post('/budgets/recalculate', {
+      budget_id: budgetId
     })
     return response.data
   }

@@ -13,6 +13,7 @@
     "require-dev": {
         "barryvdh/laravel-ide-helper": "^3.6",
         "fakerphp/faker": "^1.23",
+        "friendsofphp/php-cs-fixer": "^3.64",
         "laravel/pint": "^1.13",
         "laravel/sail": "^1.30",
         "mockery/mockery": "^1.6",
@@ -47,7 +48,11 @@
             "@php artisan key:generate --ansi",
             "@php -r \"file_exists('database/database.sqlite') || touch('database/database.sqlite');\"",
             "@php artisan migrate --ansi"
-        ]
+        ],
+        "cs-fix": "php-cs-fixer fix",
+        "cs-check": "php-cs-fixer fix --dry-run --diff",
+        "test": "phpunit",
+        "test-coverage": "phpunit --coverage-html coverage"
     },
     "extra": {
         "branch-alias": {

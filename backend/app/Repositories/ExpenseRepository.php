@@ -18,20 +18,21 @@ class ExpenseRepository implements ExpenseRepositoryInterface
 
     public function find(int $id): ?Expense
     {
-        return Expense::find($id);
+        return Expense::with(['category', 'user'])->find($id);
     }
 
     public function findForUser(int $id, int $userId): ?Expense
     {
-        return Expense::where('id', $id)
+        return Expense::with(['category', 'user'])
+            ->where('id', $id)
             ->where('user_id', $userId)
             ->first();
     }
 
     public function getUserExpenses(int $userId, array $filters = []): Collection
     {
-        $query = Expense::where('user_id', $userId)
-            ->with(['category']);
+        $query = Expense::with(['category', 'user'])
+            ->where('user_id', $userId);
 
         if (!empty($filters['category_id'])) {
             $query->where('category_id', $filters['category_id']);
@@ -61,8 +62,8 @@ class ExpenseRepository implements ExpenseRepositoryInterface
 
     public function getPaginatedUserExpenses(int $userId, array $filters = []): LengthAwarePaginator
     {
-        $query = Expense::where('user_id', $userId)
-            ->with(['category']);
+        $query = Expense::with(['category', 'user'])
+            ->where('user_id', $userId);
 
         if (!empty($filters['category_id'])) {
             $query->where('category_id', $filters['category_id']);
@@ -93,8 +94,8 @@ class ExpenseRepository implements ExpenseRepositoryInterface
 
     public function getByUser(int $userId, array $filters = []): Collection|LengthAwarePaginator
     {
-        $query = Expense::where('user_id', $userId)
-            ->with(['category']);
+        $query = Expense::with(['category', 'user'])
+            ->where('user_id', $userId);
 
         if (!empty($filters['category_id'])) {
             $query->where('category_id', $filters['category_id']);
@@ -119,7 +120,8 @@ class ExpenseRepository implements ExpenseRepositoryInterface
 
     public function getByDateRange(int $userId, ?string $startDate = null, ?string $endDate = null): Collection
     {
-        $query = Expense::where('user_id', $userId)->with(['category']);
+        $query = Expense::with(['category', 'user'])
+            ->where('user_id', $userId);
         
         if ($startDate) {
             $query->whereDate('date', '>=', $startDate);
@@ -134,14 +136,14 @@ class ExpenseRepository implements ExpenseRepositoryInterface
 
     public function search(int $userId, string $query): Collection
     {
-        return Expense::where('user_id', $userId)
+        return Expense::with(['category', 'user'])
+            ->where('user_id', $userId)
             ->where(function ($q) use ($query) {
                 $q->where('description', 'like', '%' . $query . '%')
                   ->orWhereHas('category', function ($categoryQuery) use ($query) {
                       $categoryQuery->where('name', 'like', '%' . $query . '%');
                   });
             })
-            ->with(['category'])
             ->orderBy('date', 'desc')
             ->get();
     }
@@ -149,7 +151,7 @@ class ExpenseRepository implements ExpenseRepositoryInterface
     public function update(Expense $expense, array $data): Expense
     {
         $expense->update($data);
-        return $expense->fresh();
+        return $expense->fresh(['category', 'user']);
     }
 
     public function delete(Expense $expense): bool
@@ -210,8 +212,8 @@ class ExpenseRepository implements ExpenseRepositoryInterface
 
     public function getRecent(int $userId, int $limit = 10): Collection
     {
-        return Expense::where('user_id', $userId)
-            ->with(['category'])
+        return Expense::with(['category', 'user'])
+            ->where('user_id', $userId)
             ->orderBy('date', 'desc')
             ->orderBy('created_at', 'desc')
             ->limit($limit)
@@ -280,10 +282,10 @@ class ExpenseRepository implements ExpenseRepositoryInterface
 
     public function getMonthlyExpenseSummary(int $userId, int $year, int $month): array
     {
-        $expenses = Expense::where('user_id', $userId)
+        $expenses = Expense::with(['category'])
+            ->where('user_id', $userId)
             ->whereYear('date', $year)
             ->whereMonth('date', $month)
-            ->with(['category'])
             ->get();
 
         return [
@@ -300,8 +302,8 @@ class ExpenseRepository implements ExpenseRepositoryInterface
 
     public function getRecentExpenses(int $userId, int $limit = 10): Collection
     {
-        return Expense::where('user_id', $userId)
-            ->with(['category'])
+        return Expense::with(['category', 'user'])
+            ->where('user_id', $userId)
             ->orderBy('date', 'desc')
             ->orderBy('created_at', 'desc')
             ->limit($limit)

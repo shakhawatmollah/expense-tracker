@@ -4,7 +4,9 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\BudgetRequest;
+use App\Http\Requests\Budget\SearchBudgetRequest;
 use App\Http\Resources\BudgetResource;
+use App\Http\Helpers\ApiResponse;
 use App\Models\Budget;
 use App\Services\BudgetService;
 use Illuminate\Http\JsonResponse;
@@ -25,10 +27,11 @@ class BudgetController extends Controller
     /**
      * Display a listing of budgets.
      */
-    public function index(Request $request): JsonResponse
+    public function index(SearchBudgetRequest $request): JsonResponse
     {
+        $validated = $request->validated();
         $filters = $request->only(['period', 'category_id', 'is_active', 'status', 'search']);
-        $perPage = $request->get('per_page', 15);
+        $perPage = $validated['per_page'] ?? 15;
 
         $budgets = $this->budgetService->getAllBudgets(
             $request->user()->id,
@@ -36,16 +39,16 @@ class BudgetController extends Controller
             $perPage
         );
 
-        return response()->json([
-            'success' => true,
-            'data' => BudgetResource::collection($budgets),
-            'meta' => [
+        return ApiResponse::success(
+            BudgetResource::collection($budgets),
+            null,
+            [
                 'current_page' => $budgets->currentPage(),
                 'last_page' => $budgets->lastPage(),
                 'per_page' => $budgets->perPage(),
                 'total' => $budgets->total(),
-            ],
-        ]);
+            ]
+        );
     }
 
     /**
@@ -59,17 +62,12 @@ class BudgetController extends Controller
                 $request->user()->id
             );
 
-            return response()->json([
-                'success' => true,
-                'message' => 'Budget created successfully',
-                'data' => new BudgetResource($budget),
-            ], 201);
+            return ApiResponse::created(
+                new BudgetResource($budget),
+                'Budget created successfully'
+            );
         } catch (ValidationException $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Validation failed',
-                'errors' => $e->errors(),
-            ], 422);
+            return ApiResponse::validationError($e->errors());
         }
     }
 
@@ -81,16 +79,12 @@ class BudgetController extends Controller
         $budget = $this->budgetService->getBudgetById((int)$id, $request->user()->id);
 
         if (!$budget) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Budget not found',
-            ], 404);
+            return ApiResponse::notFound('Budget not found', 'budget');
         }
 
-        return response()->json([
-            'success' => true,
-            'data' => new BudgetResource($budget),
-        ]);
+        return ApiResponse::success(
+            new BudgetResource($budget)
+        );
     }
 
     /**
@@ -106,25 +100,17 @@ class BudgetController extends Controller
             );
 
             if (!$updated) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Budget not found',
-                ], 404);
+                return ApiResponse::notFound('Budget not found', 'budget');
             }
 
             $budget = $this->budgetService->getBudgetById((int)$id, $request->user()->id);
 
-            return response()->json([
-                'success' => true,
-                'message' => 'Budget updated successfully',
-                'data' => new BudgetResource($budget),
-            ]);
+            return ApiResponse::success(
+                new BudgetResource($budget),
+                'Budget updated successfully'
+            );
         } catch (ValidationException $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Validation failed',
-                'errors' => $e->errors(),
-            ], 422);
+            return ApiResponse::validationError($e->errors());
         }
     }
 
@@ -136,16 +122,10 @@ class BudgetController extends Controller
         $deleted = $this->budgetService->deleteBudget((int)$id, $request->user()->id);
 
         if (!$deleted) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Budget not found',
-            ], 404);
+            return ApiResponse::notFound('Budget not found', 'budget');
         }
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Budget deleted successfully',
-        ]);
+        return ApiResponse::message('Budget deleted successfully');
     }
 
     /**

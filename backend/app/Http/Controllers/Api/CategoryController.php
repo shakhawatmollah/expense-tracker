@@ -5,7 +5,9 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Category\StoreCategoryRequest;
 use App\Http\Requests\Category\UpdateCategoryRequest;
+use App\Http\Requests\Category\IndexCategoryRequest;
 use App\Http\Resources\CategoryResource;
+use App\Http\Helpers\ApiResponse;
 use App\Services\CategoryService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -19,13 +21,20 @@ class CategoryController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index(Request $request): JsonResponse
+    public function index(IndexCategoryRequest $request): JsonResponse
     {
+        $validated = $request->validated();
+        
         $categories = $this->categoryService->getCategoriesWithExpenseCounts($request->user()->id);
 
-        return response()->json([
-            'data' => CategoryResource::collection($categories)
-        ]);
+        return ApiResponse::collection(
+            CategoryResource::collection($categories),
+            null,
+            [
+                'total' => $categories->count(),
+                'with_counts' => $validated['with_counts'] ?? true,
+            ]
+        );
     }
 
     /**
@@ -38,15 +47,16 @@ class CategoryController extends Controller
                 array_merge($request->validated(), ['user_id' => $request->user()->id])
             );
 
-            return response()->json([
-                'message' => 'Category created successfully',
-                'data' => new CategoryResource($category)
-            ], 201);
+            return ApiResponse::created(
+                new CategoryResource($category),
+                'Category created successfully'
+            );
         } catch (\Exception $e) {
-            return response()->json([
-                'message' => 'Failed to create category',
-                'error' => $e->getMessage()
-            ], 422);
+            return ApiResponse::error(
+                'Failed to create category',
+                ['exception' => $e->getMessage()],
+                422
+            );
         }
     }
 
@@ -58,14 +68,11 @@ class CategoryController extends Controller
         try {
             $category = $this->categoryService->findForUser($id, $request->user()->id);
 
-            return response()->json([
-                'data' => new CategoryResource($category)
-            ]);
+            return ApiResponse::success(
+                new CategoryResource($category)
+            );
         } catch (\Exception $e) {
-            return response()->json([
-                'message' => 'Category not found',
-                'error' => $e->getMessage()
-            ], 404);
+            return ApiResponse::notFound('Category not found', 'category');
         }
     }
 
@@ -77,15 +84,16 @@ class CategoryController extends Controller
         try {
             $category = $this->categoryService->update($id, $request->user()->id, $request->validated());
 
-            return response()->json([
-                'message' => 'Category updated successfully',
-                'data' => new CategoryResource($category)
-            ]);
+            return ApiResponse::success(
+                new CategoryResource($category),
+                'Category updated successfully'
+            );
         } catch (\Exception $e) {
-            return response()->json([
-                'message' => 'Failed to update category',
-                'error' => $e->getMessage()
-            ], 422);
+            return ApiResponse::error(
+                'Failed to update category',
+                ['exception' => $e->getMessage()],
+                422
+            );
         }
     }
 
@@ -97,14 +105,13 @@ class CategoryController extends Controller
         try {
             $this->categoryService->delete($id, $request->user()->id);
 
-            return response()->json([
-                'message' => 'Category deleted successfully'
-            ]);
+            return ApiResponse::message('Category deleted successfully');
         } catch (\Exception $e) {
-            return response()->json([
-                'message' => 'Failed to delete category',
-                'error' => $e->getMessage()
-            ], 422);
+            return ApiResponse::error(
+                'Failed to delete category',
+                ['exception' => $e->getMessage()],
+                422
+            );
         }
     }
 }

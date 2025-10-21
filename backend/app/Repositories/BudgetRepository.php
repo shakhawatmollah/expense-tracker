@@ -22,9 +22,9 @@ class BudgetRepository
      */
     public function findByIdForUser(int $id, int $userId): ?Budget
     {
-        return $this->model->where('id', $id)
+        return $this->model->with(['category', 'user'])
+                         ->where('id', $id)
                          ->where('user_id', $userId)
-                         ->with(['category'])
                          ->first();
     }
 
@@ -33,8 +33,8 @@ class BudgetRepository
      */
     public function getAllForUser(int $userId, array $filters = [], int $perPage = 15): LengthAwarePaginator
     {
-        $query = $this->model->where('user_id', $userId)
-                           ->with(['category']);
+        $query = $this->model->with(['category', 'user'])
+                           ->where('user_id', $userId);
 
         // Apply filters
         if (!empty($filters['period'])) {
@@ -78,9 +78,9 @@ class BudgetRepository
      */
     public function getCurrentForUser(int $userId): Collection
     {
-        return $this->model->where('user_id', $userId)
+        return $this->model->with(['category', 'user'])
+                         ->where('user_id', $userId)
                          ->current()
-                         ->with(['category'])
                          ->get();
     }
 
@@ -89,9 +89,9 @@ class BudgetRepository
      */
     public function getByPeriodForUser(int $userId, string $period): Collection
     {
-        return $this->model->where('user_id', $userId)
+        return $this->model->with(['category', 'user'])
+                         ->where('user_id', $userId)
                          ->forPeriod($period)
-                         ->with(['category'])
                          ->orderBy('start_date', 'desc')
                          ->get();
     }
@@ -101,9 +101,9 @@ class BudgetRepository
      */
     public function getByCategoryForUser(int $userId, int $categoryId): Collection
     {
-        return $this->model->where('user_id', $userId)
+        return $this->model->with(['category', 'user'])
+                         ->where('user_id', $userId)
                          ->byCategory($categoryId)
-                         ->with(['category'])
                          ->orderBy('start_date', 'desc')
                          ->get();
     }
@@ -238,9 +238,9 @@ class BudgetRepository
             $startDate = Carbon::now()->subYears(2);
         }
 
-        $budgets = $this->model->where('user_id', $userId)
+        $budgets = $this->model->with(['category', 'user'])
+                             ->where('user_id', $userId)
                              ->whereBetween('start_date', [$startDate, $endDate])
-                             ->with(['category'])
                              ->get();
 
         $analytics = [
@@ -302,7 +302,8 @@ class BudgetRepository
      */
     public function searchBudgets(int $userId, array $filters): Collection
     {
-        $query = $this->model->where('user_id', $userId)->with(['category']);
+        $query = $this->model->with(['category', 'user'])
+                           ->where('user_id', $userId);
 
         if (!empty($filters['period'])) {
             $query->forPeriod($filters['period']);
