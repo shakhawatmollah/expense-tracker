@@ -249,6 +249,7 @@
 
 <script>
   import { ref, computed, onMounted } from 'vue'
+  import { useRouter } from 'vue-router'
   import { useBudgetStore } from '@/stores/budget'
   import { useCategoriesStore } from '@/stores/categories'
   import { formatCurrency } from '@/utils/formatters'
@@ -264,6 +265,7 @@
       BudgetModal
     },
     setup() {
+      const router = useRouter()
       const budgetStore = useBudgetStore()
       const categoryStore = useCategoriesStore()
 
@@ -272,6 +274,7 @@
       const viewMode = ref('grid')
       const showCreateModal = ref(false)
       const showBudgetAnalytics = ref(false)
+      const selectedBudgetId = ref(null)
 
       // Computed properties
       const remainingPercentage = computed(() => {
@@ -374,18 +377,92 @@
       }
 
       const exportBudgetReport = () => {
-        // TODO: Implement budget report export
-        console.log('Export budget report - to be implemented')
+        try {
+          // Prepare budget data for export
+          const exportData = {
+            generated_at: new Date().toISOString(),
+            summary: {
+              total_budget: budgetStore.totalBudgetAmount,
+              total_spent: budgetStore.totalSpentAmount,
+              total_remaining: budgetStore.totalRemainingAmount,
+              percentage_used: Math.round((budgetStore.totalSpentAmount / budgetStore.totalBudgetAmount) * 100)
+            },
+            budgets: []
+          }
+
+          // Collect all budgets with details
+          Object.entries(budgetStore.budgetsByCategory).forEach(([categoryName, budgets]) => {
+            budgets.forEach(budget => {
+              exportData.budgets.push({
+                category: categoryName,
+                amount: budget.amount,
+                spent: budget.spent,
+                remaining: budget.amount - budget.spent,
+                percentage_used: Math.round((budget.spent / budget.amount) * 100),
+                start_date: budget.start_date,
+                end_date: budget.end_date,
+                status: budget.spent >= budget.amount ? 'exceeded' : budget.spent >= budget.amount * 0.9 ? 'critical' : budget.spent >= budget.amount * 0.75 ? 'warning' : 'good'
+              })
+            })
+          })
+
+          // Create CSV content
+          const csvHeaders = ['Category', 'Budget Amount', 'Spent', 'Remaining', 'Usage %', 'Start Date', 'End Date', 'Status']
+          const csvRows = exportData.budgets.map(budget => [
+            budget.category,
+            budget.amount.toFixed(2),
+            budget.spent.toFixed(2),
+            budget.remaining.toFixed(2),
+            budget.percentage_used + '%',
+            budget.start_date,
+            budget.end_date,
+            budget.status
+          ])
+
+          const csvContent = [
+            csvHeaders.join(','),
+            ...csvRows.map(row => row.join(','))
+          ].join('\n')
+
+          // Create and download file
+          const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' })
+          const link = document.createElement('a')
+          const url = URL.createObjectURL(blob)
+          const timestamp = new Date().toISOString().split('T')[0]
+          
+          link.setAttribute('href', url)
+          link.setAttribute('download', `budget_report_${timestamp}.csv`)
+          link.style.visibility = 'hidden'
+          document.body.appendChild(link)
+          link.click()
+          document.body.removeChild(link)
+
+          console.log('Budget report exported successfully')
+        } catch (error) {
+          console.error('Failed to export budget report:', error)
+        }
       }
 
       const viewBudgetDetails = budgetId => {
-        // TODO: Navigate to budget details or open modal
-        console.log('View budget details:', budgetId)
+        // Navigate to the budgets page with manage tab and highlight the specific budget
+        router.push({
+          path: '/budgets',
+          query: { 
+            tab: 'manage',
+            budgetId: budgetId 
+          }
+        })
       }
 
       const viewCategoryBudgets = categoryName => {
-        // TODO: Filter budgets by category or navigate to filtered view
-        console.log('View category budgets:', categoryName)
+        // Navigate to the budgets page with manage tab filtered by category
+        router.push({
+          path: '/budgets',
+          query: { 
+            tab: 'manage',
+            category: categoryName 
+          }
+        })
       }
 
       const handleBudgetSaved = async () => {

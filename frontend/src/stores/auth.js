@@ -2,6 +2,7 @@ import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import { authService } from '@/services/authService'
 import storage from '@/utils/storage'
+import { useSettingsStore } from './settings'
 
 export const useAuthStore = defineStore('auth', () => {
   const user = ref(null)
@@ -19,6 +20,14 @@ export const useAuthStore = defineStore('auth', () => {
       if (storedToken && storedUser) {
         token.value = storedToken
         user.value = storedUser
+        
+        // Load settings on auth initialization
+        const settingsStore = useSettingsStore()
+        settingsStore.loadSettings()
+        
+        // Sync user data to settings
+        if (storedUser.name) settingsStore.profile.name = storedUser.name
+        if (storedUser.email) settingsStore.profile.email = storedUser.email
       } else {
         token.value = null
         user.value = null
@@ -53,6 +62,12 @@ export const useAuthStore = defineStore('auth', () => {
 
       storage.setItem('token', tokenValue)
       storage.setItem('user', userData)
+
+      // Sync user data to settings store
+      const settingsStore = useSettingsStore()
+      settingsStore.loadSettings()
+      if (userData.name) settingsStore.profile.name = userData.name
+      if (userData.email) settingsStore.profile.email = userData.email
 
       return response
     } catch (err) {

@@ -207,7 +207,7 @@
       // Wait for login to complete and auth state to be fully set
       await authStore.login(loginData)
 
-      toast.success('Welcome back!', 'Login Successful')
+      toast.success('Welcome back!', 'Login Successful', { duration: 8000 })
 
       // Small delay to ensure auth state is updated before navigation
       await new Promise(resolve => setTimeout(resolve, 100))

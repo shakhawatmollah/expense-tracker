@@ -579,6 +579,12 @@
       case 'add-expense':
         showQuickAddExpense()
         break
+      case 'add-category':
+        showQuickAddCategory()
+        break
+      case 'set-budget':
+        showQuickSetBudget()
+        break
       case 'scan-receipt':
         // TODO: Implement receipt scanning
         break
@@ -586,7 +592,7 @@
         router.push('/analytics')
         break
       case 'export-data':
-        // TODO: Implement data export
+        showExportModal.value = true
         break
     }
   }
@@ -733,19 +739,15 @@
 
   // Quick action implementations
   const showQuickAddCategory = () => {
-    console.log('Show quick add category modal')
-    // Implement quick add category functionality
+    router.push({ path: '/categories', query: { action: 'create' } })
   }
 
   const showQuickSetBudget = () => {
-    console.log('Show quick set budget modal')
-    // Implement quick set budget functionality
+    router.push({ path: '/budgets', query: { action: 'create' } })
   }
 
   const navigateToAnalytics = () => {
-    // Using Vue Router to navigate
-    console.log('Navigate to analytics')
-    // router.push('/analytics')
+    router.push('/analytics')
   }
 
   const handleDataExport = () => {

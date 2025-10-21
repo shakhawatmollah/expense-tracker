@@ -110,11 +110,11 @@
                 <i class="fas fa-user-circle"></i>
                 <span>Profile</span>
               </div>
-              <div class="dropdown-item">
+              <div @click="openSettings" class="dropdown-item">
                 <i class="fas fa-cog"></i>
                 <span>Settings</span>
               </div>
-              <div class="dropdown-item">
+              <div @click="openHelpSupport" class="dropdown-item">
                 <i class="fas fa-question-circle"></i>
                 <span>Help & Support</span>
               </div>
@@ -129,12 +129,20 @@
       </div>
     </div>
   </header>
+
+  <!-- Settings Modal (outside header for proper z-index) -->
+  <Settings v-if="showSettingsModal" @close="showSettingsModal = false" />
+
+  <!-- Help & Support Modal (outside header for proper z-index) -->
+  <HelpSupport v-if="showHelpModal" @close="showHelpModal = false" />
 </template>
 
 <script setup>
   import { computed, ref, reactive, onMounted, onUnmounted } from 'vue'
   import { useRouter } from 'vue-router'
   import { useAuthStore } from '@/stores/auth'
+  import HelpSupport from '@/components/help/HelpSupport.vue'
+  import Settings from '@/components/settings/Settings.vue'
 
   const router = useRouter()
   const authStore = useAuthStore()
@@ -142,6 +150,8 @@
   // Reactive state
   const showDropdown = ref(false)
   const showNotifications = ref(false)
+  const showHelpModal = ref(false)
+  const showSettingsModal = ref(false)
 
   // User data
   const user = computed(() => authStore.user)
@@ -270,6 +280,18 @@
     showDropdown.value = false
   }
 
+  const openHelpSupport = event => {
+    event.stopPropagation()
+    showHelpModal.value = true
+    showDropdown.value = false
+  }
+
+  const openSettings = event => {
+    event.stopPropagation()
+    showSettingsModal.value = true
+    showDropdown.value = false
+  }
+
   // Close dropdowns when clicking outside
   const closeDropdown = event => {
     // Don't close if clicking inside any dropdown
@@ -284,6 +306,8 @@
     if (event.key === 'Escape') {
       showDropdown.value = false
       showNotifications.value = false
+      showHelpModal.value = false
+      showSettingsModal.value = false
     }
   }
 

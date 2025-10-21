@@ -159,8 +159,8 @@ class AnalyticsService
         // Top spending categories
         $topCategories = Expense::where('expenses.user_id', $user->id)
             ->where('expenses.date', '>=', $startDate)
-            ->join('categories', 'expenses.category_id', '=', 'categories.id')
-            ->select('categories.name', DB::raw('SUM(expenses.amount) as total'))
+            ->leftJoin('categories', 'expenses.category_id', '=', 'categories.id')
+            ->select(DB::raw('COALESCE(categories.name, "Uncategorized") as name'), DB::raw('SUM(expenses.amount) as total'))
             ->groupBy('categories.id', 'categories.name')
             ->orderBy('total', 'desc')
             ->limit(5)
@@ -312,7 +312,7 @@ class AnalyticsService
                 $category = Category::find($categoryId);
                 $spikes[] = [
                     'type' => 'category_spike',
-                    'category' => $category->name ?? 'Unknown',
+                    'category' => $category?->name ?? 'Unknown',
                     'amount' => $total,
                     'deviation' => (($total - $average) / $average) * 100
                 ];
@@ -475,7 +475,7 @@ class AnalyticsService
                 ->sum('amount');
                 
             $performance[] = [
-                'category' => $budget->category->name,
+                'category' => $budget->category?->name ?? 'Unknown',
                 'budgeted' => $budget->amount,
                 'spent' => $spent,
                 'remaining' => $budget->amount - $spent,
@@ -535,7 +535,7 @@ class AnalyticsService
         $topCategory = $insights['top_categories'][0] ?? null;
         $summary = "Financial analysis complete. ";
         
-        if ($topCategory) {
+        if ($topCategory && isset($topCategory->name)) {
             $summary .= "Top spending category: " . $topCategory->name . " ($" . $topCategory->total . "). ";
         }
         
