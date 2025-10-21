@@ -15,71 +15,8 @@
 
         <!-- Header Actions -->
         <div class="header-actions">
-          <!-- Enhanced Notifications -->
-          <div class="notifications-container">
-            <button
-              @click="toggleNotifications"
-              class="modern-notification-btn"
-              :class="{ active: showNotifications }"
-              :aria-expanded="showNotifications"
-              aria-label="Toggle notifications"
-              :aria-describedby="notificationCount > 0 ? 'notification-count' : null"
-            >
-              <i class="fas fa-bell"></i>
-              <span
-                v-if="notificationCount > 0"
-                class="notification-badge"
-                id="notification-count"
-                :aria-label="`${notificationCount} unread notifications`"
-              >
-                {{ notificationCount }}
-              </span>
-            </button>
-
-            <!-- Notifications Dropdown -->
-            <div
-              v-if="showNotifications"
-              class="notifications-dropdown"
-              @click.stop
-              role="menu"
-              aria-label="Notifications menu"
-            >
-              <div class="notifications-header">
-                <h4 class="notifications-title">Notifications</h4>
-                <button @click="markAllAsRead" class="mark-all-read">Mark all as read</button>
-              </div>
-              <div class="notifications-content">
-                <div
-                  class="notification-item"
-                  v-for="notification in notifications"
-                  :key="notification.id"
-                  :class="{ unread: !notification.read }"
-                  :data-notification-id="notification.id"
-                  role="menuitem"
-                >
-                  <div class="notification-icon" :class="notification.type">
-                    <i :class="getNotificationIcon(notification.type)"></i>
-                  </div>
-                  <div class="notification-content">
-                    <p class="notification-title">{{ notification.title }}</p>
-                    <p class="notification-message">{{ notification.message }}</p>
-                    <span class="notification-time">{{ formatTime(notification.time) }}</span>
-                  </div>
-                  <button
-                    @click="dismissNotification(notification.id)"
-                    class="notification-dismiss"
-                    :aria-label="`Dismiss ${notification.title}`"
-                  >
-                    <i class="fas fa-times"></i>
-                  </button>
-                </div>
-              </div>
-              <div v-if="notifications.length === 0" class="empty-notifications">
-                <i class="fas fa-bell-slash"></i>
-                <p>No notifications</p>
-              </div>
-            </div>
-          </div>
+          <!-- Enhanced Notification Center -->
+          <NotificationCenter />
 
           <!-- Enhanced User Profile -->
           <div
@@ -143,6 +80,7 @@
   import { useAuthStore } from '@/stores/auth'
   import HelpSupport from '@/components/help/HelpSupport.vue'
   import Settings from '@/components/settings/Settings.vue'
+  import NotificationCenter from '@/components/notifications/NotificationCenter.vue'
 
   const router = useRouter()
   const authStore = useAuthStore()

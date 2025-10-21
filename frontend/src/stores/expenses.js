@@ -1,12 +1,16 @@
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
 import { expenseService } from '@/services/expenseService'
+import { useNotificationsStore } from './notifications'
 
 export const useExpensesStore = defineStore('expenses', () => {
   const expenses = ref([])
   const loading = ref(false)
   const error = ref(null)
   const totalExpenses = ref(0)
+  
+  // Get notifications store
+  const notificationsStore = useNotificationsStore()
 
   // Pagination state
   const pagination = ref({
@@ -74,9 +78,17 @@ export const useExpensesStore = defineStore('expenses', () => {
       const response = await expenseService.createExpense(expenseData)
       expenses.value.unshift(response.data)
       totalExpenses.value++
+      
+      // Show notification
+      notificationsStore.notifyExpenseAdded(response.data)
+      
       return response
     } catch (err) {
       error.value = err.response?.data?.message || 'Failed to create expense'
+      
+      // Show error notification
+      notificationsStore.notifyError('Failed to Add Expense', err.response?.data?.message || 'An error occurred')
+      
       throw err
     } finally {
       loading.value = false
@@ -93,9 +105,17 @@ export const useExpensesStore = defineStore('expenses', () => {
       if (index !== -1) {
         expenses.value[index] = response.data
       }
+      
+      // Show notification
+      notificationsStore.notifySuccess('Expense Updated', `${response.data.description} has been updated`)
+      
       return response
     } catch (err) {
       error.value = err.response?.data?.message || 'Failed to update expense'
+      
+      // Show error notification
+      notificationsStore.notifyError('Update Failed', err.response?.data?.message || 'Could not update expense')
+      
       throw err
     } finally {
       loading.value = false
@@ -110,8 +130,15 @@ export const useExpensesStore = defineStore('expenses', () => {
       await expenseService.deleteExpense(id)
       expenses.value = expenses.value.filter(expense => expense.id !== id)
       totalExpenses.value--
+      
+      // Show notification
+      notificationsStore.notifySuccess('Expense Deleted', 'The expense has been removed successfully')
     } catch (err) {
       error.value = err.response?.data?.message || 'Failed to delete expense'
+      
+      // Show error notification
+      notificationsStore.notifyError('Delete Failed', err.response?.data?.message || 'Could not delete expense')
+      
       throw err
     } finally {
       loading.value = false

@@ -1,11 +1,15 @@
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
 import { categoryService } from '@/services/categoryService'
+import { useNotificationsStore } from './notifications'
 
 export const useCategoriesStore = defineStore('categories', () => {
   const categories = ref([])
   const loading = ref(false)
   const error = ref(null)
+  
+  // Get notifications store
+  const notificationsStore = useNotificationsStore()
 
   const fetchCategories = async () => {
     loading.value = true
@@ -33,10 +37,17 @@ export const useCategoriesStore = defineStore('categories', () => {
       // API returns { success, message, data }
       if (response.data && response.data.data) {
         categories.value.push(response.data.data)
+        
+        // Show notification
+        notificationsStore.notifyCategoryChange('created', response.data.data)
       }
       return response
     } catch (err) {
       error.value = err.response?.data?.message || 'Failed to create category'
+      
+      // Show error notification
+      notificationsStore.notifyError('Category Creation Failed', err.response?.data?.message || 'Could not create category')
+      
       throw err
     } finally {
       loading.value = false
@@ -55,10 +66,17 @@ export const useCategoriesStore = defineStore('categories', () => {
         if (index !== -1) {
           categories.value[index] = response.data.data
         }
+        
+        // Show notification
+        notificationsStore.notifyCategoryChange('updated', response.data.data)
       }
       return response
     } catch (err) {
       error.value = err.response?.data?.message || 'Failed to update category'
+      
+      // Show error notification
+      notificationsStore.notifyError('Update Failed', err.response?.data?.message || 'Could not update category')
+      
       throw err
     } finally {
       loading.value = false
@@ -72,8 +90,15 @@ export const useCategoriesStore = defineStore('categories', () => {
     try {
       await categoryService.deleteCategory(id)
       categories.value = categories.value.filter(category => category.id !== id)
+      
+      // Show notification
+      notificationsStore.notifySuccess('Category Deleted', 'The category has been removed successfully')
     } catch (err) {
       error.value = err.response?.data?.message || 'Failed to delete category'
+      
+      // Show error notification
+      notificationsStore.notifyError('Delete Failed', err.response?.data?.message || 'Could not delete category')
+      
       throw err
     } finally {
       loading.value = false

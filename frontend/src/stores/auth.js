@@ -3,6 +3,7 @@ import { ref, computed } from 'vue'
 import { authService } from '@/services/authService'
 import storage from '@/utils/storage'
 import { useSettingsStore } from './settings'
+import { useNotificationsStore } from './notifications'
 
 export const useAuthStore = defineStore('auth', () => {
   const user = ref(null)
@@ -68,10 +69,19 @@ export const useAuthStore = defineStore('auth', () => {
       settingsStore.loadSettings()
       if (userData.name) settingsStore.profile.name = userData.name
       if (userData.email) settingsStore.profile.email = userData.email
+      
+      // Show welcome notification
+      const notificationsStore = useNotificationsStore()
+      notificationsStore.notifyWelcome(userData.name || 'User')
 
       return response
     } catch (err) {
       error.value = err.response?.data?.message || 'Login failed'
+      
+      // Show error notification
+      const notificationsStore = useNotificationsStore()
+      notificationsStore.notifyError('Login Failed', err.response?.data?.message || 'Invalid credentials')
+      
       throw err
     } finally {
       loading.value = false
