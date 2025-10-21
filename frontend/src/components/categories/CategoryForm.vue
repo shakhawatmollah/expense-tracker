@@ -100,6 +100,7 @@
   import { ref, reactive, computed, watch } from 'vue'
   import { XMarkIcon } from '@heroicons/vue/24/outline'
   import { useCategoriesStore } from '@/stores/categories'
+  import { useToast } from '@/composables/useToast'
   import Button from '@/components/common/Button.vue'
   import debug from '@/utils/debug'
 
@@ -117,6 +118,7 @@
   const emit = defineEmits(['close', 'saved'])
 
   const categoriesStore = useCategoriesStore()
+  const toast = useToast()
 
   const loading = ref(false)
   const errors = ref({})
@@ -168,10 +170,12 @@
         resetForm()
       }
       errors.value = {}
-    }
+    },
+    { immediate: true }
   )
 
   const closeModal = () => {
+    resetForm()
     emit('close')
     errors.value = {}
   }
@@ -189,8 +193,10 @@
 
       if (isEditing.value) {
         await categoriesStore.updateCategory(props.category.id, formData)
+        toast.success('Category updated successfully!', 'Success')
       } else {
         await categoriesStore.createCategory(formData)
+        toast.success('Category created successfully!', 'Success')
       }
       emit('saved')
       closeModal()
@@ -199,8 +205,10 @@
       if (error.response?.data?.errors) {
         errors.value = error.response.data.errors
         console.log('Validation errors:', errors.value)
+        toast.error('Please check the form for errors', 'Validation Error')
       } else {
         console.error('Unexpected error:', error)
+        toast.error('Failed to save category. Please try again.', 'Error')
       }
     } finally {
       loading.value = false

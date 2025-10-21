@@ -728,7 +728,7 @@
 
     // Show success notification if not already shown by modal
     if (window.notify) {
-      window.notify.success('Dashboard Updated', 'Your new expense has been added and the dashboard has been refreshed')
+      window.notify.success('Dashboard Updated', 'Your new expense has been added and the dashboard has been refreshed', { duration: 15000 })
     }
   }
 
@@ -757,7 +757,7 @@
 
   const handleExportSuccess = (message) => {
     if (window.notify) {
-      window.notify.success(message || 'Export completed successfully', 'Export Complete')
+      window.notify.success(message || 'Export completed successfully', 'Export Complete', { duration: 15000 })
     }
   }
 
@@ -823,7 +823,7 @@
 
     // Show success notification for manual refresh
     if (isManual && window.notify) {
-      window.notify.success('Dashboard Updated', 'Your data has been refreshed successfully')
+      window.notify.success('Dashboard Updated', 'Your data has been refreshed successfully', { duration: 15000 })
     }
   }
 
@@ -893,7 +893,7 @@
       // Demo notifications to showcase real-time features
       setTimeout(() => {
         if (window.notify) {
-          window.notify.success('Welcome Back!', 'Dashboard loaded successfully with the latest data')
+          window.notify.success('Welcome Back!', 'Dashboard loaded successfully with the latest data', { duration: 15000 })
 
           // Demo budget alert after a delay
           setTimeout(() => {

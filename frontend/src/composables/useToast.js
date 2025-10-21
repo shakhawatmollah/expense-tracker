@@ -14,7 +14,7 @@ const TOAST_TYPES = {
 
 // Default options
 const DEFAULT_OPTIONS = {
-  duration: 6000,
+  duration: 8000,
   position: 'top-right',
   closable: true,
   action: null

@@ -204,6 +204,7 @@
   import { ref, onMounted, reactive, nextTick } from 'vue'
   import { useBudgetStore } from '@/stores/budget'
   import { useCategoriesStore } from '@/stores/categories'
+  import { useToast } from '@/composables/useToast'
   import BudgetCard from './BudgetCard.vue'
   import BudgetModal from './BudgetModal.vue'
   import Pagination from '@/components/common/Pagination.vue'
@@ -221,6 +222,7 @@
     setup() {
       const budgetStore = useBudgetStore()
       const categoryStore = useCategoriesStore()
+      const toast = useToast()
 
       // Modal states
       const showCreateModal = ref(false)
@@ -287,6 +289,7 @@
       const confirmDelete = async () => {
         try {
           await budgetStore.deleteBudget(deletingBudgetId.value)
+          toast.success('Budget deleted successfully!', 'Success')
           showDeleteDialog.value = false
           deletingBudgetId.value = null
 
@@ -294,15 +297,18 @@
           await loadBudgets()
         } catch (error) {
           console.error('Failed to delete budget:', error)
+          toast.error('Failed to delete budget. Please try again.', 'Error')
         }
       }
 
       const duplicateBudget = async budget => {
         try {
           await budgetStore.duplicateBudget(budget.id)
+          toast.success('Budget duplicated successfully!', 'Success')
           await loadBudgets()
         } catch (error) {
           console.error('Failed to duplicate budget:', error)
+          toast.error('Failed to duplicate budget. Please try again.', 'Error')
         }
       }
 

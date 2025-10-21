@@ -183,7 +183,7 @@
         const newNotification = {
           id,
           timestamp: new Date(),
-          duration: 5000,
+          duration: 15000,
           persistent: false,
           position: 'top-right',
           read: false,
@@ -336,7 +336,7 @@
           type: 'warning',
           title,
           message,
-          duration: 7000,
+          duration: 15000,
           ...options
         })
       }

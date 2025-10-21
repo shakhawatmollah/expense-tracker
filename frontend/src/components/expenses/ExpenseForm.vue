@@ -119,6 +119,7 @@
   import { ref, reactive, computed, watch } from 'vue'
   import { useExpensesStore } from '@/stores/expenses'
   import { useCategoriesStore } from '@/stores/categories'
+  import { useToast } from '@/composables/useToast'
   import FormInput from '@/components/common/FormInput.vue'
   import FormSelect from '@/components/common/FormSelect.vue'
   import Button from '@/components/common/Button.vue'
@@ -139,6 +140,7 @@
 
   const expensesStore = useExpensesStore()
   const categoriesStore = useCategoriesStore()
+  const toast = useToast()
 
   const loading = ref(false)
   const errors = ref({})
@@ -244,8 +246,10 @@
 
       if (isEditing.value) {
         await expensesStore.updateExpense(props.expense.id, formData)
+        toast.success('Expense updated successfully!', 'Success')
       } else {
         await expensesStore.createExpense(formData)
+        toast.success('Expense added successfully!', 'Success')
       }
 
       emit('saved')
@@ -255,11 +259,14 @@
 
       if (error.response?.data?.errors) {
         errors.value = error.response.data.errors
+        toast.error('Please check the form for errors', 'Validation Error')
       } else if (error.response?.data?.message) {
         // Show general error message
         errors.value.general = [error.response.data.message]
+        toast.error(error.response.data.message, 'Error')
       } else {
         errors.value.general = ['An unexpected error occurred. Please try again.']
+        toast.error('An unexpected error occurred. Please try again.', 'Error')
       }
     } finally {
       loading.value = false

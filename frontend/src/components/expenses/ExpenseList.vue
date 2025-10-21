@@ -161,6 +161,7 @@
   import { CreditCardIcon, PlusIcon, PencilIcon, TrashIcon, ExclamationTriangleIcon } from '@heroicons/vue/24/outline'
   import { useExpensesStore } from '@/stores/expenses'
   import { useCategoriesStore } from '@/stores/categories'
+  import { useToast } from '@/composables/useToast'
   import LoadingSpinner from '@/components/common/LoadingSpinner.vue'
   import Button from '@/components/common/Button.vue'
   import Pagination from '@/components/common/Pagination.vue'
@@ -170,6 +171,7 @@
   const router = useRouter()
   const expenseStore = useExpensesStore()
   const categoryStore = useCategoriesStore()
+  const toast = useToast()
 
   // Reactive data
   const showForm = ref(false)
@@ -259,9 +261,11 @@
     try {
       deletingId.value = expenseToDelete.value.id
       await expenseStore.deleteExpense(expenseToDelete.value.id)
+      toast.success('Expense deleted successfully!', 'Success')
       closeDeleteConfirm()
     } catch (error) {
       console.error('Failed to delete expense:', error)
+      toast.error('Failed to delete expense. Please try again.', 'Error')
     } finally {
       deletingId.value = null
     }

@@ -116,11 +116,13 @@
   import { computed, onMounted, ref } from 'vue'
   import { FolderIcon, PlusIcon, PencilIcon, TrashIcon, ExclamationTriangleIcon } from '@heroicons/vue/24/outline'
   import { useCategoriesStore } from '@/stores/categories'
+  import { useToast } from '@/composables/useToast'
   import LoadingSpinner from '@/components/common/LoadingSpinner.vue'
   import Button from '@/components/common/Button.vue'
   import CategoryForm from './CategoryForm.vue'
 
   const categoriesStore = useCategoriesStore()
+  const toast = useToast()
 
   // Reactive data
   const showForm = ref(false)
@@ -170,9 +172,11 @@
     try {
       deletingId.value = categoryToDelete.value.id
       await categoriesStore.deleteCategory(categoryToDelete.value.id)
+      toast.success('Category deleted successfully!', 'Success')
       closeDeleteConfirm()
     } catch (error) {
       console.error('Failed to delete category:', error)
+      toast.error('Failed to delete category. Please try again.', 'Error')
     } finally {
       deletingId.value = null
     }

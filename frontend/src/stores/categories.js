@@ -13,7 +13,8 @@ export const useCategoriesStore = defineStore('categories', () => {
 
     try {
       const response = await categoryService.getCategories()
-      categories.value = response.data
+      // API returns { success, message, data }
+      categories.value = response.data?.data || response.data || []
     } catch (err) {
       console.error('Error fetching categories:', err)
       error.value = err.response?.data?.message || 'Failed to fetch categories'
@@ -29,7 +30,10 @@ export const useCategoriesStore = defineStore('categories', () => {
 
     try {
       const response = await categoryService.createCategory(categoryData)
-      categories.value.push(response.data)
+      // API returns { success, message, data }
+      if (response.data && response.data.data) {
+        categories.value.push(response.data.data)
+      }
       return response
     } catch (err) {
       error.value = err.response?.data?.message || 'Failed to create category'
@@ -45,9 +49,12 @@ export const useCategoriesStore = defineStore('categories', () => {
 
     try {
       const response = await categoryService.updateCategory(id, categoryData)
-      const index = categories.value.findIndex(category => category.id === id)
-      if (index !== -1) {
-        categories.value[index] = response.data
+      // API returns { success, message, data }
+      if (response.data && response.data.data) {
+        const index = categories.value.findIndex(category => category.id === id)
+        if (index !== -1) {
+          categories.value[index] = response.data.data
+        }
       }
       return response
     } catch (err) {

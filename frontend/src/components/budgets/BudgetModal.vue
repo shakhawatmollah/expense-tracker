@@ -179,6 +179,7 @@
   import { ref, reactive, computed, watch, onMounted, nextTick } from 'vue'
   import { useBudgetStore } from '@/stores/budget'
   import { useCategoriesStore } from '@/stores/categories'
+  import { useToast } from '@/composables/useToast'
   import FormInput from '@/components/common/FormInput.vue'
   import FormSelect from '@/components/common/FormSelect.vue'
   import Button from '@/components/common/Button.vue'
@@ -200,6 +201,7 @@
   // Stores
   const budgetStore = useBudgetStore()
   const categoryStore = useCategoriesStore()
+  const toast = useToast()
 
   // Reactive data
   const isSubmitting = ref(false)
@@ -529,8 +531,10 @@
 
       if (props.isEditing) {
         await budgetStore.updateBudget(props.budget.id, budgetData)
+        toast.success('Budget updated successfully!', 'Success')
       } else {
         await budgetStore.createBudget(budgetData)
+        toast.success('Budget created successfully!', 'Success')
       }
 
       emit('saved')
@@ -540,6 +544,9 @@
       // Handle validation errors from backend
       if (error.response?.data?.errors) {
         errors.value = error.response.data.errors
+        toast.error('Please check the form for errors', 'Validation Error')
+      } else {
+        toast.error('Failed to save budget. Please try again.', 'Error')
       }
     } finally {
       isSubmitting.value = false
