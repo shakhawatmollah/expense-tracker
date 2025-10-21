@@ -20,7 +20,7 @@
           <!-- Tab Content -->
           <div class="tab-content">
             <BudgetOverview v-if="activeTab === 'overview'" />
-            <BudgetList v-else :auto-open-create="shouldAutoOpenCreate" />
+            <BudgetList v-else />
           </div>
         </div>
       </main>
@@ -39,14 +39,12 @@
   const route = useRoute()
   const router = useRouter()
   const activeTab = ref('overview')
-  const shouldAutoOpenCreate = ref(false)
 
-  // Check for Quick Action
+  // Check for Quick Action - only used to switch tabs
   onMounted(() => {
     if (route.query.action === 'create') {
-      // Switch to manage tab and trigger modal
+      // Switch to manage tab only
       activeTab.value = 'manage'
-      shouldAutoOpenCreate.value = true
       // Clear the query parameter
       router.replace({ path: route.path })
     }

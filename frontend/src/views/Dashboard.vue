@@ -412,6 +412,13 @@
       @close="showQuickAddModal = false"
       @expense-added="handleExpenseAdded"
     />
+
+    <!-- Export Modal -->
+    <ExportModal
+      v-if="showExportModal"
+      @close="showExportModal = false"
+      @success="handleExportSuccess"
+    />
   </div>
 </template>
 
@@ -438,6 +445,7 @@
   import RealTimeData from '@/components/common/RealTimeData.vue'
   import MobileNavigation from '@/components/mobile/MobileNavigation.vue'
   import QuickAddExpense from '@/components/modals/QuickAddExpense.vue'
+  import ExportModal from '@/components/common/ExportModal.vue'
   import { useExpensesStore } from '@/stores/expenses'
   import { useCategoriesStore } from '@/stores/categories'
   import { useDashboardStore } from '@/stores/dashboard'
@@ -457,6 +465,7 @@
 
   // Modal states
   const showQuickAddModal = ref(false)
+  const showExportModal = ref(false)
 
   // Mobile detection
   const isMobile = ref(false)
@@ -741,7 +750,13 @@
 
   const handleDataExport = () => {
     console.log('Export dashboard data')
-    // Implement data export functionality
+    showExportModal.value = true
+  }
+
+  const handleExportSuccess = (message) => {
+    if (window.notify) {
+      window.notify.success(message || 'Export completed successfully', 'Export Complete')
+    }
   }
 
   const editItem = item => {

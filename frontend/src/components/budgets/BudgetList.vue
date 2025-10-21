@@ -201,7 +201,7 @@
 </template>
 
 <script>
-  import { ref, onMounted, reactive } from 'vue'
+  import { ref, onMounted, reactive, nextTick } from 'vue'
   import { useBudgetStore } from '@/stores/budget'
   import { useCategoriesStore } from '@/stores/categories'
   import BudgetCard from './BudgetCard.vue'
@@ -212,19 +212,13 @@
 
   export default {
     name: 'BudgetList',
-    props: {
-      autoOpenCreate: {
-        type: Boolean,
-        default: false
-      }
-    },
     components: {
       BudgetCard,
       BudgetModal,
       Pagination,
       ConfirmDialog
     },
-    setup(props) {
+    setup() {
       const budgetStore = useBudgetStore()
       const categoryStore = useCategoriesStore()
 
@@ -326,11 +320,6 @@
       // Initialize
       onMounted(async () => {
         await Promise.all([categoryStore.fetchCategories(), loadBudgets()])
-
-        // Check if we should auto-open create modal
-        if (props.autoOpenCreate) {
-          showCreateModal.value = true
-        }
       })
 
       return {

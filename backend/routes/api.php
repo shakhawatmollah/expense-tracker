@@ -8,6 +8,7 @@ use App\Http\Controllers\Api\ExpenseController;
 use App\Http\Controllers\Api\DashboardController;
 use App\Http\Controllers\Api\BudgetController;
 use App\Http\Controllers\Api\AnalyticsController;
+use App\Http\Controllers\Api\ExportController;
 
 /*
 |--------------------------------------------------------------------------
@@ -91,5 +92,14 @@ Route::middleware(['auth:sanctum', 'throttle:60,1'])->group(function () {
         Route::get('/recommendations', [AnalyticsController::class, 'recommendations']);
         Route::get('/trends', [AnalyticsController::class, 'trends']);
         Route::post('/refresh', [AnalyticsController::class, 'refresh']);
+    });
+    
+    // Export routes with stricter rate limiting
+    Route::prefix('export')->middleware('throttle:10,60')->group(function () {
+        Route::get('/expenses', [ExportController::class, 'exportExpenses']);
+        Route::get('/categories', [ExportController::class, 'exportCategories']);
+        Route::get('/budgets', [ExportController::class, 'exportBudgets']);
+        Route::get('/financial-report', [ExportController::class, 'exportFinancialReport']);
+        Route::get('/history', [ExportController::class, 'history']);
     });
 });
