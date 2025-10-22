@@ -173,11 +173,11 @@ export const useBudgetStore = defineStore('budget', () => {
       const alerts = response.data || []
       budgetAlerts.value = Array.isArray(alerts)
         ? alerts.map(alert => {
-          if (alert.budget) {
-            alert.budget = normalizeBudget(alert.budget)
-          }
-          return alert
-        })
+            if (alert.budget) {
+              alert.budget = normalizeBudget(alert.budget)
+            }
+            return alert
+          })
         : []
 
       return response

@@ -210,7 +210,6 @@ export const useSettingsStore = defineStore('settings', () => {
       //   method: 'POST',
       //   body: JSON.stringify({ currentPassword, newPassword })
       // })
-
       // return { success: true, message: 'Password changed successfully' }
     } catch (error) {
       console.error('Failed to change password:', error)
