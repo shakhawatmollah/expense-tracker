@@ -26,17 +26,31 @@ class BudgetFactory extends Factory
      */
     public function definition(): array
     {
+        $period = $this->faker->randomElement(['monthly', 'weekly', 'quarterly', 'yearly']);
         $startDate = $this->faker->dateTimeBetween('-2 months', 'now');
+        
+        // Calculate end date based on period
+        $endDate = match($period) {
+            'weekly' => (clone $startDate)->modify('+1 week'),
+            'monthly' => (clone $startDate)->modify('+1 month'),
+            'quarterly' => (clone $startDate)->modify('+3 months'),
+            'yearly' => (clone $startDate)->modify('+1 year'),
+        };
         
         return [
             'user_id' => User::factory(),
             'category_id' => Category::factory(),
+            'name' => $this->faker->words(3, true) . ' Budget',
             'amount' => $this->faker->randomFloat(2, 100, 2000),
-            'period' => $this->faker->randomElement(['monthly', 'weekly', 'yearly']),
+            'period' => $period,
             'start_date' => $startDate,
-            'end_date' => (clone $startDate)->modify('+1 month'),
-            'alert_threshold' => $this->faker->numberBetween(70, 90),
-            'alert_enabled' => $this->faker->boolean(80),
+            'end_date' => $endDate,
+            'is_active' => true,
+            'alert_thresholds' => json_encode([
+                'warning' => $this->faker->numberBetween(50, 70),
+                'danger' => $this->faker->numberBetween(80, 90),
+            ]),
+            'description' => $this->faker->optional()->sentence(),
         ];
     }
 
@@ -118,11 +132,13 @@ class BudgetFactory extends Factory
     /**
      * Indicate that alerts are enabled.
      */
-    public function withAlerts(int $threshold = 80): static
+    public function withAlerts(int $warningThreshold = 70, int $dangerThreshold = 90): static
     {
         return $this->state(fn (array $attributes) => [
-            'alert_enabled' => true,
-            'alert_threshold' => $threshold,
+            'alert_thresholds' => json_encode([
+                'warning' => $warningThreshold,
+                'danger' => $dangerThreshold,
+            ]),
         ]);
     }
 }

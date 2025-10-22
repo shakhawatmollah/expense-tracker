@@ -26,15 +26,15 @@ class CategoryFactory extends Factory
     public function definition(): array
     {
         $categories = [
-            ['name' => 'Food & Dining', 'color' => '#FF6B6B', 'icon' => '🍔'],
-            ['name' => 'Transportation', 'color' => '#4ECDC4', 'icon' => '🚗'],
-            ['name' => 'Shopping', 'color' => '#45B7D1', 'icon' => '🛍️'],
-            ['name' => 'Entertainment', 'color' => '#96CEB4', 'icon' => '🎬'],
-            ['name' => 'Bills & Utilities', 'color' => '#FFEAA7', 'icon' => '💡'],
-            ['name' => 'Healthcare', 'color' => '#DFE6E9', 'icon' => '🏥'],
-            ['name' => 'Education', 'color' => '#74B9FF', 'icon' => '📚'],
-            ['name' => 'Travel', 'color' => '#A29BFE', 'icon' => '✈️'],
-            ['name' => 'Other', 'color' => '#B2BEC3', 'icon' => '📦'],
+            ['name' => 'Food & Dining', 'color' => '#FF6B6B'],
+            ['name' => 'Transportation', 'color' => '#4ECDC4'],
+            ['name' => 'Shopping', 'color' => '#45B7D1'],
+            ['name' => 'Entertainment', 'color' => '#96CEB4'],
+            ['name' => 'Bills & Utilities', 'color' => '#FFEAA7'],
+            ['name' => 'Healthcare', 'color' => '#DFE6E9'],
+            ['name' => 'Education', 'color' => '#74B9FF'],
+            ['name' => 'Travel', 'color' => '#A29BFE'],
+            ['name' => 'Other', 'color' => '#B2BEC3'],
         ];
 
         $category = $this->faker->randomElement($categories);
@@ -43,7 +43,6 @@ class CategoryFactory extends Factory
             'user_id' => User::factory(),
             'name' => $category['name'],
             'color' => $category['color'],
-            'icon' => $category['icon'],
             'description' => $this->faker->optional()->sentence(),
         ];
     }
