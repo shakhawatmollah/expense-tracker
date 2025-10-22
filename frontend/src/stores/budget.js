@@ -173,11 +173,11 @@ export const useBudgetStore = defineStore('budget', () => {
       const alerts = response.data || []
       budgetAlerts.value = Array.isArray(alerts)
         ? alerts.map(alert => {
-            if (alert.budget) {
-              alert.budget = normalizeBudget(alert.budget)
-            }
-            return alert
-          })
+          if (alert.budget) {
+            alert.budget = normalizeBudget(alert.budget)
+          }
+          return alert
+        })
         : []
 
       return response
@@ -307,18 +307,18 @@ export const useBudgetStore = defineStore('budget', () => {
     { deep: true }
   )
 
-  async function checkBudgetAlerts() {
+  async function checkBudgetAlerts(budgetId) {
     try {
       isLoading.value = true
       error.value = null
 
-      await budgetService.deleteBudget(id)
+      await budgetService.deleteBudget(budgetId)
 
       // Remove from budgets array
-      budgets.value = budgets.value.filter(budget => budget.id !== id)
+      budgets.value = budgets.value.filter(budget => budget.id !== budgetId)
 
       // Remove from current budgets array
-      currentBudgets.value = currentBudgets.value.filter(budget => budget.id !== id)
+      currentBudgets.value = currentBudgets.value.filter(budget => budget.id !== budgetId)
 
       return true
     } catch (err) {

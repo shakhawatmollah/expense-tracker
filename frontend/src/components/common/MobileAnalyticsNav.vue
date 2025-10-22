@@ -15,7 +15,7 @@
       <div class="nav-indicator">
         <div class="section-dots">
           <span
-            v-for="(section, index) in sections"
+            v-for="section in sections"
             :key="section.id"
             :class="['dot', { active: activeSection === section.id }]"
             @click="scrollToSection(section.id)"
@@ -98,9 +98,9 @@
 
           <select v-model="amountFilter" @change="$emit('filter-change', 'amount', amountFilter)" class="filter-select">
             <option value="">All Amounts</option>
-            <option value="low">< $100</option>
+            <option value="low">&lt; $100</option>
             <option value="medium">$100 - $500</option>
-            <option value="high">> $500</option>
+            <option value="high">&gt; $500</option>
           </select>
         </div>
       </div>

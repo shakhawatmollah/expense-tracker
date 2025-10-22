@@ -132,7 +132,7 @@ export const getStorageInfo = () => {
     const items = {}
 
     for (const key in localStorage) {
-      if (localStorage.hasOwnProperty(key)) {
+      if (Object.prototype.hasOwnProperty.call(localStorage, key)) {
         const size = localStorage.getItem(key).length
         totalSize += size
         items[key] = {

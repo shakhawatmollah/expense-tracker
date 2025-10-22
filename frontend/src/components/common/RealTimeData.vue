@@ -74,7 +74,7 @@
 
           <div class="setting-item" v-if="isAutoRefreshEnabled">
             <label class="setting-label">Refresh interval</label>
-            <select v-model="refreshInterval" @change="handleIntervalChange" class="setting-select">
+            <select v-model="localRefreshInterval" @change="handleIntervalChange" class="setting-select">
               <option value="30000">30 seconds</option>
               <option value="60000">1 minute</option>
               <option value="300000">5 minutes</option>
@@ -135,7 +135,7 @@
     setup(props, { emit }) {
       // Reactive state
       const isAutoRefreshEnabled = ref(props.autoRefreshEnabled)
-      const refreshInterval = ref(props.refreshInterval)
+      const localRefreshInterval = ref(props.refreshInterval)
       const isSyncing = ref(false)
       const hasError = ref(false)
       const isPaused = ref(false)
@@ -185,7 +185,7 @@
           if (!isPaused.value && isOnline.value && !isSyncing.value) {
             performRefresh()
           }
-        }, refreshInterval.value)
+        }, localRefreshInterval.value)
       }
 
       const stopAutoRefresh = () => {
@@ -351,7 +351,7 @@
       }
 
       const handleIntervalChange = () => {
-        emit('settings-changed', { refreshInterval: refreshInterval.value })
+        emit('settings-changed', { refreshInterval: localRefreshInterval.value })
         resetAutoRefresh()
       }
 
@@ -419,7 +419,7 @@
       watch(
         () => props.refreshInterval,
         newValue => {
-          refreshInterval.value = newValue
+          localRefreshInterval.value = newValue
           resetAutoRefresh()
         }
       )
@@ -480,7 +480,7 @@
       return {
         // State
         isAutoRefreshEnabled,
-        refreshInterval,
+        localRefreshInterval,
         isSyncing,
         hasError,
         isPaused,

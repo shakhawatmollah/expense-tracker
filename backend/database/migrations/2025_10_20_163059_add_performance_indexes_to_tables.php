@@ -42,14 +42,15 @@ return new class () extends Migration {
     {
         $connection = Schema::getConnection();
         $database = $connection->getDatabaseName();
-        
+
         // Helper function to check if index exists
         $indexExists = function ($table, $indexName) use ($connection, $database) {
             $result = $connection->select(
-                "SELECT COUNT(*) as count FROM information_schema.statistics 
-                 WHERE table_schema = ? AND table_name = ? AND index_name = ?",
+                'SELECT COUNT(*) as count FROM information_schema.statistics 
+                 WHERE table_schema = ? AND table_name = ? AND index_name = ?',
                 [$database, $table, $indexName]
             );
+
             return $result[0]->count > 0;
         };
 
@@ -73,16 +74,16 @@ return new class () extends Migration {
             if ($indexExists('budgets', 'idx_budgets_user_active_dates')) {
                 $table->dropIndex('idx_budgets_user_active_dates');
             }
-            
+
             // For idx_budgets_category_user_active, we need to temporarily drop
             // the foreign key constraint, drop the index, then recreate the constraint
             if ($indexExists('budgets', 'idx_budgets_category_user_active')) {
                 // Drop the foreign key constraint first
                 $table->dropForeign(['category_id']);
-                
+
                 // Now we can drop the index
                 $table->dropIndex('idx_budgets_category_user_active');
-                
+
                 // Recreate the foreign key constraint
                 $table->foreign('category_id')
                     ->references('id')

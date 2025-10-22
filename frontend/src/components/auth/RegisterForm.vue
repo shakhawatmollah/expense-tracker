@@ -192,7 +192,7 @@
           validationErrors.value.name = 'Name must be at least 2 characters'
         }
         break
-      case 'email':
+      case 'email': {
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
         if (!form.email) {
           validationErrors.value.email = 'Email is required'
@@ -200,6 +200,7 @@
           validationErrors.value.email = 'Please enter a valid email address'
         }
         break
+      }
       case 'password':
         if (!form.password) {
           validationErrors.value.password = 'Password is required'

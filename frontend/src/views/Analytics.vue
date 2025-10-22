@@ -68,7 +68,7 @@
                     </div>
                     <div class="swipe-dots">
                       <span
-                        v-for="(period, index) in ['weekly', 'monthly', 'quarterly', 'yearly']"
+                        v-for="period in ['weekly', 'monthly', 'quarterly', 'yearly']"
                         :key="period"
                         :class="['dot', { active: selectedPeriod === period }]"
                       ></span>
