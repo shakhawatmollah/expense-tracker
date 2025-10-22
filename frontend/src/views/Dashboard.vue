@@ -415,6 +415,9 @@
 
     <!-- Export Modal -->
     <ExportModal v-if="showExportModal" @close="showExportModal = false" @success="handleExportSuccess" />
+
+    <!-- Settings Modal -->
+    <Settings v-if="showSettingsModal" @close="showSettingsModal = false" />
   </div>
 </template>
 
@@ -442,6 +445,7 @@
   import MobileNavigation from '@/components/mobile/MobileNavigation.vue'
   import QuickAddExpense from '@/components/modals/QuickAddExpense.vue'
   import ExportModal from '@/components/common/ExportModal.vue'
+  import Settings from '@/components/settings/Settings.vue'
   import { useExpensesStore } from '@/stores/expenses'
   import { useCategoriesStore } from '@/stores/categories'
   import { useDashboardStore } from '@/stores/dashboard'
@@ -462,6 +466,7 @@
   // Modal states
   const showQuickAddModal = ref(false)
   const showExportModal = ref(false)
+  const showSettingsModal = ref(false)
 
   // Mobile detection
   const isMobile = ref(false)
@@ -734,7 +739,7 @@
 
   const showSettings = () => {
     console.log('Show dashboard settings')
-    // Implement settings panel
+    showSettingsModal.value = true
   }
 
   // Quick action implementations
