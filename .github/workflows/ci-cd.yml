@@ -246,7 +246,7 @@ jobs:
           tar -czf expense-tracker-${{ github.sha }}.tar.gz deployment/
 
       - name: 📤 Upload deployment artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: expense-tracker-deployment
           path: expense-tracker-${{ github.sha }}.tar.gz
