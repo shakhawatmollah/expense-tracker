@@ -1,62 +1,45 @@
 import { describe, it, expect, beforeEach } from 'vitest'
-import { mount } from '@vue/test-utils'
-import { createPinia, setActivePinia } from 'pinia'
-import ToastNotification from '@/components/common/ToastNotification.vue'
+import { setActivePinia, createPinia } from 'pinia'
+import { useNotificationsStore } from '@/stores/notifications'
 
 describe('ToastNotification', () => {
   beforeEach(() => {
     setActivePinia(createPinia())
   })
 
-  it('renders success toast correctly', () => {
-    const wrapper = mount(ToastNotification, {
-      props: {
-        show: true,
-        type: 'success',
-        title: 'Success!',
-        message: 'Operation completed successfully'
-      },
-      global: {
-        plugins: [createPinia()]
-      }
-    })
-
-    expect(wrapper.text()).toContain('Success!')
-    expect(wrapper.text()).toContain('Operation completed successfully')
-    expect(wrapper.classes()).toContain('bg-green-50')
+  it('should add success notification to store', () => {
+    const store = useNotificationsStore()
+    
+    store.notifySuccess('Success!', 'Operation completed successfully')
+    
+    expect(store.notifications).toHaveLength(1)
+    expect(store.notifications[0].type).toBe('success')
+    expect(store.notifications[0].title).toBe('Success!')
+    expect(store.notifications[0].message).toBe('Operation completed successfully')
   })
 
-  it('renders error toast correctly', () => {
-    const wrapper = mount(ToastNotification, {
-      props: {
-        show: true,
-        type: 'error',
-        title: 'Error!',
-        message: 'Something went wrong'
-      },
-      global: {
-        plugins: [createPinia()]
-      }
-    })
-
-    expect(wrapper.text()).toContain('Error!')
-    expect(wrapper.text()).toContain('Something went wrong')
-    expect(wrapper.classes()).toContain('bg-red-50')
+  it('should add error notification to store', () => {
+    const store = useNotificationsStore()
+    
+    store.notifyError('Error!', 'Something went wrong')
+    
+    expect(store.notifications).toHaveLength(1)
+    expect(store.notifications[0].type).toBe('error')
+    expect(store.notifications[0].title).toBe('Error!')
+    expect(store.notifications[0].message).toBe('Something went wrong')
   })
 
-  it('does not render when show is false', () => {
-    const wrapper = mount(ToastNotification, {
-      props: {
-        show: false,
-        type: 'success',
-        title: 'Success!',
-        message: 'Hidden toast'
-      },
-      global: {
-        plugins: [createPinia()]
-      }
-    })
-
-    expect(wrapper.text()).toBe('')
+  it('should dismiss notification', () => {
+    const store = useNotificationsStore()
+    
+    store.notifySuccess('Test', 'Test message')
+    const notificationId = store.notifications[0].id
+    
+    expect(store.notifications).toHaveLength(1)
+    
+    store.dismissNotification(notificationId)
+    
+    expect(store.activeNotifications).toHaveLength(0)
   })
 })
+

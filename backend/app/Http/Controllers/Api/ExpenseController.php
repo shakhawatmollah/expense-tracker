@@ -126,18 +126,18 @@ class ExpenseController extends Controller
             );
             
         } catch (ExpenseNotFoundException $e) {
-            Log::info('Expense not found', [
-                'expense_id' => $id,
-                'user_id' => $request->user()->id
-            ]);
-            throw $e;
+            return ApiResponse::error(
+                $e->getUserMessage(),
+                [],
+                404
+            );
             
         } catch (ExpenseUnauthorizedException $e) {
-            Log::warning('Unauthorized expense access attempt', [
-                'expense_id' => $id,
-                'user_id' => $request->user()->id
-            ]);
-            throw $e;
+            return ApiResponse::error(
+                $e->getUserMessage(),
+                [],
+                403
+            );
             
         } catch (\Exception $e) {
             Log::error('Unexpected error fetching expense', [

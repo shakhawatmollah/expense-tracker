@@ -35,7 +35,7 @@ class ExpenseApiTest extends TestCase
             'category_id' => $this->category->id
         ]);
         
-        $response = $this->getJson('/api/expenses');
+        $response = $this->getJson('/api/v1/expenses');
         
         $response->assertStatus(200)
                 ->assertJsonStructure([
@@ -64,7 +64,7 @@ class ExpenseApiTest extends TestCase
             'category_id' => $this->category->id
         ];
         
-        $response = $this->postJson('/api/expenses', $expenseData);
+        $response = $this->postJson('/api/v1/expenses', $expenseData);
         
         $response->assertStatus(201)
                 ->assertJsonFragment([
@@ -93,7 +93,7 @@ class ExpenseApiTest extends TestCase
             'amount' => 200.75
         ];
         
-        $response = $this->putJson("/api/expenses/{$expense->id}", $updateData);
+        $response = $this->putJson("/api/v1/expenses/{$expense->id}", $updateData);
         
         $response->assertStatus(200)
                 ->assertJsonFragment([
@@ -111,7 +111,7 @@ class ExpenseApiTest extends TestCase
             'category_id' => $this->category->id
         ]);
         
-        $response = $this->deleteJson("/api/expenses/{$expense->id}");
+        $response = $this->deleteJson("/api/v1/expenses/{$expense->id}");
         
         $response->assertStatus(200);
         $this->assertDatabaseMissing('expenses', ['id' => $expense->id]);
@@ -127,7 +127,7 @@ class ExpenseApiTest extends TestCase
         
         Sanctum::actingAs($this->user);
         
-        $response = $this->getJson("/api/expenses/{$expense->id}");
+        $response = $this->getJson("/api/v1/expenses/{$expense->id}");
         $response->assertStatus(404);
     }
 
@@ -135,7 +135,7 @@ class ExpenseApiTest extends TestCase
     {
         Sanctum::actingAs($this->user);
         
-        $response = $this->postJson('/api/expenses', []);
+        $response = $this->postJson('/api/v1/expenses', []);
         
         $response->assertStatus(422)
                 ->assertJsonValidationErrors(['description', 'amount', 'date', 'category_id']);

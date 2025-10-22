@@ -21,7 +21,7 @@ use App\Http\Controllers\Api\ExportController;
 |
 */
 
-// Authentication routes with rate limiting
+// Authentication routes (unversioned) with rate limiting
 Route::prefix('auth')->group(function () {
     // Strict rate limiting for authentication endpoints
     Route::middleware('throttle:5,1')->group(function () {
@@ -35,8 +35,10 @@ Route::prefix('auth')->group(function () {
     });
 });
 
-// Protected routes with rate limiting
-Route::middleware(['auth:sanctum', 'throttle:60,1'])->group(function () {
+// API Version 1 routes
+Route::prefix('v1')->group(function () {
+    // Protected routes with rate limiting
+    Route::middleware(['auth:sanctum', 'throttle:60,1'])->group(function () {
     // Debug route for testing category counts
     Route::get('debug/categories', function (Request $request) {
         $categories = App\Models\Category::where('user_id', $request->user()->id)
@@ -102,4 +104,5 @@ Route::middleware(['auth:sanctum', 'throttle:60,1'])->group(function () {
         Route::get('/financial-report', [ExportController::class, 'exportFinancialReport']);
         Route::get('/history', [ExportController::class, 'history']);
     });
+});
 });

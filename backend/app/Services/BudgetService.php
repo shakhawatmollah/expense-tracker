@@ -309,4 +309,55 @@ class BudgetService
 
         return $overlapping;
     }
+
+    /**
+     * Calculate budget usage percentage
+     */
+    public function calculateUsagePercentage(Budget $budget, float $spentAmount): float
+    {
+        if ($budget->amount <= 0) {
+            return 0.0;
+        }
+
+        return round(($spentAmount / $budget->amount) * 100, 2);
+    }
+
+    /**
+     * Determine budget status based on usage percentage
+     */
+    public function getBudgetStatus(Budget $budget, float $spentAmount): string
+    {
+        $percentage = $this->calculateUsagePercentage($budget, $spentAmount);
+        $thresholds = $budget->alert_thresholds ?? ['warning' => 75, 'danger' => 90];
+
+        if ($percentage >= 100) {
+            return 'exceeded';
+        } elseif ($percentage >= ($thresholds['danger'] ?? 90)) {
+            return 'danger';
+        } elseif ($percentage >= ($thresholds['warning'] ?? 75)) {
+            return 'warning';
+        }
+
+        return 'safe';
+    }
+
+    /**
+     * Get remaining budget amount
+     */
+    public function getRemainingAmount(Budget $budget, float $spentAmount): float
+    {
+        return round($budget->amount - $spentAmount, 2);
+    }
+
+    /**
+     * Check if budget needs alert notification
+     */
+    public function needsAlert(Budget $budget, float $spentAmount): bool
+    {
+        $thresholds = $budget->alert_thresholds ?? ['warning' => 75, 'danger' => 90];
+        $percentage = $this->calculateUsagePercentage($budget, $spentAmount);
+        
+        // Alert if we've reached warning threshold or higher
+        return $percentage >= ($thresholds['warning'] ?? 75);
+    }
 }

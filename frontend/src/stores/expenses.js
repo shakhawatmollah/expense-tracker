@@ -175,6 +175,20 @@ export const useExpensesStore = defineStore('expenses', () => {
     }
   }
 
+  // Computed/getter methods for filtering and calculations
+  const getMonthlyTotal = (year, month) => {
+    return expenses.value
+      .filter(expense => {
+        const expenseDate = new Date(expense.date)
+        return expenseDate.getFullYear() === year && expenseDate.getMonth() + 1 === month
+      })
+      .reduce((sum, expense) => sum + parseFloat(expense.amount), 0)
+  }
+
+  const getExpensesByCategory = (categoryId) => {
+    return expenses.value.filter(expense => expense.category_id === categoryId)
+  }
+
   return {
     expenses,
     loading,
@@ -188,6 +202,8 @@ export const useExpensesStore = defineStore('expenses', () => {
     updateExpense,
     deleteExpense,
     searchExpenses,
-    getExpensesByDateRange
+    getExpensesByDateRange,
+    getMonthlyTotal,
+    getExpensesByCategory
   }
 })
