@@ -69,7 +69,8 @@ module.exports = {
       files: [
         '**/composables/useToast.js',
         '**/services/optimizedApiService.js',
-        '**/utils/formatters.js'
+        '**/utils/formatters.js',
+        '**/stores/budget.js'
       ],
       rules: {
         indent: 'off'
