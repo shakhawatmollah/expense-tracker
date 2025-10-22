@@ -23,6 +23,7 @@
         :autocomplete="autocomplete"
         class="form-input"
         :class="inputClasses"
+        :style="(prefix || $slots.prefix) ? { paddingLeft: '1.5rem' } : {}"
         @input="handleInput"
         @focus="handleFocus"
         @blur="handleBlur"
