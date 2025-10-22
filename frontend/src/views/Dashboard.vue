@@ -725,10 +725,10 @@
     // Show success notification if not already shown by modal
     if (window.notify) {
       window.notify.success(
-      'Dashboard Updated',
-      'Your new expense has been added and the dashboard has been refreshed',
-      { duration: 15000 }
-    )
+        'Dashboard Updated',
+        'Your new expense has been added and the dashboard has been refreshed',
+        { duration: 15000 }
+      )
     }
   }
 
@@ -894,8 +894,8 @@
       setTimeout(() => {
         if (window.notify) {
           window.notify.success('Welcome Back!', 'Dashboard loaded successfully with the latest data', {
-          duration: 15000
-        })
+            duration: 15000
+          })
 
           // Demo budget alert after a delay
           setTimeout(() => {

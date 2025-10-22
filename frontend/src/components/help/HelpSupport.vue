@@ -589,7 +589,7 @@
     ],
     troubleshooting: [
       {
-        question: 'Why aren\'t my expenses showing up?',
+        question: "Why aren't my expenses showing up?",
         answer: `<p>Try these troubleshooting steps:</p>
           <ol>
             <li><strong>Check filters</strong> - Clear any active date or category filters</li>
@@ -635,7 +635,7 @@
           </ul>`
       },
       {
-        question: 'Charts and graphs aren\'t displaying correctly',
+        question: "Charts and graphs aren't displaying correctly",
         answer: `<p>Chart display issues can be fixed:</p>
           <ul>
             <li>🔄 <strong>Refresh the page</strong> - Often resolves rendering issues</li>

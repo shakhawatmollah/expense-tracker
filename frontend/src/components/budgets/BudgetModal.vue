@@ -420,7 +420,7 @@
     if (!form.start_date || !form.period) return
 
     const startDate = new Date(form.start_date)
-    let endDate = new Date(startDate)
+    const endDate = new Date(startDate)
 
     switch (form.period) {
       case 'weekly':

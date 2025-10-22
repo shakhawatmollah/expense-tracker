@@ -49,41 +49,41 @@
 </template>
 
 <script setup>
-import { computed, watch } from 'vue'
-import { useNotificationsStore } from '@/stores/notifications'
+  import { computed, watch } from 'vue'
+  import { useNotificationsStore } from '@/stores/notifications'
 
-const props = defineProps({
-  position: {
-    type: String,
-    default: 'top-right',
-    validator: value =>
-      ['top-right', 'top-left', 'bottom-right', 'bottom-left', 'top-center', 'bottom-center'].includes(value)
+  const props = defineProps({
+    position: {
+      type: String,
+      default: 'top-right',
+      validator: value =>
+        ['top-right', 'top-left', 'bottom-right', 'bottom-left', 'top-center', 'bottom-center'].includes(value)
+    }
+  })
+
+  const notificationsStore = useNotificationsStore()
+
+  const activeNotifications = computed(() =>
+    notificationsStore.activeNotifications.filter(n => n.position === props.position || !n.position)
+  )
+
+  const dismissNotification = id => {
+    notificationsStore.dismissNotification(id)
   }
-})
 
-const notificationsStore = useNotificationsStore()
-
-const activeNotifications = computed(() =>
-  notificationsStore.activeNotifications.filter(n => n.position === props.position || !n.position)
-)
-
-const dismissNotification = id => {
-  notificationsStore.dismissNotification(id)
-}
-
-const pauseNotification = id => {
-  notificationsStore.pauseNotification(id)
-}
-
-const resumeNotification = id => {
-  notificationsStore.resumeNotification(id)
-}
-
-const handleClick = notification => {
-  if (notification.onClick) {
-    notification.onClick()
+  const pauseNotification = id => {
+    notificationsStore.pauseNotification(id)
   }
-}
+
+  const resumeNotification = id => {
+    notificationsStore.resumeNotification(id)
+  }
+
+  const handleClick = notification => {
+    if (notification.onClick) {
+      notification.onClick()
+    }
+  }
 </script>
 
 <style scoped>

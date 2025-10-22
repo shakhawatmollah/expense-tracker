@@ -93,103 +93,103 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue'
-import { useCategoriesStore } from '@/stores/categories'
-import api from '@/services/api'
+  import { ref, computed, onMounted } from 'vue'
+  import { useCategoriesStore } from '@/stores/categories'
+  import api from '@/services/api'
 
-const emit = defineEmits(['close', 'success'])
+  const emit = defineEmits(['close', 'success'])
 
-const categoriesStore = useCategoriesStore()
+  const categoriesStore = useCategoriesStore()
 
-const exportType = ref('expenses')
-const format = ref('csv')
-const startDate = ref('')
-const endDate = ref('')
-const categoryId = ref(null)
-const period = ref(null)
-const loading = ref(false)
-const error = ref('')
+  const exportType = ref('expenses')
+  const format = ref('csv')
+  const startDate = ref('')
+  const endDate = ref('')
+  const categoryId = ref(null)
+  const period = ref(null)
+  const loading = ref(false)
+  const error = ref('')
 
-const categories = computed(() => categoriesStore.categories)
+  const categories = computed(() => categoriesStore.categories)
 
-onMounted(async() => {
-  // Set default date range (current month)
-  const now = new Date()
-  const firstDay = new Date(now.getFullYear(), now.getMonth(), 1)
-  const lastDay = new Date(now.getFullYear(), now.getMonth() + 1, 0)
+  onMounted(async () => {
+    // Set default date range (current month)
+    const now = new Date()
+    const firstDay = new Date(now.getFullYear(), now.getMonth(), 1)
+    const lastDay = new Date(now.getFullYear(), now.getMonth() + 1, 0)
 
-  startDate.value = firstDay.toISOString().split('T')[0]
-  endDate.value = lastDay.toISOString().split('T')[0]
+    startDate.value = firstDay.toISOString().split('T')[0]
+    endDate.value = lastDay.toISOString().split('T')[0]
 
-  // Fetch categories if not already loaded
-  if (categories.value.length === 0) {
-    await categoriesStore.fetchCategories()
-  }
-})
-
-const handleExport = async() => {
-  error.value = ''
-  loading.value = true
-
-  try {
-    const params = new URLSearchParams()
-    params.append('format', format.value)
-
-    if (exportType.value === 'expenses' || exportType.value === 'financial-report') {
-      if (startDate.value) params.append('start_date', startDate.value)
-      if (endDate.value) params.append('end_date', endDate.value)
+    // Fetch categories if not already loaded
+    if (categories.value.length === 0) {
+      await categoriesStore.fetchCategories()
     }
+  })
 
-    if (exportType.value === 'expenses' && categoryId.value) {
-      params.append('category_id', categoryId.value)
-    }
+  const handleExport = async () => {
+    error.value = ''
+    loading.value = true
 
-    if (exportType.value === 'budgets' && period.value) {
-      params.append('period', period.value)
-    }
+    try {
+      const params = new URLSearchParams()
+      params.append('format', format.value)
 
-    if (exportType.value === 'financial-report') {
-      params.append('include_charts', 'true')
-    }
-
-    const endpoint = `/export/${exportType.value}?${params.toString()}`
-
-    // Make request to download file
-    const response = await api.get(endpoint, {
-      responseType: 'blob'
-    })
-
-    // Create download link
-    const url = window.URL.createObjectURL(new Blob([response.data]))
-    const link = document.createElement('a')
-    link.href = url
-
-    // Get filename from response headers or generate one
-    const contentDisposition = response.headers['content-disposition']
-    let filename = `export_${exportType.value}_${new Date().getTime()}.${format.value}`
-
-    if (contentDisposition) {
-      const filenameMatch = contentDisposition.match(/filename="?(.+)"?/i)
-      if (filenameMatch && filenameMatch[1]) {
-        filename = filenameMatch[1]
+      if (exportType.value === 'expenses' || exportType.value === 'financial-report') {
+        if (startDate.value) params.append('start_date', startDate.value)
+        if (endDate.value) params.append('end_date', endDate.value)
       }
+
+      if (exportType.value === 'expenses' && categoryId.value) {
+        params.append('category_id', categoryId.value)
+      }
+
+      if (exportType.value === 'budgets' && period.value) {
+        params.append('period', period.value)
+      }
+
+      if (exportType.value === 'financial-report') {
+        params.append('include_charts', 'true')
+      }
+
+      const endpoint = `/export/${exportType.value}?${params.toString()}`
+
+      // Make request to download file
+      const response = await api.get(endpoint, {
+        responseType: 'blob'
+      })
+
+      // Create download link
+      const url = window.URL.createObjectURL(new Blob([response.data]))
+      const link = document.createElement('a')
+      link.href = url
+
+      // Get filename from response headers or generate one
+      const contentDisposition = response.headers['content-disposition']
+      let filename = `export_${exportType.value}_${new Date().getTime()}.${format.value}`
+
+      if (contentDisposition) {
+        const filenameMatch = contentDisposition.match(/filename="?(.+)"?/i)
+        if (filenameMatch && filenameMatch[1]) {
+          filename = filenameMatch[1]
+        }
+      }
+
+      link.setAttribute('download', filename)
+      document.body.appendChild(link)
+      link.click()
+      link.remove()
+      window.URL.revokeObjectURL(url)
+
+      emit('success', 'Export completed successfully!')
+      emit('close')
+    } catch (err) {
+      console.error('Export error:', err)
+      error.value = err.response?.data?.message || 'Failed to export data. Please try again.'
+    } finally {
+      loading.value = false
     }
-
-    link.setAttribute('download', filename)
-    document.body.appendChild(link)
-    link.click()
-    link.remove()
-    window.URL.revokeObjectURL(url)
-
-    emit('success', 'Export completed successfully!')
-    emit('close')
-  } catch (err) {
-    console.error('Export error:', err)
-    error.value = err.response?.data?.message || 'Failed to export data. Please try again.'
-  } finally {
-    loading.value = false
   }
-}
 </script>
 
 <style scoped>

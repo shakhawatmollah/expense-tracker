@@ -40,20 +40,61 @@ return new class () extends Migration {
      */
     public function down(): void
     {
-        Schema::table('expenses', function (Blueprint $table) {
-            $table->dropIndex('idx_expenses_user_date_category');
-            $table->dropIndex('idx_expenses_user_amount');
-            $table->dropIndex('idx_expenses_user_date_amount');
-            $table->dropIndex('idx_expenses_date_user');
+        $connection = Schema::getConnection();
+        $database = $connection->getDatabaseName();
+        
+        // Helper function to check if index exists
+        $indexExists = function ($table, $indexName) use ($connection, $database) {
+            $result = $connection->select(
+                "SELECT COUNT(*) as count FROM information_schema.statistics 
+                 WHERE table_schema = ? AND table_name = ? AND index_name = ?",
+                [$database, $table, $indexName]
+            );
+            return $result[0]->count > 0;
+        };
+
+        Schema::table('expenses', function (Blueprint $table) use ($indexExists) {
+            if ($indexExists('expenses', 'idx_expenses_user_date_category')) {
+                $table->dropIndex('idx_expenses_user_date_category');
+            }
+            if ($indexExists('expenses', 'idx_expenses_user_amount')) {
+                $table->dropIndex('idx_expenses_user_amount');
+            }
+            if ($indexExists('expenses', 'idx_expenses_user_date_amount')) {
+                $table->dropIndex('idx_expenses_user_date_amount');
+            }
+            if ($indexExists('expenses', 'idx_expenses_date_user')) {
+                $table->dropIndex('idx_expenses_date_user');
+            }
         });
 
-        Schema::table('budgets', function (Blueprint $table) {
-            $table->dropIndex('idx_budgets_user_active_dates');
-            $table->dropIndex('idx_budgets_category_user_active');
+        Schema::table('budgets', function (Blueprint $table) use ($indexExists) {
+            // Drop the simple index first
+            if ($indexExists('budgets', 'idx_budgets_user_active_dates')) {
+                $table->dropIndex('idx_budgets_user_active_dates');
+            }
+            
+            // For idx_budgets_category_user_active, we need to temporarily drop
+            // the foreign key constraint, drop the index, then recreate the constraint
+            if ($indexExists('budgets', 'idx_budgets_category_user_active')) {
+                // Drop the foreign key constraint first
+                $table->dropForeign(['category_id']);
+                
+                // Now we can drop the index
+                $table->dropIndex('idx_budgets_category_user_active');
+                
+                // Recreate the foreign key constraint
+                $table->foreign('category_id')
+                    ->references('id')
+                    ->on('categories')
+                    ->onDelete('cascade');
+            }
         });
 
-        Schema::table('categories', function (Blueprint $table) {
-            $table->dropIndex('idx_categories_user_created');
+        Schema::table('categories', function (Blueprint $table) use ($indexExists) {
+            if ($indexExists('categories', 'idx_categories_user_created')) {
+                $table->dropIndex('idx_categories_user_created');
+            }
         });
     }
 };

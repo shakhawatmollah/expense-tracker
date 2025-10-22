@@ -415,15 +415,15 @@
 
           // Create CSV content
           const csvHeaders = [
-          'Category',
-          'Budget Amount',
-          'Spent',
-          'Remaining',
-          'Usage %',
-          'Start Date',
-          'End Date',
-          'Status'
-        ]
+            'Category',
+            'Budget Amount',
+            'Spent',
+            'Remaining',
+            'Usage %',
+            'Start Date',
+            'End Date',
+            'Status'
+          ]
           const csvRows = exportData.budgets.map(budget => [
             budget.category,
             budget.amount.toFixed(2),

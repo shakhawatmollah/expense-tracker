@@ -143,7 +143,7 @@
                   <div v-if="openMenuId === notification.id" class="menu-dropdown">
                     <button
                       @click.stop="
-                        markAsRead(notification.id)
+                        markAsRead(notification.id);
                         openMenuId = null
                       "
                     >
@@ -151,7 +151,7 @@
                     </button>
                     <button
                       @click.stop="
-                        removeFromHistory(notification.id)
+                        removeFromHistory(notification.id);
                         openMenuId = null
                       "
                     >
@@ -254,170 +254,170 @@
 </template>
 
 <script setup>
-import { ref, computed, watch, onMounted, onUnmounted } from 'vue'
-import { useNotificationsStore } from '@/stores/notifications'
+  import { ref, computed, watch, onMounted, onUnmounted } from 'vue'
+  import { useNotificationsStore } from '@/stores/notifications'
 
-const notificationsStore = useNotificationsStore()
+  const notificationsStore = useNotificationsStore()
 
-// State
-const isOpen = ref(false)
-const activeTab = ref('all')
-const openMenuId = ref(null)
-const showSettings = ref(false)
-const notificationList = ref(null)
-const localPreferences = ref({ ...notificationsStore.preferences })
+  // State
+  const isOpen = ref(false)
+  const activeTab = ref('all')
+  const openMenuId = ref(null)
+  const showSettings = ref(false)
+  const notificationList = ref(null)
+  const localPreferences = ref({ ...notificationsStore.preferences })
 
-// Computed
-const unreadCount = computed(() => notificationsStore.unreadCount)
-const hasUnread = computed(() => notificationsStore.hasUnread)
+  // Computed
+  const unreadCount = computed(() => notificationsStore.unreadCount)
+  const hasUnread = computed(() => notificationsStore.hasUnread)
 
-const allNotifications = computed(() => notificationsStore.history)
+  const allNotifications = computed(() => notificationsStore.history)
 
-const unreadNotifications = computed(() => allNotifications.value.filter(n => !n.read))
+  const unreadNotifications = computed(() => allNotifications.value.filter(n => !n.read))
 
-const importantNotifications = computed(() =>
-  allNotifications.value.filter(n => n.priority === 'high' || n.priority === 'critical')
-)
+  const importantNotifications = computed(() =>
+    allNotifications.value.filter(n => n.priority === 'high' || n.priority === 'critical')
+  )
 
-const filteredNotifications = computed(() => {
-  switch (activeTab.value) {
+  const filteredNotifications = computed(() => {
+    switch (activeTab.value) {
       case 'unread':
         return unreadNotifications.value
       case 'important':
         return importantNotifications.value
       default:
         return allNotifications.value
-  }
-})
+    }
+  })
 
-// Methods
-const toggleNotificationCenter = () => {
-  isOpen.value = !isOpen.value
-  if (isOpen.value) {
-    document.body.style.overflow = 'hidden'
-  } else {
+  // Methods
+  const toggleNotificationCenter = () => {
+    isOpen.value = !isOpen.value
+    if (isOpen.value) {
+      document.body.style.overflow = 'hidden'
+    } else {
+      document.body.style.overflow = ''
+      openMenuId.value = null
+    }
+  }
+
+  const closeNotificationCenter = () => {
+    isOpen.value = false
     document.body.style.overflow = ''
     openMenuId.value = null
   }
-}
 
-const closeNotificationCenter = () => {
-  isOpen.value = false
-  document.body.style.overflow = ''
-  openMenuId.value = null
-}
-
-const markAllAsRead = () => {
-  notificationsStore.markAllAsRead()
-}
-
-const markAsRead = id => {
-  const notification = allNotifications.value.find(n => n.id === id)
-  if (notification) {
-    notification.read = !notification.read
-    notificationsStore.markAsRead(id)
+  const markAllAsRead = () => {
+    notificationsStore.markAllAsRead()
   }
-}
 
-const removeFromHistory = id => {
-  notificationsStore.removeFromHistory(id)
-}
-
-const clearAll = () => {
-  if (confirm('Are you sure you want to clear all notifications?')) {
-    if (activeTab.value === 'all') {
-      notificationsStore.clearHistory()
-    } else {
-      filteredNotifications.value.forEach(n => {
-        notificationsStore.removeFromHistory(n.id)
-      })
+  const markAsRead = id => {
+    const notification = allNotifications.value.find(n => n.id === id)
+    if (notification) {
+      notification.read = !notification.read
+      notificationsStore.markAsRead(id)
     }
   }
-}
 
-const handleNotificationClick = notification => {
-  if (!notification.read) {
+  const removeFromHistory = id => {
+    notificationsStore.removeFromHistory(id)
+  }
+
+  const clearAll = () => {
+    if (confirm('Are you sure you want to clear all notifications?')) {
+      if (activeTab.value === 'all') {
+        notificationsStore.clearHistory()
+      } else {
+        filteredNotifications.value.forEach(n => {
+          notificationsStore.removeFromHistory(n.id)
+        })
+      }
+    }
+  }
+
+  const handleNotificationClick = notification => {
+    if (!notification.read) {
+      markAsRead(notification.id)
+    }
+
+    if (notification.actions && notification.actions.length > 0) {
+      const primaryAction = notification.actions.find(a => a.type === 'primary')
+      if (primaryAction && primaryAction.callback) {
+        primaryAction.callback()
+      }
+    }
+  }
+
+  const handleAction = (action, notification) => {
+    if (action.callback) {
+      action.callback()
+    }
     markAsRead(notification.id)
   }
 
-  if (notification.actions && notification.actions.length > 0) {
-    const primaryAction = notification.actions.find(a => a.type === 'primary')
-    if (primaryAction && primaryAction.callback) {
-      primaryAction.callback()
+  const toggleMenu = id => {
+    openMenuId.value = openMenuId.value === id ? null : id
+  }
+
+  const openSettings = () => {
+    showSettings.value = true
+    localPreferences.value = { ...notificationsStore.preferences }
+  }
+
+  const closeSettings = () => {
+    showSettings.value = false
+  }
+
+  const savePreferences = () => {
+    notificationsStore.updatePreferences(localPreferences.value)
+  }
+
+  const handleDesktopToggle = async () => {
+    if (localPreferences.value.desktop) {
+      const granted = await notificationsStore.requestDesktopPermission()
+      if (!granted) {
+        localPreferences.value.desktop = false
+      }
+    }
+    savePreferences()
+  }
+
+  const formatRelativeTime = timestamp => {
+    const now = new Date()
+    const date = new Date(timestamp)
+    const diffInSeconds = Math.floor((now - date) / 1000)
+
+    if (diffInSeconds < 60) return 'Just now'
+    if (diffInSeconds < 3600) return `${Math.floor(diffInSeconds / 60)}m ago`
+    if (diffInSeconds < 86400) return `${Math.floor(diffInSeconds / 3600)}h ago`
+    if (diffInSeconds < 604800) return `${Math.floor(diffInSeconds / 86400)}d ago`
+    return date.toLocaleDateString()
+  }
+
+  // Click outside to close menu
+  const handleClickOutside = event => {
+    if (openMenuId.value && !event.target.closest('.notification-menu')) {
+      openMenuId.value = null
     }
   }
-}
 
-const handleAction = (action, notification) => {
-  if (action.callback) {
-    action.callback()
-  }
-  markAsRead(notification.id)
-}
+  onMounted(() => {
+    document.addEventListener('click', handleClickOutside)
+  })
 
-const toggleMenu = id => {
-  openMenuId.value = openMenuId.value === id ? null : id
-}
+  onUnmounted(() => {
+    document.removeEventListener('click', handleClickOutside)
+    document.body.style.overflow = ''
+  })
 
-const openSettings = () => {
-  showSettings.value = true
-  localPreferences.value = { ...notificationsStore.preferences }
-}
-
-const closeSettings = () => {
-  showSettings.value = false
-}
-
-const savePreferences = () => {
-  notificationsStore.updatePreferences(localPreferences.value)
-}
-
-const handleDesktopToggle = async() => {
-  if (localPreferences.value.desktop) {
-    const granted = await notificationsStore.requestDesktopPermission()
-    if (!granted) {
-      localPreferences.value.desktop = false
-    }
-  }
-  savePreferences()
-}
-
-const formatRelativeTime = timestamp => {
-  const now = new Date()
-  const date = new Date(timestamp)
-  const diffInSeconds = Math.floor((now - date) / 1000)
-
-  if (diffInSeconds < 60) return 'Just now'
-  if (diffInSeconds < 3600) return `${Math.floor(diffInSeconds / 60)}m ago`
-  if (diffInSeconds < 86400) return `${Math.floor(diffInSeconds / 3600)}h ago`
-  if (diffInSeconds < 604800) return `${Math.floor(diffInSeconds / 86400)}d ago`
-  return date.toLocaleDateString()
-}
-
-// Click outside to close menu
-const handleClickOutside = event => {
-  if (openMenuId.value && !event.target.closest('.notification-menu')) {
-    openMenuId.value = null
-  }
-}
-
-onMounted(() => {
-  document.addEventListener('click', handleClickOutside)
-})
-
-onUnmounted(() => {
-  document.removeEventListener('click', handleClickOutside)
-  document.body.style.overflow = ''
-})
-
-// Watch for changes
-watch(
-  () => notificationsStore.preferences,
-  newPrefs => {
-    localPreferences.value = { ...newPrefs }
-  },
-  { deep: true }
-)
+  // Watch for changes
+  watch(
+    () => notificationsStore.preferences,
+    newPrefs => {
+      localPreferences.value = { ...newPrefs }
+    },
+    { deep: true }
+  )
 </script>
 
 <style scoped>

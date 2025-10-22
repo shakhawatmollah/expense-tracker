@@ -38,11 +38,24 @@ module.exports = {
     'array-bracket-spacing': ['error', 'never'],
     'space-before-function-paren': ['error', 'never'],
     indent: ['error', 2],
-    'max-len': ['warn', { code: 120 }]
+    'max-len': ['warn', { code: 120 }],
+
+    // Vue specific indentation
+    'vue/script-indent': ['error', 2, { baseIndent: 1 }],
+    'vue/html-indent': ['error', 2]
   },
   env: {
     'vue/setup-compiler-macros': true,
     node: true,
     browser: true
-  }
+  },
+  overrides: [
+    {
+      files: ['*.vue'],
+      rules: {
+        // Disable base indent rule for .vue files in favor of vue/script-indent
+        indent: 'off'
+      }
+    }
+  ]
 }
