@@ -3,9 +3,7 @@
 namespace App\Repositories;
 
 use App\Models\Category;
-use App\Repositories\CategoryRepositoryInterface;
 use Illuminate\Database\Eloquent\Collection;
-use Illuminate\Support\Facades\DB;
 
 class CategoryRepository implements CategoryRepositoryInterface
 {
@@ -25,11 +23,11 @@ class CategoryRepository implements CategoryRepositoryInterface
     {
         return Category::with(['expenses' => function ($query) use ($userId) {
             $query->where('user_id', $userId)
-                  ->select('id', 'category_id', 'description', 'amount', 'date');
+                ->select('id', 'category_id', 'description', 'amount', 'date');
         }])
-        ->where('id', $id)
-        ->where('user_id', $userId)
-        ->first();
+            ->where('id', $id)
+            ->where('user_id', $userId)
+            ->first();
     }
 
     public function getUserCategories(int $userId): Collection
@@ -37,9 +35,9 @@ class CategoryRepository implements CategoryRepositoryInterface
         return Category::withCount(['expenses' => function ($query) use ($userId) {
             $query->where('user_id', $userId);
         }])
-        ->where('user_id', $userId)
-        ->orderBy('name')
-        ->get();
+            ->where('user_id', $userId)
+            ->orderBy('name')
+            ->get();
     }
 
     public function getByUser(int $userId): Collection
@@ -47,13 +45,14 @@ class CategoryRepository implements CategoryRepositoryInterface
         return Category::withCount(['expenses' => function ($query) use ($userId) {
             $query->where('user_id', $userId);
         }])
-        ->where('user_id', $userId)
-        ->get();
+            ->where('user_id', $userId)
+            ->get();
     }
 
     public function update(Category $category, array $data): Category
     {
         $category->update($data);
+
         return $category->fresh();
     }
 
@@ -65,27 +64,30 @@ class CategoryRepository implements CategoryRepositoryInterface
     public function updateById(int $id, array $data): bool
     {
         $category = Category::find($id);
-        if (!$category) {
+        if (! $category) {
             return false;
         }
+
         return $category->update($data);
     }
 
     public function deleteById(int $id): bool
     {
         $category = Category::find($id);
-        if (!$category) {
+        if (! $category) {
             return false;
         }
+
         return $category->delete();
     }
 
     public function hasExpenses(int $id): bool
     {
         $category = Category::find($id);
-        if (!$category) {
+        if (! $category) {
             return false;
         }
+
         return $category->expenses()->exists();
     }
 

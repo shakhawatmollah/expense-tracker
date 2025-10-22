@@ -19,7 +19,7 @@ class FinancialHealthScore extends Model
         'category_balance_score',
         'score_breakdown',
         'score_date',
-        'recommendations'
+        'recommendations',
     ];
 
     protected $casts = [
@@ -30,7 +30,7 @@ class FinancialHealthScore extends Model
         'category_balance_score' => 'decimal:2',
         'score_breakdown' => 'array',
         'score_date' => 'date',
-        'recommendations' => 'array'
+        'recommendations' => 'array',
     ];
 
     /**
@@ -47,7 +47,7 @@ class FinancialHealthScore extends Model
     public function scopeCurrentPeriod($query, string $period = 'monthly')
     {
         return $query->where('score_period', $period)
-                    ->where('score_date', '>=', now()->startOfMonth());
+            ->where('score_date', '>=', now()->startOfMonth());
     }
 
     /**
@@ -97,7 +97,7 @@ class FinancialHealthScore extends Model
             'expense_control' => $this->expense_control_score,
             'budget_adherence' => $this->budget_adherence_score,
             'savings_rate' => $this->savings_rate_score,
-            'debt_ratio' => $this->debt_ratio_score
+            'debt_ratio' => $this->debt_ratio_score,
         ];
 
         return array_keys($scores, max($scores))[0];
@@ -105,14 +105,14 @@ class FinancialHealthScore extends Model
 
     /**
      * Get the weakest area
-     */  
+     */
     public function getWeakestArea(): string
     {
         $scores = [
             'expense_control' => $this->expense_control_score,
             'budget_adherence' => $this->budget_adherence_score,
             'savings_rate' => $this->savings_rate_score,
-            'debt_ratio' => $this->debt_ratio_score
+            'debt_ratio' => $this->debt_ratio_score,
         ];
 
         return array_keys($scores, min($scores))[0];

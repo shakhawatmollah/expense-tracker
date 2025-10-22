@@ -2,18 +2,18 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Exceptions\ExpenseDatabaseException;
+use App\Exceptions\ExpenseNotFoundException;
+use App\Exceptions\ExpenseUnauthorizedException;
+use App\Exceptions\ExpenseValidationException;
 use App\Http\Controllers\Controller;
+use App\Http\Helpers\ApiResponse;
+use App\Http\Requests\Expense\DateRangeRequest;
+use App\Http\Requests\Expense\SearchExpenseRequest;
 use App\Http\Requests\Expense\StoreExpenseRequest;
 use App\Http\Requests\Expense\UpdateExpenseRequest;
-use App\Http\Requests\Expense\SearchExpenseRequest;
-use App\Http\Requests\Expense\DateRangeRequest;
 use App\Http\Resources\ExpenseResource;
-use App\Http\Helpers\ApiResponse;
 use App\Services\ExpenseService;
-use App\Exceptions\ExpenseNotFoundException;
-use App\Exceptions\ExpenseValidationException;
-use App\Exceptions\ExpenseDatabaseException;
-use App\Exceptions\ExpenseUnauthorizedException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
@@ -22,7 +22,8 @@ class ExpenseController extends Controller
 {
     public function __construct(
         private ExpenseService $expenseService
-    ) {}
+    ) {
+    }
 
     /**
      * Display a listing of the resource.
@@ -51,7 +52,7 @@ class ExpenseController extends Controller
                         'last' => $expenses->url($expenses->lastPage()),
                         'prev' => $expenses->previousPageUrl(),
                         'next' => $expenses->nextPageUrl(),
-                    ]
+                    ],
                 ]
             );
         }
@@ -81,30 +82,32 @@ class ExpenseController extends Controller
                 new ExpenseResource($expense),
                 'Expense created successfully'
             );
-            
+
         } catch (ExpenseValidationException $e) {
             Log::warning('Expense validation failed', [
                 'user_id' => $request->user()->id,
                 'error' => $e->getMessage(),
-                'context' => $e->getContext()
+                'context' => $e->getContext(),
             ]);
+
             throw $e;
-            
+
         } catch (ExpenseDatabaseException $e) {
             Log::error('Database error creating expense', [
                 'user_id' => $request->user()->id,
                 'error' => $e->getMessage(),
-                'context' => $e->getContext()
+                'context' => $e->getContext(),
             ]);
+
             throw $e;
-            
+
         } catch (\Exception $e) {
             Log::critical('Unexpected error creating expense', [
                 'user_id' => $request->user()->id,
                 'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString()
+                'trace' => $e->getTraceAsString(),
             ]);
-            
+
             throw new ExpenseDatabaseException(
                 'expense creation',
                 $e->getMessage(),
@@ -124,28 +127,28 @@ class ExpenseController extends Controller
             return ApiResponse::success(
                 new ExpenseResource($expense)
             );
-            
+
         } catch (ExpenseNotFoundException $e) {
             return ApiResponse::error(
                 $e->getUserMessage(),
                 [],
                 404
             );
-            
+
         } catch (ExpenseUnauthorizedException $e) {
             return ApiResponse::error(
                 $e->getUserMessage(),
                 [],
                 403
             );
-            
+
         } catch (\Exception $e) {
             Log::error('Unexpected error fetching expense', [
                 'expense_id' => $id,
                 'user_id' => $request->user()->id,
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ]);
-            
+
             throw new ExpenseDatabaseException(
                 'expense retrieval',
                 $e->getMessage(),
@@ -166,45 +169,49 @@ class ExpenseController extends Controller
                 new ExpenseResource($expense),
                 'Expense updated successfully'
             );
-            
+
         } catch (ExpenseNotFoundException $e) {
             Log::info('Expense not found for update', [
                 'expense_id' => $id,
-                'user_id' => $request->user()->id
+                'user_id' => $request->user()->id,
             ]);
+
             throw $e;
-            
+
         } catch (ExpenseUnauthorizedException $e) {
             Log::warning('Unauthorized expense update attempt', [
                 'expense_id' => $id,
-                'user_id' => $request->user()->id
+                'user_id' => $request->user()->id,
             ]);
+
             throw $e;
-            
+
         } catch (ExpenseValidationException $e) {
             Log::warning('Expense update validation failed', [
                 'expense_id' => $id,
                 'user_id' => $request->user()->id,
-                'errors' => $e->getErrors()
+                'errors' => $e->getErrors(),
             ]);
+
             throw $e;
-            
+
         } catch (ExpenseDatabaseException $e) {
             Log::error('Database error updating expense', [
                 'expense_id' => $id,
                 'user_id' => $request->user()->id,
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ]);
+
             throw $e;
-            
+
         } catch (\Exception $e) {
             Log::critical('Unexpected error updating expense', [
                 'expense_id' => $id,
                 'user_id' => $request->user()->id,
                 'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString()
+                'trace' => $e->getTraceAsString(),
             ]);
-            
+
             throw new ExpenseDatabaseException(
                 'expense update',
                 $e->getMessage(),
@@ -224,37 +231,40 @@ class ExpenseController extends Controller
             return ApiResponse::message(
                 'Expense deleted successfully'
             );
-            
+
         } catch (ExpenseNotFoundException $e) {
             Log::info('Expense not found for deletion', [
                 'expense_id' => $id,
-                'user_id' => $request->user()->id
+                'user_id' => $request->user()->id,
             ]);
+
             throw $e;
-            
+
         } catch (ExpenseUnauthorizedException $e) {
             Log::warning('Unauthorized expense deletion attempt', [
                 'expense_id' => $id,
-                'user_id' => $request->user()->id
+                'user_id' => $request->user()->id,
             ]);
+
             throw $e;
-            
+
         } catch (ExpenseDatabaseException $e) {
             Log::error('Database error deleting expense', [
                 'expense_id' => $id,
                 'user_id' => $request->user()->id,
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ]);
+
             throw $e;
-            
+
         } catch (\Exception $e) {
             Log::critical('Unexpected error deleting expense', [
                 'expense_id' => $id,
                 'user_id' => $request->user()->id,
                 'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString()
+                'trace' => $e->getTraceAsString(),
             ]);
-            
+
             throw new ExpenseDatabaseException(
                 'expense deletion',
                 $e->getMessage(),
@@ -269,7 +279,7 @@ class ExpenseController extends Controller
     public function getByDateRange(DateRangeRequest $request): JsonResponse
     {
         $validated = $request->validated();
-        
+
         $expenses = $this->expenseService->getByDateRange(
             $request->user()->id,
             $validated['start_date'],
@@ -294,7 +304,7 @@ class ExpenseController extends Controller
     public function search(SearchExpenseRequest $request): JsonResponse
     {
         $validated = $request->validated();
-        
+
         $expenses = $this->expenseService->search(
             $request->user()->id,
             $validated['query'] ?? null

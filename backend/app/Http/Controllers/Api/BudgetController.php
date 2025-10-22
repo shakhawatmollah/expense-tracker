@@ -3,16 +3,14 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\BudgetRequest;
-use App\Http\Requests\Budget\SearchBudgetRequest;
-use App\Http\Resources\BudgetResource;
 use App\Http\Helpers\ApiResponse;
+use App\Http\Requests\Budget\SearchBudgetRequest;
+use App\Http\Requests\BudgetRequest;
+use App\Http\Resources\BudgetResource;
 use App\Models\Budget;
 use App\Services\BudgetService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\ValidationException;
 
 class BudgetController extends Controller
@@ -78,7 +76,7 @@ class BudgetController extends Controller
     {
         $budget = $this->budgetService->getBudgetById((int)$id, $request->user()->id);
 
-        if (!$budget) {
+        if (! $budget) {
             return ApiResponse::notFound('Budget not found', 'budget');
         }
 
@@ -99,7 +97,7 @@ class BudgetController extends Controller
                 $request->user()->id
             );
 
-            if (!$updated) {
+            if (! $updated) {
                 return ApiResponse::notFound('Budget not found', 'budget');
             }
 
@@ -121,7 +119,7 @@ class BudgetController extends Controller
     {
         $deleted = $this->budgetService->deleteBudget((int)$id, $request->user()->id);
 
-        if (!$deleted) {
+        if (! $deleted) {
             return ApiResponse::notFound('Budget not found', 'budget');
         }
 
@@ -176,7 +174,7 @@ class BudgetController extends Controller
     {
         $period = $request->get('period');
 
-        if (!$period || !in_array($period, Budget::PERIODS)) {
+        if (! $period || ! in_array($period, Budget::PERIODS)) {
             return response()->json([
                 'success' => false,
                 'message' => 'Invalid or missing period parameter',
@@ -202,7 +200,7 @@ class BudgetController extends Controller
     public function search(Request $request): JsonResponse
     {
         $filters = $request->only([
-            'period', 'category_id', 'status', 'amount_min', 'amount_max', 'name'
+            'period', 'category_id', 'status', 'amount_min', 'amount_max', 'name',
         ]);
 
         $budgets = $this->budgetService->searchBudgets($request->user()->id, $filters);
@@ -244,7 +242,7 @@ class BudgetController extends Controller
     public function recalculate(Request $request): JsonResponse
     {
         $budgetId = $request->get('budget_id');
-        
+
         // For now, we'll just touch the budgets to refresh any cached values
         // since spent_amount is calculated dynamically
         if ($budgetId) {
@@ -312,7 +310,7 @@ class BudgetController extends Controller
                 $request->only(['name', 'period', 'start_date', 'end_date'])
             );
 
-            if (!$duplicatedBudget) {
+            if (! $duplicatedBudget) {
                 return response()->json([
                     'success' => false,
                     'message' => 'Budget not found or could not be duplicated',

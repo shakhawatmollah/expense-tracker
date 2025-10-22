@@ -2,8 +2,8 @@
 
 namespace App\Http\Requests\Budget;
 
-use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Contracts\Validation\Validator;
+use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Http\Exceptions\HttpResponseException;
 
 class SearchBudgetRequest extends FormRequest
@@ -64,7 +64,7 @@ class SearchBudgetRequest extends FormRequest
         // Sanitize search query
         if ($this->has('search')) {
             $this->merge([
-                'search' => trim(strip_tags($this->input('search')))
+                'search' => trim(strip_tags($this->input('search'))),
             ]);
         }
 
@@ -84,7 +84,7 @@ class SearchBudgetRequest extends FormRequest
             response()->json([
                 'success' => false,
                 'message' => 'Invalid search parameters for budgets.',
-                'errors' => $validator->errors()
+                'errors' => $validator->errors(),
             ], 422)
         );
     }

@@ -211,7 +211,7 @@
 
       // Small delay to ensure auth state is updated before navigation
       await new Promise(resolve => setTimeout(resolve, 100))
-      
+
       // Navigate to dashboard
       await router.push({ name: 'Dashboard' })
     } catch (err) {

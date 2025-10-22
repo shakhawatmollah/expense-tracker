@@ -20,7 +20,7 @@ class BudgetResource extends JsonResource
                 'raw' => (float) $this->amount,
                 'formatted' => '$' . number_format($this->amount, 2),
             ],
-            
+
             // Calculated fields
             'spent_amount' => [
                 'raw' => (float) $this->spent_amount,
@@ -31,13 +31,13 @@ class BudgetResource extends JsonResource
                 'formatted' => '$' . number_format($this->remaining_amount, 2),
             ],
             'usage_percentage' => round($this->usage_percentage, 2),
-            
+
             // Status and alerts
             'alert_status' => $this->alert_status,
             'is_over_budget' => $this->is_over_budget,
             'is_current' => $this->is_current,
             'is_active' => $this->is_active,
-            
+
             // Period information
             'period' => [
                 'type' => $this->period,
@@ -46,13 +46,13 @@ class BudgetResource extends JsonResource
                 'end_date' => $this->end_date->toDateString(),
                 'days_remaining' => $this->days_remaining,
             ],
-            
+
             // Alert configuration
             'alert_thresholds' => $this->alert_thresholds ?: [
                 'warning' => 80,
                 'danger' => 100,
             ],
-            
+
             // Category relationship
             'category' => $this->whenLoaded('category', function () {
                 return $this->category ? [
@@ -62,18 +62,18 @@ class BudgetResource extends JsonResource
                     'icon' => $this->category->icon ?? null,
                 ] : null;
             }),
-            
+
             // Timestamps
             'created_at' => $this->created_at->toISOString(),
             'updated_at' => $this->updated_at->toISOString(),
-            
+
             // UI helpers
             'progress' => [
                 'percentage' => min(100, $this->usage_percentage),
                 'status_color' => $this->getStatusColor(),
                 'progress_bar_class' => $this->getProgressBarClass(),
             ],
-            
+
             // Additional computed fields
             'daily_average' => $this->getDailyAverage(),
             'projected_total' => $this->getProjectedTotal(),
@@ -107,7 +107,7 @@ class BudgetResource extends JsonResource
     {
         return match ($this->alert_status) {
             'danger' => '#EF4444',   // Red
-            'warning' => '#F59E0B',  // Amber  
+            'warning' => '#F59E0B',  // Amber
             'safe' => '#10B981',     // Green
             default => '#6B7280',    // Gray
         };
@@ -132,6 +132,7 @@ class BudgetResource extends JsonResource
     private function getDailyAverage(): float
     {
         $daysElapsed = max(1, $this->start_date->diffInDays(now()));
+
         return round($this->spent_amount / $daysElapsed, 2);
     }
 
@@ -142,12 +143,13 @@ class BudgetResource extends JsonResource
     {
         $totalDays = $this->start_date->diffInDays($this->end_date);
         $daysElapsed = max(1, $this->start_date->diffInDays(now()));
-        
+
         if ($daysElapsed >= $totalDays) {
             return (float) $this->spent_amount;
         }
-        
+
         $dailyAverage = $this->getDailyAverage();
+
         return round($dailyAverage * $totalDays, 2);
     }
 
@@ -162,7 +164,7 @@ class BudgetResource extends JsonResource
             $overAmount = $this->spent_amount - $this->amount;
             $alerts[] = [
                 'type' => 'over_budget',
-                'message' => "Over budget by $" . number_format($overAmount, 2),
+                'message' => 'Over budget by $' . number_format($overAmount, 2),
                 'severity' => 'high',
             ];
         } elseif ($this->alert_status === 'warning') {
@@ -176,7 +178,7 @@ class BudgetResource extends JsonResource
         // Add time-based alerts for current budgets
         if ($this->is_current) {
             $daysLeft = $this->days_remaining;
-            
+
             if ($daysLeft <= 7 && $daysLeft > 0 && $this->usage_percentage < 25) {
                 $alerts[] = [
                     'type' => 'underutilized',

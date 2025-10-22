@@ -35,7 +35,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  */
 class Expense extends Model
 {
-    use HasFactory, Sanitizable;
+    use HasFactory;
+    use Sanitizable;
 
     /**
      * The attributes that are mass assignable.
@@ -105,7 +106,7 @@ class Expense extends Model
     public function scopeCurrentMonth($query)
     {
         return $query->whereMonth('date', now()->month)
-                    ->whereYear('date', now()->year);
+            ->whereYear('date', now()->year);
     }
 
     /**

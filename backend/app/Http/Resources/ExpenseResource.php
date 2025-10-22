@@ -18,19 +18,19 @@ class ExpenseResource extends JsonResource
             'id' => $this->id,
             'description' => $this->description,
             'notes' => $this->notes,
-            
+
             // Amount - provide both backward compatibility and enhanced format
             'amount' => (float) $this->amount,
             'amount_formatted' => [
                 'raw' => (float) $this->amount,
                 'formatted' => '$' . number_format($this->amount, 2),
             ],
-            
+
             // Date information
             'date' => $this->date?->format('Y-m-d'),
             'date_formatted' => $this->date?->format('M j, Y'),
             'date_relative' => $this->date?->diffForHumans(),
-            
+
             // Category relationship
             'category' => $this->whenLoaded('category', function () {
                 return [
@@ -40,11 +40,11 @@ class ExpenseResource extends JsonResource
                     'icon' => $this->category->icon ?? 'fas fa-tag',
                 ];
             }),
-            
+
             // Timestamps
             'created_at' => $this->created_at?->toISOString(),
             'updated_at' => $this->updated_at?->toISOString(),
-            
+
             // UI helpers
             'display' => [
                 'summary' => $this->description . ' - $' . number_format($this->amount, 2),

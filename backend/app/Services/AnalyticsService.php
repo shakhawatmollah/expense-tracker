@@ -2,14 +2,14 @@
 
 namespace App\Services;
 
-use App\Models\User;
-use App\Models\Expense;
+use App\Models\AnalyticsCache;
 use App\Models\Budget;
 use App\Models\Category;
-use App\Models\UserInsight;
-use App\Models\SpendingPattern;
+use App\Models\Expense;
 use App\Models\FinancialHealthScore;
-use App\Models\AnalyticsCache;
+use App\Models\SpendingPattern;
+use App\Models\User;
+use App\Models\UserInsight;
 use Carbon\Carbon;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
@@ -23,7 +23,7 @@ class AnalyticsService
     {
         $cacheKey = "user_analytics_{$user->id}_{$period}";
         $cached = AnalyticsCache::getCache($user->id, $cacheKey);
-        
+
         if ($cached) {
             return $cached->cached_data;
         }
@@ -33,14 +33,14 @@ class AnalyticsService
             'financial_health' => $this->calculateFinancialHealth($user, $period),
             'insights' => $this->generateInsights($user, $period),
             'forecasts' => $this->generateForecasts($user, $period),
-            'recommendations' => $this->generateRecommendations($user, $period)
+            'recommendations' => $this->generateRecommendations($user, $period),
         ];
 
         // Cache the results
         AnalyticsCache::setCache(
-            $user->id, 
-            $cacheKey, 
-            $analytics, 
+            $user->id,
+            $cacheKey,
+            $analytics,
             60 // 1 hour cache
         );
 
@@ -53,7 +53,7 @@ class AnalyticsService
     public function detectSpendingPatterns(User $user, string $period = 'monthly'): array
     {
         $startDate = $this->getPeriodStartDate($period);
-        
+
         $expenses = Expense::where('user_id', $user->id)
             ->where('date', '>=', $startDate)
             ->with('category')
@@ -63,13 +63,13 @@ class AnalyticsService
 
         // Detect recurring expenses
         $patterns['recurring'] = $this->detectRecurringExpenses($expenses);
-        
+
         // Detect seasonal patterns
         $patterns['seasonal'] = $this->detectSeasonalPatterns($expenses);
-        
+
         // Detect category spikes
         $patterns['category_spikes'] = $this->detectCategorySpikes($expenses);
-        
+
         // Detect anomalies
         $patterns['anomalies'] = $this->detectAnomalies($expenses);
 
@@ -86,7 +86,7 @@ class AnalyticsService
     {
         try {
             $startDate = $this->getPeriodStartDate($period);
-            
+
             $expenses = Expense::where('user_id', $user->id)
                 ->where('date', '>=', $startDate)
                 ->sum('amount');
@@ -95,7 +95,7 @@ class AnalyticsService
                 ->where('start_date', '>=', $startDate)
                 ->get();
         } catch (\Exception $e) {
-            throw new \Exception("Error fetching data: " . $e->getMessage());
+            throw new \Exception('Error fetching data: ' . $e->getMessage());
         }
 
         $totalBudget = $budgets->sum('amount');
@@ -125,8 +125,8 @@ class AnalyticsService
                 'total_expenses' => $expenses,
                 'total_budget' => $totalBudget,
                 'budget_remaining' => $totalBudget - $expenses,
-                'period' => $period
-            ]
+                'period' => $period,
+            ],
         ];
 
         // Store in database
@@ -134,14 +134,14 @@ class AnalyticsService
             FinancialHealthScore::updateOrCreate(
                 [
                     'user_id' => $user->id,
-                    'score_date' => now()->startOfMonth()
+                    'score_date' => now()->startOfMonth(),
                 ],
                 array_merge($healthData, [
-                    'recommendations' => $this->generateHealthRecommendations($healthData)
+                    'recommendations' => $this->generateHealthRecommendations($healthData),
                 ])
             );
         } catch (\Exception $e) {
-            throw new \Exception("Error saving financial health score: " . $e->getMessage());
+            throw new \Exception('Error saving financial health score: ' . $e->getMessage());
         }
 
         return $healthData;
@@ -153,7 +153,7 @@ class AnalyticsService
     public function generateInsights(User $user, string $period = 'monthly'): array
     {
         $startDate = $this->getPeriodStartDate($period);
-        
+
         $insights = [];
 
         // Top spending categories
@@ -186,11 +186,11 @@ class AnalyticsService
     public function generateForecasts(User $user, string $period = 'monthly'): array
     {
         $historicalData = $this->getHistoricalSpendingData($user, 12); // 12 months
-        
+
         return [
             'next_month_forecast' => $this->forecastNextMonth($historicalData),
             'category_forecasts' => $this->forecastByCategory($user, $historicalData),
-            'trend_analysis' => $this->analyzeTrends($historicalData)
+            'trend_analysis' => $this->analyzeTrends($historicalData),
         ];
     }
 
@@ -213,16 +213,18 @@ class AnalyticsService
                         'type' => 'cost_reduction',
                         'category' => $pattern->pattern_data['category'] ?? 'Unknown',
                         'message' => "Consider reducing spending in {$pattern->pattern_name}",
-                        'potential_savings' => $pattern->impact_amount * 0.3
+                        'potential_savings' => $pattern->impact_amount * 0.3,
                     ];
+
                     break;
-                    
+
                 case 'monthly_recurring':
                     $recommendations[] = [
                         'type' => 'budget_optimization',
                         'message' => "Set up automatic budget for recurring {$pattern->pattern_name}",
-                        'suggested_amount' => $pattern->impact_amount * 1.1
+                        'suggested_amount' => $pattern->impact_amount * 1.1,
                     ];
+
                     break;
             }
         }
@@ -255,20 +257,20 @@ class AnalyticsService
             if ($group->count() >= 3) { // At least 3 occurrences
                 $dates = $group->pluck('date')->sort();
                 $intervals = [];
-                
+
                 for ($i = 1; $i < $dates->count(); $i++) {
-                    $intervals[] = $dates[$i]->diffInDays($dates[$i-1]);
+                    $intervals[] = $dates[$i]->diffInDays($dates[$i - 1]);
                 }
-                
+
                 $avgInterval = array_sum($intervals) / count($intervals);
-                
+
                 if ($avgInterval >= 25 && $avgInterval <= 35) { // Monthly
                     $recurring[] = [
                         'type' => 'monthly_recurring',
                         'description' => $group->first()->description,
                         'amount' => $group->first()->amount,
                         'frequency' => 'monthly',
-                        'confidence' => 85 + (min($group->count(), 10) * 1.5)
+                        'confidence' => 85 + (min($group->count(), 10) * 1.5),
                     ];
                 }
             }
@@ -286,14 +288,14 @@ class AnalyticsService
 
         $seasonal = [];
         $average = $monthlyTotals->avg();
-        
+
         foreach ($monthlyTotals as $month => $total) {
             if ($total > $average * 1.3) { // 30% above average
                 $seasonal[] = [
                     'type' => 'seasonal_spike',
                     'month' => $month,
                     'amount' => $total,
-                    'deviation' => (($total - $average) / $average) * 100
+                    'deviation' => (($total - $average) / $average) * 100,
                 ];
             }
         }
@@ -305,7 +307,7 @@ class AnalyticsService
     {
         $categoryTotals = $expenses->groupBy('category_id')->map->sum('amount');
         $average = $categoryTotals->avg();
-        
+
         $spikes = [];
         foreach ($categoryTotals as $categoryId => $total) {
             if ($total > $average * 1.5) { // 50% above average
@@ -314,7 +316,7 @@ class AnalyticsService
                     'type' => 'category_spike',
                     'category' => $category?->name ?? 'Unknown',
                     'amount' => $total,
-                    'deviation' => (($total - $average) / $average) * 100
+                    'deviation' => (($total - $average) / $average) * 100,
                 ];
             }
         }
@@ -326,8 +328,8 @@ class AnalyticsService
     {
         $amounts = $expenses->pluck('amount');
         $mean = $amounts->avg();
-        $stdDev = sqrt($amounts->map(fn($x) => pow($x - $mean, 2))->avg());
-        
+        $stdDev = sqrt($amounts->map(fn ($x) => pow($x - $mean, 2))->avg());
+
         $anomalies = [];
         foreach ($expenses as $expense) {
             $zScore = abs(($expense->amount - $mean) / $stdDev);
@@ -337,7 +339,7 @@ class AnalyticsService
                     'expense_id' => $expense->id,
                     'amount' => $expense->amount,
                     'z_score' => $zScore,
-                    'date' => $expense->date
+                    'date' => $expense->date,
                 ];
             }
         }
@@ -364,7 +366,7 @@ class AnalyticsService
                     [
                         'user_id' => $user->id,
                         'pattern_type' => $pattern['type'],
-                        'pattern_name' => $pattern['description'] ?? $type
+                        'pattern_name' => $pattern['description'] ?? $type,
                     ],
                     [
                         'description' => $pattern['description'] ?? "Pattern detected in {$type}",
@@ -374,7 +376,7 @@ class AnalyticsService
                         'impact_amount' => $pattern['amount'] ?? 0,
                         'first_detected' => $pattern['first_detected'] ?? now(),
                         'last_detected' => now(),
-                        'is_active' => true
+                        'is_active' => true,
                     ]
                 );
             }
@@ -386,23 +388,26 @@ class AnalyticsService
         UserInsight::updateOrCreate(
             [
                 'user_id' => $user->id,
-                'insight_type' => 'trend_analysis'
+                'insight_type' => 'trend_analysis',
             ],
             [
-                'title' => "Monthly Analytics for " . now()->format('F Y'),
+                'title' => 'Monthly Analytics for ' . now()->format('F Y'),
                 'description' => $this->generateInsightSummary($insights),
                 'data' => $insights,
                 'confidence_score' => 85.0,
-                'generated_at' => now()
+                'generated_at' => now(),
             ]
         );
     }
 
     private function calculateExpenseControlScore(float $expenses, float $budget): float
     {
-        if ($budget <= 0) return 50; // Neutral score if no budget
-        
+        if ($budget <= 0) {
+            return 50;
+        } // Neutral score if no budget
+
         $ratio = $expenses / $budget;
+
         return match(true) {
             $ratio <= 0.8 => 100,
             $ratio <= 0.9 => 90,
@@ -428,15 +433,15 @@ class AnalyticsService
     private function generateHealthRecommendations(array $healthData): array
     {
         $recommendations = [];
-        
+
         if ($healthData['budget_adherence_score'] < 70) {
             $recommendations[] = 'Consider reviewing and adjusting your budget allocation';
         }
-        
+
         if ($healthData['spending_consistency_score'] < 60) {
             $recommendations[] = 'Track daily expenses more closely to improve spending control';
         }
-        
+
         return $recommendations;
     }
 
@@ -446,18 +451,18 @@ class AnalyticsService
         $currentMonth = Expense::where('user_id', $user->id)
             ->whereMonth('date', now()->month)
             ->sum('amount');
-            
+
         $lastMonth = Expense::where('user_id', $user->id)
             ->whereMonth('date', now()->subMonth()->month)
             ->sum('amount');
-            
+
         $trend = $lastMonth > 0 ? (($currentMonth - $lastMonth) / $lastMonth) * 100 : 0;
-        
+
         return [
             'current_month' => $currentMonth,
             'last_month' => $lastMonth,
             'trend_percentage' => round($trend, 2),
-            'trend_direction' => $trend > 0 ? 'increasing' : 'decreasing'
+            'trend_direction' => $trend > 0 ? 'increasing' : 'decreasing',
         ];
     }
 
@@ -466,23 +471,23 @@ class AnalyticsService
         $budgets = Budget::where('user_id', $user->id)
             ->with('category')
             ->get();
-            
+
         $performance = [];
         foreach ($budgets as $budget) {
             $spent = Expense::where('user_id', $user->id)
                 ->where('category_id', $budget->category_id)
                 ->whereBetween('date', [$budget->start_date, $budget->end_date])
                 ->sum('amount');
-                
+
             $performance[] = [
                 'category' => $budget->category?->name ?? 'Unknown',
                 'budgeted' => $budget->amount,
                 'spent' => $spent,
                 'remaining' => $budget->amount - $spent,
-                'utilization' => round(($spent / $budget->amount) * 100, 2)
+                'utilization' => round(($spent / $budget->amount) * 100, 2),
             ];
         }
-        
+
         return $performance;
     }
 
@@ -502,9 +507,10 @@ class AnalyticsService
         if ($historicalData->count() < 3) {
             return $historicalData->avg('total') ?? 0;
         }
-        
+
         // Simple linear trend forecast
         $recent = $historicalData->take(-3);
+
         return $recent->avg('total') * 1.02; // Slight growth assumption
     }
 
@@ -519,37 +525,37 @@ class AnalyticsService
         if ($historicalData->count() < 2) {
             return ['trend' => 'insufficient_data'];
         }
-        
+
         $first = $historicalData->first()->total;
         $last = $historicalData->last()->total;
         $trend = (($last - $first) / $first) * 100;
-        
+
         return [
             'overall_trend' => $trend > 5 ? 'increasing' : ($trend < -5 ? 'decreasing' : 'stable'),
-            'trend_percentage' => round($trend, 2)
+            'trend_percentage' => round($trend, 2),
         ];
     }
 
     private function generateInsightSummary(array $insights): string
     {
         $topCategory = $insights['top_categories'][0] ?? null;
-        $summary = "Financial analysis complete. ";
-        
+        $summary = 'Financial analysis complete. ';
+
         if ($topCategory && isset($topCategory->name)) {
-            $summary .= "Top spending category: " . $topCategory->name . " ($" . $topCategory->total . "). ";
+            $summary .= 'Top spending category: ' . $topCategory->name . ' ($' . $topCategory->total . '). ';
         }
-        
+
         return $summary;
     }
 
     private function generateActionItems(array $insights): array
     {
         $actions = [];
-        
+
         if (isset($insights['trends']['trend_direction']) && $insights['trends']['trend_direction'] === 'increasing') {
             $actions[] = 'Review recent spending increases and identify cost reduction opportunities';
         }
-        
+
         return $actions;
     }
 }

@@ -2,10 +2,9 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
-use Illuminate\Database\Seeder;
 use App\Models\Category;
 use App\Models\User;
+use Illuminate\Database\Seeder;
 
 class CategorySeeder extends Seeder
 {
@@ -35,7 +34,7 @@ class CategorySeeder extends Seeder
                 Category::firstOrCreate(
                     [
                         'name' => $categoryData['name'],
-                        'user_id' => $user->id
+                        'user_id' => $user->id,
                     ],
                     [
                         'color' => $categoryData['color'],

@@ -4,8 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration
-{
+return new class () extends Migration {
     /**
      * Run the migrations.
      */
@@ -18,10 +17,10 @@ return new class extends Migration
             $table->string('color', 7)->default('#6B7280'); // Hex color code
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
             $table->timestamps();
-            
+
             // Ensure each user can't have duplicate category names
             $table->unique(['name', 'user_id']);
-            
+
             // Add indexes for better performance
             $table->index(['user_id', 'name']);
         });

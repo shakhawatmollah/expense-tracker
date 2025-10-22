@@ -4,8 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration
-{
+return new class () extends Migration {
     /**
      * Run the migrations.
      */
@@ -17,12 +16,12 @@ return new class extends Migration
             $table->index(['user_id', 'date', 'category_id'], 'idx_expenses_user_date_category');
             $table->index(['user_id', 'amount'], 'idx_expenses_user_amount');
             $table->index(['user_id', 'date', 'amount'], 'idx_expenses_user_date_amount');
-            
+
             // Index for date range queries
             $table->index(['date', 'user_id'], 'idx_expenses_date_user');
         });
 
-        // Add performance indexes to budgets table  
+        // Add performance indexes to budgets table
         Schema::table('budgets', function (Blueprint $table) {
             // Index for active budgets lookup
             $table->index(['user_id', 'is_active', 'start_date', 'end_date'], 'idx_budgets_user_active_dates');

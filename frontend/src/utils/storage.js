@@ -12,7 +12,7 @@
 export const getItem = (key, defaultValue = null) => {
   try {
     const item = localStorage.getItem(key)
-    
+
     // Return default if item doesn't exist
     if (item === null || item === undefined) {
       return defaultValue
@@ -24,14 +24,14 @@ export const getItem = (key, defaultValue = null) => {
     } catch (parseError) {
       // If not valid JSON, return the raw string
       console.warn(`Failed to parse localStorage item "${key}":`, parseError)
-      
+
       // If it's clearly corrupted (starts with { or [), remove it
       if (item.startsWith('{') || item.startsWith('[')) {
         console.error(`Removing corrupted JSON data for key "${key}"`)
         localStorage.removeItem(key)
         return defaultValue
       }
-      
+
       // Otherwise return the raw value
       return item
     }
@@ -54,12 +54,12 @@ export const setItem = (key, value) => {
     return true
   } catch (error) {
     console.error(`Error writing to localStorage key "${key}":`, error)
-    
+
     // Handle quota exceeded errors
     if (error.name === 'QuotaExceededError') {
       console.error('localStorage quota exceeded. Consider clearing old data.')
     }
-    
+
     return false
   }
 }
@@ -131,7 +131,7 @@ export const getStorageInfo = () => {
     let totalSize = 0
     const items = {}
 
-    for (let key in localStorage) {
+    for (const key in localStorage) {
       if (localStorage.hasOwnProperty(key)) {
         const size = localStorage.getItem(key).length
         totalSize += size
@@ -161,13 +161,13 @@ export const getStorageInfo = () => {
  */
 export const cleanCorrupted = () => {
   let cleaned = 0
-  
+
   try {
     const keys = Object.keys(localStorage)
-    
+
     for (const key of keys) {
       const value = localStorage.getItem(key)
-      
+
       // Try to parse JSON entries
       if (value && (value.startsWith('{') || value.startsWith('['))) {
         try {
@@ -182,7 +182,7 @@ export const cleanCorrupted = () => {
   } catch (error) {
     console.error('Error cleaning localStorage:', error)
   }
-  
+
   return cleaned
 }
 

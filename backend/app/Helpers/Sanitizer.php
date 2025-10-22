@@ -4,7 +4,7 @@ namespace App\Helpers;
 
 /**
  * Input Sanitization Helper
- * 
+ *
  * Provides static methods for sanitizing various types of input data
  * to prevent XSS, SQL injection, and other security vulnerabilities.
  */
@@ -26,7 +26,7 @@ class Sanitizer
         // Remove null bytes
         $value = str_replace("\0", '', $value);
 
-        if (!$allowHtml) {
+        if (! $allowHtml) {
             // Strip all HTML tags
             $value = strip_tags($value);
         } else {
@@ -60,7 +60,7 @@ class Sanitizer
 
         // Define allowed tags
         $allowedTags = '<p><br><strong><em><u><ul><ol><li><a><h1><h2><h3><h4><h5><h6><blockquote><code><pre>';
-        
+
         // Strip unwanted tags
         $html = strip_tags($html, $allowedTags);
 
@@ -68,7 +68,7 @@ class Sanitizer
         $html = preg_replace('/<([a-z][a-z0-9]*)[^>]*?(on\w+\s*=)[^>]*?>/is', '<$1>', $html);
         $html = preg_replace('/href\s*=\s*["\']?\s*javascript:/i', 'href="#"', $html);
         $html = preg_replace('/src\s*=\s*["\']?\s*javascript:/i', 'src=""', $html);
-        
+
         // Remove style attributes (can contain javascript)
         $html = preg_replace('/<([a-z][a-z0-9]*)[^>]*?(style\s*=)[^>]*?>/is', '<$1>', $html);
 
@@ -89,10 +89,10 @@ class Sanitizer
 
         // Remove all illegal characters from email
         $email = filter_var($email, FILTER_SANITIZE_EMAIL);
-        
+
         // Convert to lowercase
         $email = strtolower(trim($email));
-        
+
         return $email ?: null;
     }
 
@@ -110,9 +110,9 @@ class Sanitizer
 
         // Remove all illegal characters from a url
         $url = filter_var($url, FILTER_SANITIZE_URL);
-        
+
         // Ensure only http(s) protocol
-        if (!preg_match('/^https?:\/\//i', $url)) {
+        if (! preg_match('/^https?:\/\//i', $url)) {
             return null;
         }
 
@@ -133,13 +133,13 @@ class Sanitizer
 
         // Remove any path traversal attempts
         $filename = basename($filename);
-        
+
         // Remove special characters except . - _
         $filename = preg_replace('/[^a-zA-Z0-9._-]/', '_', $filename);
-        
+
         // Remove multiple consecutive underscores/dots
         $filename = preg_replace('/[_\.]+/', '_', $filename);
-        
+
         // Trim dots and underscores from edges
         $filename = trim($filename, '_.');
 
@@ -160,7 +160,7 @@ class Sanitizer
 
         // Remove all non-numeric characters except + at the start
         $phone = preg_replace('/[^0-9+]/', '', $phone);
-        
+
         // Ensure + is only at the start
         if (str_starts_with($phone, '+')) {
             $phone = '+' . preg_replace('/[^0-9]/', '', substr($phone, 1));
@@ -215,7 +215,7 @@ class Sanitizer
         }
 
         $sanitized = self::numeric($value);
-        
+
         return $sanitized !== null ? (int)$sanitized : null;
     }
 
@@ -233,7 +233,7 @@ class Sanitizer
         }
 
         $sanitized = self::numeric($value);
-        
+
         return $sanitized !== null ? round((float)$sanitized, $decimals) : null;
     }
 
@@ -252,6 +252,7 @@ class Sanitizer
         // Convert string representations
         if (is_string($value)) {
             $value = strtolower(trim($value));
+
             return in_array($value, ['1', 'true', 'yes', 'on'], true);
         }
 
@@ -347,7 +348,7 @@ class Sanitizer
 
         // Decode and re-encode to ensure valid JSON
         $decoded = json_decode($json, true);
-        
+
         if (json_last_error() !== JSON_ERROR_NONE) {
             return null;
         }

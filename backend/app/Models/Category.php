@@ -33,7 +33,8 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  */
 class Category extends Model
 {
-    use HasFactory, Sanitizable;
+    use HasFactory;
+    use Sanitizable;
 
     /**
      * The attributes that are mass assignable.

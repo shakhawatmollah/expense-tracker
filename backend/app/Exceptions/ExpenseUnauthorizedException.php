@@ -19,8 +19,8 @@ class ExpenseUnauthorizedException extends ExpenseException
     public function __construct(int $expenseId, int $userId, array $context = [])
     {
         $message = "User {$userId} not authorized to access expense {$expenseId}";
-        $userMessage = "You are not authorized to access this expense.";
-        
+        $userMessage = 'You are not authorized to access this expense.';
+
         parent::__construct($message, $userMessage, 403, $context);
     }
 }

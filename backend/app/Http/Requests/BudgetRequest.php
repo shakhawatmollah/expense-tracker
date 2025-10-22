@@ -44,30 +44,30 @@ class BudgetRequest extends FormRequest
             'name.required' => 'Budget name is required.',
             'name.string' => 'Budget name must be a valid string.',
             'name.max' => 'Budget name cannot exceed 255 characters.',
-            
+
             'amount.required' => 'Budget amount is required.',
             'amount.numeric' => 'Budget amount must be a valid number.',
             'amount.min' => 'Budget amount must be at least $0.01.',
             'amount.max' => 'Budget amount cannot exceed $999,999.99.',
-            
+
             'period.required' => 'Budget period is required.',
             'period.in' => 'Please select a valid budget period.',
-            
+
             'start_date.required_if' => 'Start date is required for custom periods.',
             'start_date.date' => 'Start date must be a valid date.',
-            
+
             'end_date.required_if' => 'End date is required for custom periods.',
             'end_date.date' => 'End date must be a valid date.',
             'end_date.after' => 'End date must be after the start date.',
-            
+
             'category_id.integer' => 'Category ID must be a valid integer.',
             'category_id.exists' => 'Selected category does not exist.',
-            
+
             'description.string' => 'Description must be a valid string.',
             'description.max' => 'Description cannot exceed 1000 characters.',
-            
+
             'is_active.boolean' => 'Active status must be true or false.',
-            
+
             'alert_thresholds.array' => 'Alert thresholds must be an array.',
             'alert_thresholds.warning.numeric' => 'Warning threshold must be a number.',
             'alert_thresholds.warning.min' => 'Warning threshold cannot be negative.',
@@ -84,32 +84,32 @@ class BudgetRequest extends FormRequest
     protected function prepareForValidation(): void
     {
         // Set default values
-        if (!$this->has('is_active')) {
+        if (! $this->has('is_active')) {
             $this->merge(['is_active' => true]);
         }
 
         // Clean up alert thresholds
         if ($this->has('alert_thresholds')) {
             $thresholds = $this->alert_thresholds;
-            
+
             // Remove empty values
             $thresholds = array_filter($thresholds, function ($value) {
                 return $value !== null && $value !== '';
             });
-            
+
             // Set default values if not provided
             if (empty($thresholds)) {
                 $thresholds = Budget::DEFAULT_ALERT_THRESHOLDS;
             } else {
                 // Ensure we have both warning and danger thresholds
-                if (!isset($thresholds['warning'])) {
+                if (! isset($thresholds['warning'])) {
                     $thresholds['warning'] = Budget::DEFAULT_ALERT_THRESHOLDS['warning'];
                 }
-                if (!isset($thresholds['danger'])) {
+                if (! isset($thresholds['danger'])) {
                     $thresholds['danger'] = Budget::DEFAULT_ALERT_THRESHOLDS['danger'];
                 }
             }
-            
+
             $this->merge(['alert_thresholds' => $thresholds]);
         }
 

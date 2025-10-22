@@ -21,7 +21,7 @@ class SpendingPattern extends Model
         'impact_amount',
         'first_detected',
         'last_detected',
-        'is_active'
+        'is_active',
     ];
 
     protected $casts = [
@@ -31,7 +31,7 @@ class SpendingPattern extends Model
         'impact_amount' => 'decimal:2',
         'first_detected' => 'date',
         'last_detected' => 'date',
-        'is_active' => 'boolean'
+        'is_active' => 'boolean',
     ];
 
     /**
@@ -73,8 +73,8 @@ class SpendingPattern extends Model
     {
         return in_array($this->pattern_type, [
             'daily_recurring',
-            'weekly_recurring', 
-            'monthly_recurring'
+            'weekly_recurring',
+            'monthly_recurring',
         ]);
     }
 
@@ -85,12 +85,12 @@ class SpendingPattern extends Model
     {
         return match($this->pattern_type) {
             'daily_recurring' => "Every {$this->frequency} days",
-            'weekly_recurring' => "Every {$this->frequency} weeks", 
+            'weekly_recurring' => "Every {$this->frequency} weeks",
             'monthly_recurring' => "Every {$this->frequency} months",
-            'seasonal' => "Seasonal pattern",
-            'category_spike' => "Category spending spike",
-            'anomaly' => "Unusual spending pattern",
-            default => "Unknown pattern"
+            'seasonal' => 'Seasonal pattern',
+            'category_spike' => 'Category spending spike',
+            'anomaly' => 'Unusual spending pattern',
+            default => 'Unknown pattern'
         };
     }
 }

@@ -20,18 +20,14 @@ export const useNotificationsStore = defineStore('notifications', () => {
       info: 4000
     }
   })
-  
+
   let notificationId = 0
 
   // Computed
-  const activeNotifications = computed(() => 
-    notifications.value.filter(n => !n.dismissed)
-  )
-  
-  const unreadCount = computed(() => 
-    history.value.filter(n => !n.read).length
-  )
-  
+  const activeNotifications = computed(() => notifications.value.filter(n => !n.dismissed))
+
+  const unreadCount = computed(() => history.value.filter(n => !n.read).length)
+
   const hasUnread = computed(() => unreadCount.value > 0)
 
   // Notification types configuration
@@ -59,7 +55,7 @@ export const useNotificationsStore = defineStore('notifications', () => {
       color: '#EF4444',
       priority: 'low'
     },
-    
+
     // Budget notifications
     BUDGET_WARNING: {
       type: 'budget',
@@ -92,7 +88,7 @@ export const useNotificationsStore = defineStore('notifications', () => {
       color: '#8B5CF6',
       priority: 'low'
     },
-    
+
     // Goal notifications
     GOAL_ACHIEVED: {
       type: 'achievement',
@@ -109,7 +105,7 @@ export const useNotificationsStore = defineStore('notifications', () => {
       color: '#10B981',
       priority: 'medium'
     },
-    
+
     // Category notifications
     CATEGORY_CREATED: {
       type: 'category',
@@ -125,7 +121,7 @@ export const useNotificationsStore = defineStore('notifications', () => {
       color: '#3B82F6',
       priority: 'low'
     },
-    
+
     // Export notifications
     EXPORT_STARTED: {
       type: 'sync',
@@ -148,7 +144,7 @@ export const useNotificationsStore = defineStore('notifications', () => {
       color: '#EF4444',
       priority: 'medium'
     },
-    
+
     // Data sync notifications
     SYNC_STARTED: {
       type: 'sync',
@@ -164,7 +160,7 @@ export const useNotificationsStore = defineStore('notifications', () => {
       color: '#10B981',
       priority: 'low'
     },
-    
+
     // System notifications
     WELCOME: {
       type: 'info',
@@ -204,12 +200,12 @@ export const useNotificationsStore = defineStore('notifications', () => {
   }
 
   // Methods
-  const createNotification = (options) => {
+  const createNotification = options => {
     if (!preferences.value.enabled) return null
 
     const id = ++notificationId
     const typeConfig = notificationTypes[options.notificationType] || notificationTypes.INFO
-    
+
     const notification = {
       id,
       timestamp: new Date(),
@@ -248,7 +244,7 @@ export const useNotificationsStore = defineStore('notifications', () => {
     return id
   }
 
-  const dismissNotification = (id) => {
+  const dismissNotification = id => {
     const notification = notifications.value.find(n => n.id === id)
     if (notification) {
       notification.dismissed = true
@@ -267,7 +263,7 @@ export const useNotificationsStore = defineStore('notifications', () => {
     }, 300)
   }
 
-  const markAsRead = (id) => {
+  const markAsRead = id => {
     const notification = history.value.find(n => n.id === id)
     if (notification) {
       notification.read = true
@@ -282,7 +278,7 @@ export const useNotificationsStore = defineStore('notifications', () => {
     saveToLocalStorage()
   }
 
-  const removeFromHistory = (id) => {
+  const removeFromHistory = id => {
     history.value = history.value.filter(n => n.id !== id)
     saveToLocalStorage()
   }
@@ -292,14 +288,14 @@ export const useNotificationsStore = defineStore('notifications', () => {
     saveToLocalStorage()
   }
 
-  const pauseNotification = (id) => {
+  const pauseNotification = id => {
     const notification = notifications.value.find(n => n.id === id)
     if (notification) {
       notification.paused = true
     }
   }
 
-  const resumeNotification = (id) => {
+  const resumeNotification = id => {
     const notification = notifications.value.find(n => n.id === id)
     if (notification) {
       notification.paused = false
@@ -307,7 +303,7 @@ export const useNotificationsStore = defineStore('notifications', () => {
   }
 
   // Specialized notification methods
-  const notifyExpenseAdded = (expense) => {
+  const notifyExpenseAdded = expense => {
     return createNotification({
       notificationType: 'EXPENSE_ADDED',
       title: 'Expense Added',
@@ -368,7 +364,7 @@ export const useNotificationsStore = defineStore('notifications', () => {
     })
   }
 
-  const notifyGoalAchieved = (goal) => {
+  const notifyGoalAchieved = goal => {
     return createNotification({
       notificationType: 'GOAL_ACHIEVED',
       title: '🎉 Goal Achieved!',
@@ -397,8 +393,7 @@ export const useNotificationsStore = defineStore('notifications', () => {
 
     return createNotification({
       notificationType: notificationTypes[status] || 'INFO',
-      title: status === 'started' ? 'Exporting Data...' : 
-             status === 'completed' ? 'Export Complete' : 'Export Failed',
+      title: status === 'started' ? 'Exporting Data...' : status === 'completed' ? 'Export Complete' : 'Export Failed',
       message,
       data,
       persistent: status === 'started'
@@ -429,7 +424,7 @@ export const useNotificationsStore = defineStore('notifications', () => {
     })
   }
 
-  const notifyWelcome = (userName) => {
+  const notifyWelcome = userName => {
     return createNotification({
       notificationType: 'WELCOME',
       title: `Welcome back, ${userName}!`,
@@ -477,7 +472,7 @@ export const useNotificationsStore = defineStore('notifications', () => {
   }
 
   // Helper functions
-  const playNotificationSound = (soundUrl) => {
+  const playNotificationSound = soundUrl => {
     try {
       const audio = new Audio(soundUrl)
       audio.volume = 0.5
@@ -489,7 +484,7 @@ export const useNotificationsStore = defineStore('notifications', () => {
     }
   }
 
-  const showDesktopNotification = (notification) => {
+  const showDesktopNotification = notification => {
     if ('Notification' in window && Notification.permission === 'granted') {
       try {
         new Notification(notification.title, {
@@ -528,14 +523,14 @@ export const useNotificationsStore = defineStore('notifications', () => {
     try {
       const savedHistory = localStorage.getItem('notification_history')
       const savedPreferences = localStorage.getItem('notification_preferences')
-      
+
       if (savedHistory) {
         history.value = JSON.parse(savedHistory).map(n => ({
           ...n,
           timestamp: new Date(n.timestamp)
         }))
       }
-      
+
       if (savedPreferences) {
         preferences.value = { ...preferences.value, ...JSON.parse(savedPreferences) }
       }
@@ -544,7 +539,7 @@ export const useNotificationsStore = defineStore('notifications', () => {
     }
   }
 
-  const updatePreferences = (newPreferences) => {
+  const updatePreferences = newPreferences => {
     preferences.value = { ...preferences.value, ...newPreferences }
     saveToLocalStorage()
   }
@@ -560,7 +555,7 @@ export const useNotificationsStore = defineStore('notifications', () => {
     activeNotifications,
     unreadCount,
     hasUnread,
-    
+
     // Methods
     createNotification,
     dismissNotification,
@@ -571,7 +566,7 @@ export const useNotificationsStore = defineStore('notifications', () => {
     clearHistory,
     pauseNotification,
     resumeNotification,
-    
+
     // Specialized methods
     notifyExpenseAdded,
     notifyBudgetAlert,
@@ -584,7 +579,7 @@ export const useNotificationsStore = defineStore('notifications', () => {
     notifyError,
     notifyWarning,
     notifyInfo,
-    
+
     // Helper methods
     requestDesktopPermission,
     updatePreferences,

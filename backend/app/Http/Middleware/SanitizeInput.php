@@ -8,7 +8,7 @@ use Symfony\Component\HttpFoundation\Response;
 
 /**
  * Input Sanitization Middleware
- * 
+ *
  * Automatically sanitizes all incoming request data to prevent XSS attacks
  * and ensure data integrity. Applies recursive sanitization to all input types.
  */
@@ -54,9 +54,9 @@ class SanitizeInput
     protected function sanitizeInput(Request $request): void
     {
         $input = $request->all();
-        
+
         $sanitized = $this->sanitizeData($input);
-        
+
         $request->merge($sanitized);
     }
 

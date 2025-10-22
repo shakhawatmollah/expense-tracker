@@ -2,8 +2,8 @@
 
 namespace App\Http\Requests\Expense;
 
-use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Contracts\Validation\Validator;
+use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Http\Exceptions\HttpResponseException;
 
 class SearchExpenseRequest extends FormRequest
@@ -97,7 +97,7 @@ class SearchExpenseRequest extends FormRequest
         // Sanitize query string
         if ($this->has('query')) {
             $this->merge([
-                'query' => trim(strip_tags($this->input('query')))
+                'query' => trim(strip_tags($this->input('query'))),
             ]);
         }
 
@@ -119,7 +119,7 @@ class SearchExpenseRequest extends FormRequest
             response()->json([
                 'success' => false,
                 'message' => 'Validation failed for search parameters.',
-                'errors' => $validator->errors()
+                'errors' => $validator->errors(),
             ], 422)
         );
     }

@@ -20,10 +20,10 @@
   onMounted(() => {
     // Initialize auth state from localStorage
     authStore.initializeAuth()
-    
+
     // Load notification history from localStorage
     notificationsStore.loadFromLocalStorage()
-    
+
     // Request desktop notification permission if not already granted
     if ('Notification' in window && Notification.permission === 'default') {
       // Don't request immediately, wait for user interaction

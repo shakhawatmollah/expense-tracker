@@ -66,7 +66,7 @@ const router = createRouter({
 // Navigation guards
 router.beforeEach((to, from, next) => {
   const authStore = useAuthStore()
-  
+
   // Check token directly from store for reliable auth check
   const hasToken = !!authStore.token
 

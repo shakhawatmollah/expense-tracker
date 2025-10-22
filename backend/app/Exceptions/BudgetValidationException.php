@@ -9,9 +9,9 @@ class BudgetValidationException extends BudgetException
 
     public function __construct(string $message, array $errors = [], array $context = [])
     {
-        $userMessage = "The budget data is invalid. Please check your input.";
+        $userMessage = 'The budget data is invalid. Please check your input.';
         $this->errors = $errors;
-        
+
         parent::__construct($message, $userMessage, 422, $context);
     }
 

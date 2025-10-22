@@ -4,8 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration
-{
+return new class () extends Migration {
     /**
      * Run the migrations.
      */
@@ -16,8 +15,8 @@ return new class extends Migration
             $table->id();
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
             $table->enum('insight_type', [
-                'spending_pattern', 'forecast', 'health_score', 
-                'budget_alert', 'trend_analysis', 'recommendation'
+                'spending_pattern', 'forecast', 'health_score',
+                'budget_alert', 'trend_analysis', 'recommendation',
             ]);
             $table->string('title');
             $table->text('description');
@@ -26,7 +25,7 @@ return new class extends Migration
             $table->boolean('is_read')->default(false);
             $table->timestamp('generated_at');
             $table->timestamps();
-            
+
             // Indexes
             $table->index(['user_id', 'insight_type']);
             $table->index(['user_id', 'is_read']);
@@ -39,7 +38,7 @@ return new class extends Migration
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
             $table->enum('pattern_type', [
                 'daily_recurring', 'weekly_recurring', 'monthly_recurring',
-                'seasonal', 'category_spike', 'anomaly'
+                'seasonal', 'category_spike', 'anomaly',
             ]);
             $table->string('pattern_name');
             $table->text('description');
@@ -51,7 +50,7 @@ return new class extends Migration
             $table->date('last_detected');
             $table->boolean('is_active')->default(true);
             $table->timestamps();
-            
+
             // Indexes
             $table->index(['user_id', 'pattern_type']);
             $table->index(['user_id', 'is_active']);
@@ -71,7 +70,7 @@ return new class extends Migration
             $table->json('recommendations'); // Improvement suggestions
             $table->date('score_date');
             $table->timestamps();
-            
+
             // Indexes
             $table->index(['user_id', 'score_date']);
             $table->index(['overall_score']);
@@ -85,7 +84,7 @@ return new class extends Migration
             $table->json('cached_data');
             $table->timestamp('expires_at');
             $table->timestamps();
-            
+
             // Indexes
             $table->unique(['user_id', 'cache_key']);
             $table->index(['expires_at']);

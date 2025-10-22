@@ -2,14 +2,14 @@
 
 namespace App\Http\Helpers;
 
+use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Http\Resources\Json\ResourceCollection;
-use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 
 /**
  * Standardized API Response Helper
- * 
+ *
  * Provides consistent response structure across all API endpoints:
  * - success: boolean
  * - message: string (user-friendly)
@@ -48,7 +48,7 @@ class ApiResponse
         }
 
         // Add metadata if provided
-        if (!empty($meta)) {
+        if (! empty($meta)) {
             $response['meta'] = $meta;
         }
 
@@ -106,11 +106,11 @@ class ApiResponse
             'message' => $message,
         ];
 
-        if (!empty($errors)) {
+        if (! empty($errors)) {
             $response['errors'] = $errors;
         }
 
-        if (!empty($meta)) {
+        if (! empty($meta)) {
             $response['meta'] = $meta;
         }
 
@@ -187,7 +187,7 @@ class ApiResponse
     ): JsonResponse {
         // Only include detailed errors in non-production
         $detailedErrors = app()->environment('production') ? [] : $errors;
-        
+
         return self::error($message, $detailedErrors, 500);
     }
 
@@ -268,7 +268,7 @@ class ApiResponse
                 'current_page' => $paginator->currentPage(),
                 'total_pages' => $paginator->lastPage(),
                 'has_more_pages' => $paginator->hasMorePages(),
-            ]
+            ],
         ];
     }
 
@@ -286,7 +286,7 @@ class ApiResponse
         array $meta = []
     ): JsonResponse {
         $items = is_array($collection) ? $collection : iterator_to_array($collection);
-        
+
         $meta['count'] = count($items);
 
         return self::success($items, $message, $meta);

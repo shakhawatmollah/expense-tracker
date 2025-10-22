@@ -20,6 +20,7 @@ class CacheService
             return Cache::remember($key, $ttl, $callback);
         } catch (\Exception $e) {
             Log::warning("Cache error for key {$key}: " . $e->getMessage());
+
             // Fallback to direct execution if cache fails
             return $callback();
         }
@@ -31,6 +32,7 @@ class CacheService
     public function cacheDashboardData(int $userId, callable $callback): array
     {
         $key = "dashboard.user.{$userId}";
+
         return $this->remember($key, $callback, self::SHORT_TTL);
     }
 
@@ -40,6 +42,7 @@ class CacheService
     public function cacheMonthlySummary(int $userId, int $year, int $month, callable $callback): array
     {
         $key = "monthly_summary.user.{$userId}.{$year}.{$month}";
+
         return $this->remember($key, $callback, self::DEFAULT_TTL);
     }
 
@@ -49,6 +52,7 @@ class CacheService
     public function cacheCategoryBreakdown(int $userId, ?string $startDate, ?string $endDate, callable $callback): array
     {
         $key = "category_breakdown.user.{$userId}." . md5($startDate . $endDate);
+
         return $this->remember($key, $callback, self::DEFAULT_TTL);
     }
 
@@ -58,6 +62,7 @@ class CacheService
     public function cacheAnalytics(int $userId, string $type, callable $callback): array
     {
         $key = "analytics.{$type}.user.{$userId}";
+
         return $this->remember($key, $callback, self::LONG_TTL);
     }
 
@@ -67,6 +72,7 @@ class CacheService
     public function cacheBudgetSummary(int $userId, callable $callback): array
     {
         $key = "budget_summary.user.{$userId}";
+
         return $this->remember($key, $callback, self::SHORT_TTL);
     }
 
@@ -100,7 +106,7 @@ class CacheService
     {
         Cache::forget("dashboard.user.{$userId}");
         Cache::forget("budget_summary.user.{$userId}");
-        
+
         // Clear current month summary
         $currentYear = now()->year;
         $currentMonth = now()->month;
@@ -122,6 +128,7 @@ class CacheService
     public function getUserCacheKey(int $userId, string $type, ...$params): string
     {
         $suffix = empty($params) ? '' : '.' . implode('.', $params);
+
         return "{$type}.user.{$userId}{$suffix}";
     }
 
@@ -137,12 +144,12 @@ class CacheService
             if (Cache::getStore() instanceof \Illuminate\Cache\RedisStore) {
                 $redis = Cache::getStore()->getRedis();
                 $keys = $redis->keys(str_replace('*', '*', $pattern));
-                if (!empty($keys)) {
+                if (! empty($keys)) {
                     $redis->del($keys);
                 }
             }
         } catch (\Exception $e) {
-            Log::warning("Pattern cache invalidation failed: " . $e->getMessage());
+            Log::warning('Pattern cache invalidation failed: ' . $e->getMessage());
         }
     }
 
@@ -154,12 +161,12 @@ class CacheService
         try {
             // Warm up dashboard cache
             app(\App\Services\DashboardService::class)->getDashboardOverview($userId);
-            
+
             // Warm up current month summary
             $currentYear = now()->year;
             $currentMonth = now()->month;
             app(\App\Services\DashboardService::class)->getMonthlySummary($userId, $currentYear, $currentMonth);
-            
+
         } catch (\Exception $e) {
             Log::warning("Cache warmup failed for user {$userId}: " . $e->getMessage());
         }

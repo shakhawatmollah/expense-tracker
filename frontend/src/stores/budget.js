@@ -6,7 +6,7 @@ import { useNotificationsStore } from './notifications'
 export const useBudgetStore = defineStore('budget', () => {
   // Get notifications store
   const notificationsStore = useNotificationsStore()
-  
+
   // State
   const budgets = ref([])
   const currentBudgets = ref([])
@@ -201,7 +201,7 @@ export const useBudgetStore = defineStore('budget', () => {
       if (response.data.is_active) {
         currentBudgets.value.push(normalizeBudget(response.data))
       }
-      
+
       // Show notification
       notificationsStore.createNotification({
         notificationType: 'BUDGET_CREATED',
@@ -212,10 +212,10 @@ export const useBudgetStore = defineStore('budget', () => {
       return response
     } catch (err) {
       error.value = err.response?.data?.message || 'Failed to create budget'
-      
+
       // Show error notification
       notificationsStore.notifyError('Budget Creation Failed', err.response?.data?.message || 'Could not create budget')
-      
+
       throw err
     } finally {
       isLoading.value = false
@@ -246,17 +246,20 @@ export const useBudgetStore = defineStore('budget', () => {
       } else if (response.data.is_active) {
         currentBudgets.value.push(normalizeBudget(response.data))
       }
-      
+
       // Show notification
-      notificationsStore.notifySuccess('Budget Updated', `${response.data.name || 'Budget'} has been updated successfully`)
+      notificationsStore.notifySuccess(
+        'Budget Updated',
+        `${response.data.name || 'Budget'} has been updated successfully`
+      )
 
       return response
     } catch (err) {
       error.value = err.response?.data?.message || 'Failed to update budget'
-      
+
       // Show error notification
       notificationsStore.notifyError('Update Failed', err.response?.data?.message || 'Could not update budget')
-      
+
       throw err
     } finally {
       isLoading.value = false
@@ -273,17 +276,17 @@ export const useBudgetStore = defineStore('budget', () => {
       // Remove from budgets array
       budgets.value = budgets.value.filter(budget => budget.id !== id)
       currentBudgets.value = currentBudgets.value.filter(budget => budget.id !== id)
-      
+
       // Show notification
       notificationsStore.notifySuccess('Budget Deleted', 'The budget has been removed successfully')
 
       return true
     } catch (err) {
       error.value = err.response?.data?.message || 'Failed to delete budget'
-      
+
       // Show error notification
       notificationsStore.notifyError('Delete Failed', err.response?.data?.message || 'Could not delete budget')
-      
+
       throw err
     } finally {
       isLoading.value = false
@@ -291,14 +294,18 @@ export const useBudgetStore = defineStore('budget', () => {
   }
 
   // Watch for budget alerts and show notifications
-  watch(budgetAlerts, (newAlerts) => {
-    newAlerts.forEach(alert => {
-      if (alert.budget && alert.percentage) {
-        // Show budget alert notification
-        notificationsStore.notifyBudgetAlert(alert.budget, alert.percentage)
-      }
-    })
-  }, { deep: true })
+  watch(
+    budgetAlerts,
+    newAlerts => {
+      newAlerts.forEach(alert => {
+        if (alert.budget && alert.percentage) {
+          // Show budget alert notification
+          notificationsStore.notifyBudgetAlert(alert.budget, alert.percentage)
+        }
+      })
+    },
+    { deep: true }
+  )
 
   async function checkBudgetAlerts() {
     try {

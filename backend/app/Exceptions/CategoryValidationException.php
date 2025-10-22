@@ -9,9 +9,9 @@ class CategoryValidationException extends CategoryException
 
     public function __construct(string $message, array $errors = [], array $context = [])
     {
-        $userMessage = "The category data is invalid. Please check your input.";
+        $userMessage = 'The category data is invalid. Please check your input.';
         $this->errors = $errors;
-        
+
         parent::__construct($message, $userMessage, 422, $context);
     }
 

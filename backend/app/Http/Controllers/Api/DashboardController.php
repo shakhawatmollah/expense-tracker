@@ -11,7 +11,8 @@ class DashboardController extends Controller
 {
     public function __construct(
         private DashboardService $dashboardService
-    ) {}
+    ) {
+    }
 
     /**
      * Get dashboard statistics
@@ -19,7 +20,7 @@ class DashboardController extends Controller
     public function index(Request $request): JsonResponse
     {
         $userId = $request->user()->id;
-        
+
         $data = $this->dashboardService->getDashboardOverview($userId);
 
         return response()->json(['data' => $data]);

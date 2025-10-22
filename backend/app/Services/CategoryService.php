@@ -2,11 +2,11 @@
 
 namespace App\Services;
 
-use App\Models\Category;
-use App\Repositories\CategoryRepositoryInterface;
+use App\Exceptions\CategoryDatabaseException;
 use App\Exceptions\CategoryNotFoundException;
 use App\Exceptions\CategoryValidationException;
-use App\Exceptions\CategoryDatabaseException;
+use App\Models\Category;
+use App\Repositories\CategoryRepositoryInterface;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -15,7 +15,8 @@ class CategoryService
 {
     public function __construct(
         private CategoryRepositoryInterface $categoryRepository
-    ) {}
+    ) {
+    }
 
     /**
      * Get all categories for a specific user
@@ -34,22 +35,22 @@ class CategoryService
             // Use transaction to ensure atomicity
             return DB::transaction(function () use ($data) {
                 $category = $this->categoryRepository->create($data);
-                
+
                 Log::info('Category created successfully', [
                     'category_id' => $category->id,
                     'user_id' => $data['user_id'] ?? null,
-                    'name' => $data['name'] ?? null
+                    'name' => $data['name'] ?? null,
                 ]);
-                
+
                 return $category;
             });
-            
+
         } catch (\Exception $e) {
             Log::error('Failed to create category', [
                 'error' => $e->getMessage(),
-                'data' => $data
+                'data' => $data,
             ]);
-            
+
             throw new CategoryDatabaseException(
                 'category creation',
                 $e->getMessage(),
@@ -65,25 +66,25 @@ class CategoryService
     {
         try {
             $category = $this->categoryRepository->findForUser($categoryId, $userId);
-            
-            if (!$category) {
+
+            if (! $category) {
                 throw new CategoryNotFoundException($categoryId, [
-                    'user_id' => $userId
+                    'user_id' => $userId,
                 ]);
             }
 
             return $category;
-            
+
         } catch (CategoryNotFoundException $e) {
             throw $e;
-            
+
         } catch (\Exception $e) {
             Log::error('Failed to find category', [
                 'category_id' => $categoryId,
                 'user_id' => $userId,
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ]);
-            
+
             throw new CategoryDatabaseException(
                 'category retrieval',
                 $e->getMessage(),
@@ -99,30 +100,30 @@ class CategoryService
     {
         try {
             $category = $this->findForUser($categoryId, $userId);
-            
+
             // Use transaction to ensure atomicity
             return DB::transaction(function () use ($category, $data, $categoryId, $userId) {
                 $updatedCategory = $this->categoryRepository->update($category, $data);
-                
+
                 Log::info('Category updated successfully', [
                     'category_id' => $categoryId,
                     'user_id' => $userId,
-                    'updated_fields' => array_keys($data)
+                    'updated_fields' => array_keys($data),
                 ]);
-                
+
                 return $updatedCategory;
             });
-            
+
         } catch (CategoryNotFoundException $e) {
             throw $e;
-            
+
         } catch (\Exception $e) {
             Log::error('Failed to update category', [
                 'category_id' => $categoryId,
                 'user_id' => $userId,
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ]);
-            
+
             throw new CategoryDatabaseException(
                 'category update',
                 $e->getMessage(),
@@ -138,7 +139,7 @@ class CategoryService
     {
         try {
             $category = $this->findForUser($categoryId, $userId);
-            
+
             // Check if category has expenses
             if ($category->expenses()->count() > 0) {
                 throw new CategoryValidationException(
@@ -147,31 +148,31 @@ class CategoryService
                     ['category_id' => $categoryId, 'user_id' => $userId, 'expense_count' => $category->expenses()->count()]
                 );
             }
-            
+
             // Use transaction to ensure atomicity
             return DB::transaction(function () use ($category, $categoryId, $userId) {
                 $deleted = $this->categoryRepository->delete($category);
-                
+
                 if ($deleted) {
                     Log::info('Category deleted successfully', [
                         'category_id' => $categoryId,
-                        'user_id' => $userId
+                        'user_id' => $userId,
                     ]);
                 }
-                
+
                 return $deleted;
             });
-            
+
         } catch (CategoryNotFoundException | CategoryValidationException $e) {
             throw $e;
-            
+
         } catch (\Exception $e) {
             Log::error('Failed to delete category', [
                 'category_id' => $categoryId,
                 'user_id' => $userId,
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ]);
-            
+
             throw new CategoryDatabaseException(
                 'category deletion',
                 $e->getMessage(),
@@ -209,25 +210,25 @@ class CategoryService
             // Use transaction to create all default categories atomically
             return DB::transaction(function () use ($defaultCategories, $userId) {
                 $categories = collect();
-                
+
                 foreach ($defaultCategories as $categoryData) {
                     $categories->push($this->categoryRepository->create($categoryData));
                 }
-                
+
                 Log::info('Default categories created successfully', [
                     'user_id' => $userId,
-                    'count' => $categories->count()
+                    'count' => $categories->count(),
                 ]);
-                
+
                 return $categories;
             });
-            
+
         } catch (\Exception $e) {
             Log::error('Failed to create default categories', [
                 'user_id' => $userId,
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ]);
-            
+
             throw new CategoryDatabaseException(
                 'default categories creation',
                 $e->getMessage(),

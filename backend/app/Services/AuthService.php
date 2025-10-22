@@ -10,7 +10,8 @@ class AuthService
 {
     public function __construct(
         private UserRepositoryInterface $userRepository
-    ) {}
+    ) {
+    }
 
     /**
      * Register a new user
@@ -18,7 +19,7 @@ class AuthService
     public function register(array $data): User
     {
         $data['password'] = Hash::make($data['password']);
-        
+
         return $this->userRepository->create($data);
     }
 
@@ -29,7 +30,7 @@ class AuthService
     {
         $user = $this->userRepository->findByEmail($credentials['email']);
 
-        if (!$user || !Hash::check($credentials['password'], $user->password)) {
+        if (! $user || ! Hash::check($credentials['password'], $user->password)) {
             return false;
         }
 

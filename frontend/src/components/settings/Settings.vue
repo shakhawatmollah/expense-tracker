@@ -37,7 +37,7 @@
           <!-- Profile Settings -->
           <div v-if="activeTab === 'profile'" class="settings-section">
             <h2 class="section-title">Profile Information</h2>
-            
+
             <div class="form-group">
               <label>Full Name</label>
               <input
@@ -112,10 +112,7 @@
                     <span class="toggle-description">Get notified when approaching budget limits</span>
                   </div>
                   <label class="toggle-switch">
-                    <input
-                      v-model="settingsStore.notifications.email.budgetAlerts"
-                      type="checkbox"
-                    />
+                    <input v-model="settingsStore.notifications.email.budgetAlerts" type="checkbox" />
                     <span class="slider"></span>
                   </label>
                 </div>
@@ -126,10 +123,7 @@
                     <span class="toggle-description">Receive weekly spending summaries</span>
                   </div>
                   <label class="toggle-switch">
-                    <input
-                      v-model="settingsStore.notifications.email.weeklyReports"
-                      type="checkbox"
-                    />
+                    <input v-model="settingsStore.notifications.email.weeklyReports" type="checkbox" />
                     <span class="slider"></span>
                   </label>
                 </div>
@@ -140,10 +134,7 @@
                     <span class="toggle-description">Get detailed monthly financial reports</span>
                   </div>
                   <label class="toggle-switch">
-                    <input
-                      v-model="settingsStore.notifications.email.monthlyReports"
-                      type="checkbox"
-                    />
+                    <input v-model="settingsStore.notifications.email.monthlyReports" type="checkbox" />
                     <span class="slider"></span>
                   </label>
                 </div>
@@ -154,10 +145,7 @@
                     <span class="toggle-description">Celebrate when you reach savings goals</span>
                   </div>
                   <label class="toggle-switch">
-                    <input
-                      v-model="settingsStore.notifications.email.goalAchievements"
-                      type="checkbox"
-                    />
+                    <input v-model="settingsStore.notifications.email.goalAchievements" type="checkbox" />
                     <span class="slider"></span>
                   </label>
                 </div>
@@ -173,10 +161,7 @@
                     <span class="toggle-description">Real-time budget notifications</span>
                   </div>
                   <label class="toggle-switch">
-                    <input
-                      v-model="settingsStore.notifications.push.budgetAlerts"
-                      type="checkbox"
-                    />
+                    <input v-model="settingsStore.notifications.push.budgetAlerts" type="checkbox" />
                     <span class="slider"></span>
                   </label>
                 </div>
@@ -187,10 +172,7 @@
                     <span class="toggle-description">Reminders to log daily expenses</span>
                   </div>
                   <label class="toggle-switch">
-                    <input
-                      v-model="settingsStore.notifications.push.expenseReminders"
-                      type="checkbox"
-                    />
+                    <input v-model="settingsStore.notifications.push.expenseReminders" type="checkbox" />
                     <span class="slider"></span>
                   </label>
                 </div>
@@ -216,10 +198,7 @@
                   <span class="toggle-description">Display monetary values on main screen</span>
                 </div>
                 <label class="toggle-switch">
-                  <input
-                    v-model="settingsStore.privacy.showAmountsOnDashboard"
-                    type="checkbox"
-                  />
+                  <input v-model="settingsStore.privacy.showAmountsOnDashboard" type="checkbox" />
                   <span class="slider"></span>
                 </label>
               </div>
@@ -230,10 +209,7 @@
                   <span class="toggle-description">Add extra security to your account</span>
                 </div>
                 <label class="toggle-switch">
-                  <input
-                    v-model="settingsStore.privacy.twoFactorAuth"
-                    type="checkbox"
-                  />
+                  <input v-model="settingsStore.privacy.twoFactorAuth" type="checkbox" />
                   <span class="slider"></span>
                 </label>
               </div>
@@ -244,10 +220,7 @@
                   <span class="toggle-description">Share anonymous usage data to improve the app</span>
                 </div>
                 <label class="toggle-switch">
-                  <input
-                    v-model="settingsStore.privacy.dataSharing"
-                    type="checkbox"
-                  />
+                  <input v-model="settingsStore.privacy.dataSharing" type="checkbox" />
                   <span class="slider"></span>
                 </label>
               </div>
@@ -322,10 +295,7 @@
                   <span class="toggle-description">Use smaller spacing and fonts</span>
                 </div>
                 <label class="toggle-switch">
-                  <input
-                    v-model="settingsStore.display.compactMode"
-                    type="checkbox"
-                  />
+                  <input v-model="settingsStore.display.compactMode" type="checkbox" />
                   <span class="slider"></span>
                 </label>
               </div>
@@ -336,10 +306,7 @@
                   <span class="toggle-description">Display icons next to category names</span>
                 </div>
                 <label class="toggle-switch">
-                  <input
-                    v-model="settingsStore.display.showCategoryIcons"
-                    type="checkbox"
-                  />
+                  <input v-model="settingsStore.display.showCategoryIcons" type="checkbox" />
                   <span class="slider"></span>
                 </label>
               </div>
@@ -350,10 +317,7 @@
                   <span class="toggle-description">Display visual charts and graphs</span>
                 </div>
                 <label class="toggle-switch">
-                  <input
-                    v-model="settingsStore.display.showCharts"
-                    type="checkbox"
-                  />
+                  <input v-model="settingsStore.display.showCharts" type="checkbox" />
                   <span class="slider"></span>
                 </label>
               </div>
@@ -418,10 +382,7 @@
                   <span class="toggle-description">Play sound for budget notifications</span>
                 </div>
                 <label class="toggle-switch">
-                  <input
-                    v-model="settingsStore.budgetAlerts.enableSoundAlerts"
-                    type="checkbox"
-                  />
+                  <input v-model="settingsStore.budgetAlerts.enableSoundAlerts" type="checkbox" />
                   <span class="slider"></span>
                 </label>
               </div>
@@ -499,12 +460,7 @@
         </div>
         <div class="form-group">
           <label>New Password</label>
-          <input
-            v-model="passwordForm.new"
-            type="password"
-            placeholder="Enter new password"
-            class="form-control"
-          />
+          <input v-model="passwordForm.new" type="password" placeholder="Enter new password" class="form-control" />
         </div>
         <div class="form-group">
           <label>Confirm Password</label>
@@ -530,17 +486,12 @@
         </div>
         <h3 class="modal-title">Delete Account?</h3>
         <p class="modal-message">
-          This will permanently delete your account and all data including expenses, budgets, and categories.
-          This action cannot be undone.
+          This will permanently delete your account and all data including expenses, budgets, and categories. This
+          action cannot be undone.
         </p>
         <div class="form-group">
           <label>Enter your password to confirm</label>
-          <input
-            v-model="deletePassword"
-            type="password"
-            placeholder="Password"
-            class="form-control"
-          />
+          <input v-model="deletePassword" type="password" placeholder="Password" class="form-control" />
         </div>
         <div class="modal-actions">
           <button @click="showDeleteAccount = false" class="btn btn-secondary">Cancel</button>
@@ -612,22 +563,19 @@
       return
     }
 
-    const result = await settingsStore.changePassword(
-      passwordForm.value.current,
-      passwordForm.value.new
-    )
-    
+    const result = await settingsStore.changePassword(passwordForm.value.current, passwordForm.value.new)
+
     if (result.success) {
       showChangePassword.value = false
       passwordForm.value = { current: '', new: '', confirm: '' }
     }
-    
+
     showNotification(result.success ? 'success' : 'error', result.message)
   }
 
   const exportAllData = async () => {
     const result = await settingsStore.exportData('json')
-    
+
     if (result.success) {
       const blob = new Blob([JSON.stringify(result.data, null, 2)], { type: 'application/json' })
       const url = URL.createObjectURL(blob)
@@ -649,7 +597,7 @@
     }
 
     const result = await settingsStore.deleteAccount(deletePassword.value)
-    
+
     if (result.success) {
       showDeleteAccount.value = false
       router.push('/login')

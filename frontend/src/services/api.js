@@ -23,12 +23,12 @@ api.interceptors.request.use(
     if (token) {
       config.headers.Authorization = `Bearer ${token}`
     }
-    
+
     // Add v1 prefix for non-auth routes
     if (config.url && !config.url.startsWith('/auth') && !config.url.startsWith('/v1')) {
       config.url = `/v1${config.url}`
     }
-    
+
     return config
   },
   error => {
@@ -44,7 +44,7 @@ api.interceptors.response.use(
       // Token expired or invalid
       const authStore = useAuthStore()
       authStore.logout()
-      
+
       // Use router for navigation instead of window.location
       router.push('/login')
     }

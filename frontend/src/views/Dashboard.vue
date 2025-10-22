@@ -414,11 +414,7 @@
     />
 
     <!-- Export Modal -->
-    <ExportModal
-      v-if="showExportModal"
-      @close="showExportModal = false"
-      @success="handleExportSuccess"
-    />
+    <ExportModal v-if="showExportModal" @close="showExportModal = false" @success="handleExportSuccess" />
   </div>
 </template>
 
@@ -728,7 +724,11 @@
 
     // Show success notification if not already shown by modal
     if (window.notify) {
-      window.notify.success('Dashboard Updated', 'Your new expense has been added and the dashboard has been refreshed', { duration: 15000 })
+      window.notify.success(
+      'Dashboard Updated',
+      'Your new expense has been added and the dashboard has been refreshed',
+      { duration: 15000 }
+    )
     }
   }
 
@@ -755,7 +755,7 @@
     showExportModal.value = true
   }
 
-  const handleExportSuccess = (message) => {
+  const handleExportSuccess = message => {
     if (window.notify) {
       window.notify.success(message || 'Export completed successfully', 'Export Complete', { duration: 15000 })
     }
@@ -893,7 +893,9 @@
       // Demo notifications to showcase real-time features
       setTimeout(() => {
         if (window.notify) {
-          window.notify.success('Welcome Back!', 'Dashboard loaded successfully with the latest data', { duration: 15000 })
+          window.notify.success('Welcome Back!', 'Dashboard loaded successfully with the latest data', {
+          duration: 15000
+        })
 
           // Demo budget alert after a delay
           setTimeout(() => {

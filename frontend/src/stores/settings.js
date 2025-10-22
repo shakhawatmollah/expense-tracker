@@ -99,14 +99,14 @@ export const useSettingsStore = defineStore('settings', () => {
   })
 
   // Actions
-  const updateProfile = async (updates) => {
+  const updateProfile = async updates => {
     try {
       // API call would go here
       // const response = await fetch('/api/settings/profile', {
       //   method: 'PUT',
       //   body: JSON.stringify(updates)
       // })
-      
+
       Object.assign(profile.value, updates)
       localStorage.setItem('userProfile', JSON.stringify(profile.value))
       return { success: true, message: 'Profile updated successfully' }
@@ -116,7 +116,7 @@ export const useSettingsStore = defineStore('settings', () => {
     }
   }
 
-  const updateNotifications = async (updates) => {
+  const updateNotifications = async updates => {
     try {
       Object.assign(notifications.value, updates)
       localStorage.setItem('notificationSettings', JSON.stringify(notifications.value))
@@ -127,7 +127,7 @@ export const useSettingsStore = defineStore('settings', () => {
     }
   }
 
-  const updateBudgetAlerts = async (updates) => {
+  const updateBudgetAlerts = async updates => {
     try {
       Object.assign(budgetAlerts.value, updates)
       localStorage.setItem('budgetAlertSettings', JSON.stringify(budgetAlerts.value))
@@ -138,7 +138,7 @@ export const useSettingsStore = defineStore('settings', () => {
     }
   }
 
-  const updatePrivacy = async (updates) => {
+  const updatePrivacy = async updates => {
     try {
       Object.assign(privacy.value, updates)
       localStorage.setItem('privacySettings', JSON.stringify(privacy.value))
@@ -149,16 +149,16 @@ export const useSettingsStore = defineStore('settings', () => {
     }
   }
 
-  const updateDisplay = async (updates) => {
+  const updateDisplay = async updates => {
     try {
       Object.assign(display.value, updates)
       localStorage.setItem('displaySettings', JSON.stringify(display.value))
-      
+
       // Apply theme immediately
       if (updates.theme) {
         applyTheme(updates.theme)
       }
-      
+
       return { success: true, message: 'Display settings updated' }
     } catch (error) {
       console.error('Failed to update display settings:', error)
@@ -166,7 +166,7 @@ export const useSettingsStore = defineStore('settings', () => {
     }
   }
 
-  const updateBackup = async (updates) => {
+  const updateBackup = async updates => {
     try {
       Object.assign(backup.value, updates)
       localStorage.setItem('backupSettings', JSON.stringify(backup.value))
@@ -177,7 +177,7 @@ export const useSettingsStore = defineStore('settings', () => {
     }
   }
 
-  const updateExpenseDefaults = async (updates) => {
+  const updateExpenseDefaults = async updates => {
     try {
       Object.assign(expenseDefaults.value, updates)
       localStorage.setItem('expenseDefaults', JSON.stringify(expenseDefaults.value))
@@ -188,14 +188,14 @@ export const useSettingsStore = defineStore('settings', () => {
     }
   }
 
-  const applyTheme = (theme) => {
+  const applyTheme = theme => {
     const root = document.documentElement
     let appliedTheme = theme
-    
+
     if (theme === 'auto') {
       appliedTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
     }
-    
+
     if (appliedTheme === 'dark') {
       root.classList.add('dark-mode')
     } else {
@@ -210,7 +210,7 @@ export const useSettingsStore = defineStore('settings', () => {
       //   method: 'POST',
       //   body: JSON.stringify({ currentPassword, newPassword })
       // })
-      
+
       return { success: true, message: 'Password changed successfully' }
     } catch (error) {
       console.error('Failed to change password:', error)
@@ -218,14 +218,14 @@ export const useSettingsStore = defineStore('settings', () => {
     }
   }
 
-  const deleteAccount = async (password) => {
+  const deleteAccount = async password => {
     try {
       // API call would go here
       // const response = await fetch('/api/settings/delete-account', {
       //   method: 'DELETE',
       //   body: JSON.stringify({ password })
       // })
-      
+
       // Clear all data
       resetSettings()
       return { success: true, message: 'Account deleted successfully' }
@@ -248,7 +248,7 @@ export const useSettingsStore = defineStore('settings', () => {
         expenseDefaults: expenseDefaults.value,
         exportDate: new Date().toISOString()
       }
-      
+
       return { success: true, data, format }
     } catch (error) {
       console.error('Failed to export data:', error)
@@ -260,25 +260,25 @@ export const useSettingsStore = defineStore('settings', () => {
     try {
       const savedProfile = localStorage.getItem('userProfile')
       if (savedProfile) profile.value = JSON.parse(savedProfile)
-      
+
       const savedNotifications = localStorage.getItem('notificationSettings')
       if (savedNotifications) notifications.value = JSON.parse(savedNotifications)
-      
+
       const savedBudgetAlerts = localStorage.getItem('budgetAlertSettings')
       if (savedBudgetAlerts) budgetAlerts.value = JSON.parse(savedBudgetAlerts)
-      
+
       const savedPrivacy = localStorage.getItem('privacySettings')
       if (savedPrivacy) privacy.value = JSON.parse(savedPrivacy)
-      
+
       const savedDisplay = localStorage.getItem('displaySettings')
       if (savedDisplay) {
         display.value = JSON.parse(savedDisplay)
         applyTheme(display.value.theme)
       }
-      
+
       const savedBackup = localStorage.getItem('backupSettings')
       if (savedBackup) backup.value = JSON.parse(savedBackup)
-      
+
       const savedExpenseDefaults = localStorage.getItem('expenseDefaults')
       if (savedExpenseDefaults) expenseDefaults.value = JSON.parse(savedExpenseDefaults)
     } catch (error) {
@@ -305,11 +305,11 @@ export const useSettingsStore = defineStore('settings', () => {
     display,
     backup,
     expenseDefaults,
-    
+
     // Computed
     isDarkMode,
     formattedCurrency,
-    
+
     // Actions
     updateProfile,
     updateNotifications,

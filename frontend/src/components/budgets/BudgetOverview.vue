@@ -401,13 +401,29 @@
                 percentage_used: Math.round((budget.spent / budget.amount) * 100),
                 start_date: budget.start_date,
                 end_date: budget.end_date,
-                status: budget.spent >= budget.amount ? 'exceeded' : budget.spent >= budget.amount * 0.9 ? 'critical' : budget.spent >= budget.amount * 0.75 ? 'warning' : 'good'
+                status:
+                  budget.spent >= budget.amount
+                    ? 'exceeded'
+                    : budget.spent >= budget.amount * 0.9
+                      ? 'critical'
+                      : budget.spent >= budget.amount * 0.75
+                        ? 'warning'
+                        : 'good'
               })
             })
           })
 
           // Create CSV content
-          const csvHeaders = ['Category', 'Budget Amount', 'Spent', 'Remaining', 'Usage %', 'Start Date', 'End Date', 'Status']
+          const csvHeaders = [
+          'Category',
+          'Budget Amount',
+          'Spent',
+          'Remaining',
+          'Usage %',
+          'Start Date',
+          'End Date',
+          'Status'
+        ]
           const csvRows = exportData.budgets.map(budget => [
             budget.category,
             budget.amount.toFixed(2),
@@ -419,17 +435,14 @@
             budget.status
           ])
 
-          const csvContent = [
-            csvHeaders.join(','),
-            ...csvRows.map(row => row.join(','))
-          ].join('\n')
+          const csvContent = [csvHeaders.join(','), ...csvRows.map(row => row.join(','))].join('\n')
 
           // Create and download file
           const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' })
           const link = document.createElement('a')
           const url = URL.createObjectURL(blob)
           const timestamp = new Date().toISOString().split('T')[0]
-          
+
           link.setAttribute('href', url)
           link.setAttribute('download', `budget_report_${timestamp}.csv`)
           link.style.visibility = 'hidden'
@@ -447,9 +460,9 @@
         // Navigate to the budgets page with manage tab and highlight the specific budget
         router.push({
           path: '/budgets',
-          query: { 
+          query: {
             tab: 'manage',
-            budgetId: budgetId 
+            budgetId: budgetId
           }
         })
       }
@@ -458,9 +471,9 @@
         // Navigate to the budgets page with manage tab filtered by category
         router.push({
           path: '/budgets',
-          query: { 
+          query: {
             tab: 'manage',
-            category: categoryName 
+            category: categoryName
           }
         })
       }

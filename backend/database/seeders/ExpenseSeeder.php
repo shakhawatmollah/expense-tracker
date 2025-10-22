@@ -2,12 +2,11 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
-use Illuminate\Database\Seeder;
-use App\Models\Expense;
 use App\Models\Category;
+use App\Models\Expense;
 use App\Models\User;
 use Carbon\Carbon;
+use Illuminate\Database\Seeder;
 
 class ExpenseSeeder extends Seeder
 {
@@ -17,17 +16,19 @@ class ExpenseSeeder extends Seeder
     public function run(): void
     {
         $users = User::all();
-        
+
         if ($users->isEmpty()) {
             $this->command->info('No users found. Please run UserSeeder first.');
+
             return;
         }
 
         foreach ($users->take(4) as $user) { // Limit to first 4 users for demo
             $categories = Category::where('user_id', $user->id)->get();
-            
+
             if ($categories->isEmpty()) {
                 $this->command->info("No categories found for user {$user->email}. Please run CategorySeeder first.");
+
                 continue;
             }
 
@@ -35,17 +36,17 @@ class ExpenseSeeder extends Seeder
             for ($monthsBack = 5; $monthsBack >= 0; $monthsBack--) {
                 $startDate = Carbon::now()->subMonths($monthsBack)->startOfMonth();
                 $endDate = Carbon::now()->subMonths($monthsBack)->endOfMonth();
-                
+
                 // Generate 15-30 random expenses per month
                 $expenseCount = rand(15, 30);
-                
+
                 for ($i = 0; $i < $expenseCount; $i++) {
                     $category = $categories->random();
                     $randomDate = Carbon::createFromTimestamp(rand($startDate->timestamp, $endDate->timestamp));
-                    
+
                     $expenses = $this->getExpensesByCategory($category->name);
                     $randomExpense = $expenses[array_rand($expenses)];
-                    
+
                     Expense::create([
                         'user_id' => $user->id,
                         'category_id' => $category->id,

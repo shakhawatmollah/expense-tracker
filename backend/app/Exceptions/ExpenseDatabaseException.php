@@ -19,8 +19,8 @@ class ExpenseDatabaseException extends ExpenseException
     public function __construct(string $operation, string $details = '', array $context = [])
     {
         $message = "Database error during {$operation}: {$details}";
-        $userMessage = "Unable to process your expense. Please try again later.";
-        
+        $userMessage = 'Unable to process your expense. Please try again later.';
+
         parent::__construct($message, $userMessage, 500, $context);
     }
 }

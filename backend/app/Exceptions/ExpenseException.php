@@ -40,14 +40,14 @@ class ExpenseException extends Exception
      * @param \Throwable|null $previous Previous exception
      */
     public function __construct(
-        string $message = "",
+        string $message = '',
         ?string $userMessage = null,
         ?int $statusCode = null,
         array $context = [],
         ?\Throwable $previous = null
     ) {
         parent::__construct($message, 0, $previous);
-        
+
         $this->userMessage = $userMessage ?? $message;
         $this->statusCode = $statusCode ?? $this->statusCode;
         $this->context = $context;

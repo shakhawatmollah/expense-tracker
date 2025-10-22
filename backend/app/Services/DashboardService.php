@@ -2,8 +2,8 @@
 
 namespace App\Services;
 
-use App\Repositories\ExpenseRepositoryInterface;
 use App\Repositories\CategoryRepositoryInterface;
+use App\Repositories\ExpenseRepositoryInterface;
 use Carbon\Carbon;
 
 class DashboardService
@@ -11,7 +11,8 @@ class DashboardService
     public function __construct(
         private ExpenseRepositoryInterface $expenseRepository,
         private CategoryRepositoryInterface $categoryRepository
-    ) {}
+    ) {
+    }
 
     /**
      * Get dashboard overview data for user
@@ -26,15 +27,15 @@ class DashboardService
 
         // Current month expenses
         $currentMonthExpenses = $this->expenseRepository->getByDateRange(
-            $userId, 
-            $startOfMonth->format('Y-m-d'), 
+            $userId,
+            $startOfMonth->format('Y-m-d'),
             $endOfMonth->format('Y-m-d')
         );
 
         // Last month expenses
         $lastMonthExpenses = $this->expenseRepository->getByDateRange(
-            $userId, 
-            $startOfLastMonth->format('Y-m-d'), 
+            $userId,
+            $startOfLastMonth->format('Y-m-d'),
             $endOfLastMonth->format('Y-m-d')
         );
 
@@ -54,7 +55,7 @@ class DashboardService
         // Get expenses by category for current month
         $expensesByCategory = $this->expenseRepository->getExpensesByCategory($userId, [
             'start_date' => $startOfMonth->format('Y-m-d'),
-            'end_date' => $endOfMonth->format('Y-m-d')
+            'end_date' => $endOfMonth->format('Y-m-d'),
         ]);
 
         return [
@@ -112,23 +113,27 @@ class DashboardService
     public function getCategorySpendingAnalysis(int $userId, ?string $period = 'current_month'): array
     {
         $now = Carbon::now();
-        
+
         switch ($period) {
             case 'last_month':
                 $startDate = $now->copy()->subMonth()->startOfMonth()->format('Y-m-d');
                 $endDate = $now->copy()->subMonth()->endOfMonth()->format('Y-m-d');
+
                 break;
             case 'last_3_months':
                 $startDate = $now->copy()->subMonths(3)->startOfMonth()->format('Y-m-d');
                 $endDate = $now->copy()->endOfMonth()->format('Y-m-d');
+
                 break;
             case 'last_6_months':
                 $startDate = $now->copy()->subMonths(6)->startOfMonth()->format('Y-m-d');
                 $endDate = $now->copy()->endOfMonth()->format('Y-m-d');
+
                 break;
             case 'current_year':
                 $startDate = $now->copy()->startOfYear()->format('Y-m-d');
                 $endDate = $now->copy()->endOfYear()->format('Y-m-d');
+
                 break;
             default: // current_month
                 $startDate = $now->copy()->startOfMonth()->format('Y-m-d');
@@ -137,7 +142,7 @@ class DashboardService
 
         return $this->expenseRepository->getExpensesByCategory($userId, [
             'start_date' => $startDate,
-            'end_date' => $endDate
+            'end_date' => $endDate,
         ]);
     }
 
@@ -185,7 +190,7 @@ class DashboardService
     public function getSpendingStatistics(int $userId): array
     {
         $now = Carbon::now();
-        
+
         // All time stats
         $allExpenses = $this->expenseRepository->getUserExpenses($userId);
         $totalAllTime = $allExpenses->sum('amount');
@@ -221,13 +226,13 @@ class DashboardService
     private function getMostUsedCategory(int $userId): ?array
     {
         $categoriesWithCounts = $this->categoryRepository->getCategoriesWithExpenseCounts($userId);
-        
+
         if ($categoriesWithCounts->isEmpty()) {
             return null;
         }
 
         $mostUsed = $categoriesWithCounts->sortByDesc('expenses_count')->first();
-        
+
         return [
             'id' => $mostUsed->id,
             'name' => $mostUsed->name,

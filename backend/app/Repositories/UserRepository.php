@@ -3,7 +3,6 @@
 namespace App\Repositories;
 
 use App\Models\User;
-use App\Repositories\UserRepositoryInterface;
 use Illuminate\Support\Facades\Hash;
 
 class UserRepository implements UserRepositoryInterface
@@ -30,18 +29,20 @@ class UserRepository implements UserRepositoryInterface
     public function update(int $id, array $data): bool
     {
         $user = User::find($id);
-        if (!$user) {
+        if (! $user) {
             return false;
         }
+
         return $user->update($data);
     }
 
     public function delete(int $id): bool
     {
         $user = User::find($id);
-        if (!$user) {
+        if (! $user) {
             return false;
         }
+
         return $user->delete();
     }
 }

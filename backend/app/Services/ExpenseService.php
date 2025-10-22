@@ -2,21 +2,22 @@
 
 namespace App\Services;
 
-use App\Models\Expense;
-use App\Repositories\ExpenseRepositoryInterface;
+use App\Exceptions\ExpenseDatabaseException;
 use App\Exceptions\ExpenseNotFoundException;
 use App\Exceptions\ExpenseValidationException;
-use App\Exceptions\ExpenseDatabaseException;
+use App\Models\Expense;
+use App\Repositories\ExpenseRepositoryInterface;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Pagination\LengthAwarePaginator;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class ExpenseService
 {
     public function __construct(
         private ExpenseRepositoryInterface $expenseRepository
-    ) {}
+    ) {
+    }
 
     /**
      * Get all expenses for a specific user
@@ -52,25 +53,25 @@ class ExpenseService
             // Use transaction to ensure atomicity
             return DB::transaction(function () use ($data) {
                 $expense = $this->expenseRepository->create($data);
-                
+
                 Log::info('Expense created successfully', [
                     'expense_id' => $expense->id,
                     'user_id' => $data['user_id'] ?? null,
-                    'amount' => $data['amount'] ?? null
+                    'amount' => $data['amount'] ?? null,
                 ]);
-                
+
                 return $expense;
             });
-            
+
         } catch (ExpenseValidationException $e) {
             throw $e;
-            
+
         } catch (\Exception $e) {
             Log::error('Failed to create expense in service', [
                 'error' => $e->getMessage(),
-                'data' => $data
+                'data' => $data,
             ]);
-            
+
             throw new ExpenseDatabaseException(
                 'expense creation',
                 $e->getMessage(),
@@ -86,25 +87,25 @@ class ExpenseService
     {
         try {
             $expense = $this->expenseRepository->findForUser($expenseId, $userId);
-            
-            if (!$expense) {
+
+            if (! $expense) {
                 throw new ExpenseNotFoundException($expenseId, [
-                    'user_id' => $userId
+                    'user_id' => $userId,
                 ]);
             }
 
             return $expense;
-            
+
         } catch (ExpenseNotFoundException $e) {
             throw $e;
-            
+
         } catch (\Exception $e) {
             Log::error('Failed to find expense', [
                 'expense_id' => $expenseId,
                 'user_id' => $userId,
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ]);
-            
+
             throw new ExpenseDatabaseException(
                 'expense retrieval',
                 $e->getMessage(),
@@ -120,7 +121,7 @@ class ExpenseService
     {
         try {
             $expense = $this->findForUser($expenseId, $userId);
-            
+
             // Validate amount if provided
             if (isset($data['amount']) && $data['amount'] <= 0) {
                 throw new ExpenseValidationException(
@@ -129,30 +130,30 @@ class ExpenseService
                     ['expense_id' => $expenseId, 'user_id' => $userId]
                 );
             }
-            
+
             // Use transaction to ensure atomicity
             return DB::transaction(function () use ($expense, $data, $expenseId, $userId) {
                 $updatedExpense = $this->expenseRepository->update($expense, $data);
-                
+
                 Log::info('Expense updated successfully', [
                     'expense_id' => $expenseId,
                     'user_id' => $userId,
-                    'updated_fields' => array_keys($data)
+                    'updated_fields' => array_keys($data),
                 ]);
-                
+
                 return $updatedExpense;
             });
-            
+
         } catch (ExpenseNotFoundException | ExpenseValidationException $e) {
             throw $e;
-            
+
         } catch (\Exception $e) {
             Log::error('Failed to update expense', [
                 'expense_id' => $expenseId,
                 'user_id' => $userId,
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ]);
-            
+
             throw new ExpenseDatabaseException(
                 'expense update',
                 $e->getMessage(),
@@ -168,31 +169,31 @@ class ExpenseService
     {
         try {
             $expense = $this->findForUser($expenseId, $userId);
-            
+
             // Use transaction to ensure atomicity
             return DB::transaction(function () use ($expense, $expenseId, $userId) {
                 $deleted = $this->expenseRepository->delete($expense);
-                
+
                 if ($deleted) {
                     Log::info('Expense deleted successfully', [
                         'expense_id' => $expenseId,
-                        'user_id' => $userId
+                        'user_id' => $userId,
                     ]);
                 }
-                
+
                 return $deleted;
             });
-            
+
         } catch (ExpenseNotFoundException $e) {
             throw $e;
-            
+
         } catch (\Exception $e) {
             Log::error('Failed to delete expense', [
                 'expense_id' => $expenseId,
                 'user_id' => $userId,
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ]);
-            
+
             throw new ExpenseDatabaseException(
                 'expense deletion',
                 $e->getMessage(),

@@ -28,7 +28,7 @@ class BudgetFactory extends Factory
     {
         $period = $this->faker->randomElement(['monthly', 'weekly', 'quarterly', 'yearly']);
         $startDate = $this->faker->dateTimeBetween('-2 months', 'now');
-        
+
         // Calculate end date based on period
         $endDate = match($period) {
             'weekly' => (clone $startDate)->modify('+1 week'),
@@ -36,7 +36,7 @@ class BudgetFactory extends Factory
             'quarterly' => (clone $startDate)->modify('+3 months'),
             'yearly' => (clone $startDate)->modify('+1 year'),
         };
-        
+
         return [
             'user_id' => User::factory(),
             'category_id' => Category::factory(),
@@ -81,6 +81,7 @@ class BudgetFactory extends Factory
     {
         return $this->state(function (array $attributes) {
             $startDate = now()->startOfMonth();
+
             return [
                 'period' => 'monthly',
                 'start_date' => $startDate,
@@ -96,6 +97,7 @@ class BudgetFactory extends Factory
     {
         return $this->state(function (array $attributes) {
             $startDate = now()->startOfWeek();
+
             return [
                 'period' => 'weekly',
                 'start_date' => $startDate,
@@ -111,6 +113,7 @@ class BudgetFactory extends Factory
     {
         return $this->state(function (array $attributes) {
             $startDate = now()->startOfYear();
+
             return [
                 'period' => 'yearly',
                 'start_date' => $startDate,

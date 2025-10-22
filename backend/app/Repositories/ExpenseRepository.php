@@ -3,11 +3,10 @@
 namespace App\Repositories;
 
 use App\Models\Expense;
-use App\Repositories\ExpenseRepositoryInterface;
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\DB;
-use Carbon\Carbon;
 
 class ExpenseRepository implements ExpenseRepositoryInterface
 {
@@ -34,24 +33,24 @@ class ExpenseRepository implements ExpenseRepositoryInterface
         $query = Expense::with(['category', 'user'])
             ->where('user_id', $userId);
 
-        if (!empty($filters['category_id'])) {
+        if (! empty($filters['category_id'])) {
             $query->where('category_id', $filters['category_id']);
         }
 
-        if (!empty($filters['start_date'])) {
+        if (! empty($filters['start_date'])) {
             $query->whereDate('date', '>=', $filters['start_date']);
         }
 
-        if (!empty($filters['end_date'])) {
+        if (! empty($filters['end_date'])) {
             $query->whereDate('date', '<=', $filters['end_date']);
         }
 
-        if (!empty($filters['search'])) {
+        if (! empty($filters['search'])) {
             $query->where(function ($q) use ($filters) {
                 $q->where('description', 'like', '%' . $filters['search'] . '%')
-                  ->orWhereHas('category', function ($categoryQuery) use ($filters) {
-                      $categoryQuery->where('name', 'like', '%' . $filters['search'] . '%');
-                  });
+                    ->orWhereHas('category', function ($categoryQuery) use ($filters) {
+                        $categoryQuery->where('name', 'like', '%' . $filters['search'] . '%');
+                    });
             });
         }
 
@@ -65,30 +64,31 @@ class ExpenseRepository implements ExpenseRepositoryInterface
         $query = Expense::with(['category', 'user'])
             ->where('user_id', $userId);
 
-        if (!empty($filters['category_id'])) {
+        if (! empty($filters['category_id'])) {
             $query->where('category_id', $filters['category_id']);
         }
 
-        if (!empty($filters['start_date'])) {
+        if (! empty($filters['start_date'])) {
             $query->whereDate('date', '>=', $filters['start_date']);
         }
 
-        if (!empty($filters['end_date'])) {
+        if (! empty($filters['end_date'])) {
             $query->whereDate('date', '<=', $filters['end_date']);
         }
 
-        if (!empty($filters['search'])) {
+        if (! empty($filters['search'])) {
             $query->where(function ($q) use ($filters) {
                 $q->where('description', 'like', '%' . $filters['search'] . '%')
-                  ->orWhereHas('category', function ($categoryQuery) use ($filters) {
-                      $categoryQuery->where('name', 'like', '%' . $filters['search'] . '%');
-                  });
+                    ->orWhereHas('category', function ($categoryQuery) use ($filters) {
+                        $categoryQuery->where('name', 'like', '%' . $filters['search'] . '%');
+                    });
             });
         }
 
         $query->orderBy('date', 'desc');
 
         $perPage = $filters['per_page'] ?? 15;
+
         return $query->paginate($perPage);
     }
 
@@ -97,21 +97,21 @@ class ExpenseRepository implements ExpenseRepositoryInterface
         $query = Expense::with(['category', 'user'])
             ->where('user_id', $userId);
 
-        if (!empty($filters['category_id'])) {
+        if (! empty($filters['category_id'])) {
             $query->where('category_id', $filters['category_id']);
         }
 
-        if (!empty($filters['start_date'])) {
+        if (! empty($filters['start_date'])) {
             $query->whereDate('date', '>=', $filters['start_date']);
         }
 
-        if (!empty($filters['end_date'])) {
+        if (! empty($filters['end_date'])) {
             $query->whereDate('date', '<=', $filters['end_date']);
         }
 
         $query->orderBy('date', 'desc');
 
-        if (!empty($filters['per_page'])) {
+        if (! empty($filters['per_page'])) {
             return $query->paginate($filters['per_page']);
         }
 
@@ -122,15 +122,15 @@ class ExpenseRepository implements ExpenseRepositoryInterface
     {
         $query = Expense::with(['category', 'user'])
             ->where('user_id', $userId);
-        
+
         if ($startDate) {
             $query->whereDate('date', '>=', $startDate);
         }
-        
+
         if ($endDate) {
             $query->whereDate('date', '<=', $endDate);
         }
-        
+
         return $query->orderBy('date', 'desc')->get();
     }
 
@@ -140,9 +140,9 @@ class ExpenseRepository implements ExpenseRepositoryInterface
             ->where('user_id', $userId)
             ->where(function ($q) use ($query) {
                 $q->where('description', 'like', '%' . $query . '%')
-                  ->orWhereHas('category', function ($categoryQuery) use ($query) {
-                      $categoryQuery->where('name', 'like', '%' . $query . '%');
-                  });
+                    ->orWhereHas('category', function ($categoryQuery) use ($query) {
+                        $categoryQuery->where('name', 'like', '%' . $query . '%');
+                    });
             })
             ->orderBy('date', 'desc')
             ->get();
@@ -151,6 +151,7 @@ class ExpenseRepository implements ExpenseRepositoryInterface
     public function update(Expense $expense, array $data): Expense
     {
         $expense->update($data);
+
         return $expense->fresh(['category', 'user']);
     }
 
@@ -162,18 +163,20 @@ class ExpenseRepository implements ExpenseRepositoryInterface
     public function updateById(int $id, array $data): bool
     {
         $expense = Expense::find($id);
-        if (!$expense) {
+        if (! $expense) {
             return false;
         }
+
         return $expense->update($data);
     }
 
     public function deleteById(int $id): bool
     {
         $expense = Expense::find($id);
-        if (!$expense) {
+        if (! $expense) {
             return false;
         }
+
         return $expense->delete();
     }
 
@@ -223,7 +226,7 @@ class ExpenseRepository implements ExpenseRepositoryInterface
     public function getMonthlyTrend(int $userId, int $months = 12): Collection
     {
         $startDate = Carbon::now()->subMonths($months - 1)->startOfMonth();
-        
+
         return Expense::where('user_id', $userId)
             ->where('date', '>=', $startDate)
             ->select(
@@ -241,15 +244,15 @@ class ExpenseRepository implements ExpenseRepositoryInterface
     {
         $query = Expense::where('user_id', $userId);
 
-        if (!empty($filters['category_id'])) {
+        if (! empty($filters['category_id'])) {
             $query->where('category_id', $filters['category_id']);
         }
 
-        if (!empty($filters['start_date'])) {
+        if (! empty($filters['start_date'])) {
             $query->whereDate('date', '>=', $filters['start_date']);
         }
 
-        if (!empty($filters['end_date'])) {
+        if (! empty($filters['end_date'])) {
             $query->whereDate('date', '<=', $filters['end_date']);
         }
 
@@ -269,11 +272,11 @@ class ExpenseRepository implements ExpenseRepositoryInterface
             )
             ->groupBy('categories.id', 'categories.name', 'categories.color');
 
-        if (!empty($filters['start_date'])) {
+        if (! empty($filters['start_date'])) {
             $query->whereDate('expenses.date', '>=', $filters['start_date']);
         }
 
-        if (!empty($filters['end_date'])) {
+        if (! empty($filters['end_date'])) {
             $query->whereDate('expenses.date', '<=', $filters['end_date']);
         }
 
@@ -294,9 +297,9 @@ class ExpenseRepository implements ExpenseRepositoryInterface
             'by_category' => $expenses->groupBy('category.name')->map(function ($categoryExpenses) {
                 return [
                     'total' => $categoryExpenses->sum('amount'),
-                    'count' => $categoryExpenses->count()
+                    'count' => $categoryExpenses->count(),
                 ];
-            })->toArray()
+            })->toArray(),
         ];
     }
 

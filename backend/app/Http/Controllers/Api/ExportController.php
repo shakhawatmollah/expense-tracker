@@ -4,15 +4,16 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Services\ExportService;
-use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
 
 class ExportController extends Controller
 {
     public function __construct(
         private ExportService $exportService
-    ) {}
+    ) {
+    }
 
     /**
      * Export expenses to CSV
@@ -114,7 +115,7 @@ class ExportController extends Controller
 
         return response()->json([
             'success' => true,
-            'data' => $exports
+            'data' => $exports,
         ]);
     }
 }

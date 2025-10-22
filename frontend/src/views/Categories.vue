@@ -33,7 +33,7 @@
   onMounted(async () => {
     try {
       await categoriesStore.fetchCategories()
-      
+
       // Handle quick action from query parameter
       if (route.query.action === 'create') {
         autoOpenCreate.value = true

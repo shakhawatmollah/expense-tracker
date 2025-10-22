@@ -2,15 +2,16 @@
 
 namespace App\Models;
 
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Carbon\Carbon;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Budget extends Model
 {
-    use HasFactory, SoftDeletes;
+    use HasFactory;
+    use SoftDeletes;
 
     protected $fillable = [
         'user_id',
@@ -22,7 +23,7 @@ class Budget extends Model
         'end_date',
         'is_active',
         'alert_thresholds',
-        'description'
+        'description',
     ];
 
     protected $casts = [
@@ -38,18 +39,18 @@ class Budget extends Model
         'end_date',
         'created_at',
         'updated_at',
-        'deleted_at'
+        'deleted_at',
     ];
 
     /**
      * Budget periods enumeration
      */
-    const PERIOD_WEEKLY = 'weekly';
-    const PERIOD_MONTHLY = 'monthly';
-    const PERIOD_YEARLY = 'yearly';
-    const PERIOD_CUSTOM = 'custom';
+    public const PERIOD_WEEKLY = 'weekly';
+    public const PERIOD_MONTHLY = 'monthly';
+    public const PERIOD_YEARLY = 'yearly';
+    public const PERIOD_CUSTOM = 'custom';
 
-    const PERIODS = [
+    public const PERIODS = [
         self::PERIOD_WEEKLY,
         self::PERIOD_MONTHLY,
         self::PERIOD_YEARLY,
@@ -59,7 +60,7 @@ class Budget extends Model
     /**
      * Default alert thresholds
      */
-    const DEFAULT_ALERT_THRESHOLDS = [
+    public const DEFAULT_ALERT_THRESHOLDS = [
         'warning' => 80, // 80% of budget
         'danger' => 100, // 100% of budget
     ];
@@ -99,7 +100,7 @@ class Budget extends Model
     public function expenses()
     {
         $query = Expense::where('user_id', $this->user_id)
-                       ->whereBetween('date', [$this->start_date, $this->end_date]);
+            ->whereBetween('date', [$this->start_date, $this->end_date]);
 
         if ($this->category_id) {
             $query->where('category_id', $this->category_id);
@@ -132,6 +133,7 @@ class Budget extends Model
         if ($this->amount <= 0) {
             return 0;
         }
+
         return min(100, ($this->spent_amount / $this->amount) * 100);
     }
 
@@ -166,8 +168,9 @@ class Budget extends Model
     public function getIsCurrentAttribute()
     {
         $now = Carbon::now();
-        return $this->is_active && 
-               $this->start_date <= $now && 
+
+        return $this->is_active &&
+               $this->start_date <= $now &&
                $this->end_date >= $now;
     }
 
@@ -180,6 +183,7 @@ class Budget extends Model
         if ($this->end_date < $now) {
             return 0;
         }
+
         return $now->diffInDays($this->end_date);
     }
 
@@ -193,15 +197,19 @@ class Budget extends Model
         switch ($period) {
             case self::PERIOD_WEEKLY:
                 $end = $start->copy()->endOfWeek();
+
                 break;
             case self::PERIOD_MONTHLY:
                 $end = $start->copy()->endOfMonth();
+
                 break;
             case self::PERIOD_YEARLY:
                 $end = $start->copy()->endOfYear();
+
                 break;
             default: // custom
                 $end = $start->copy()->addMonth(); // Default to 1 month for custom
+
                 break;
         }
 
@@ -223,7 +231,7 @@ class Budget extends Model
         }
 
         // Set default alert thresholds if not provided
-        if (!isset($data['alert_thresholds'])) {
+        if (! isset($data['alert_thresholds'])) {
             $data['alert_thresholds'] = self::DEFAULT_ALERT_THRESHOLDS;
         }
 
@@ -278,9 +286,10 @@ class Budget extends Model
     public function scopeCurrent($query)
     {
         $now = Carbon::now();
+
         return $query->active()
-                    ->where('start_date', '<=', $now)
-                    ->where('end_date', '>=', $now);
+            ->where('start_date', '<=', $now)
+            ->where('end_date', '>=', $now);
     }
 
     /**

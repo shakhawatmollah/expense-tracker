@@ -18,13 +18,13 @@ class ExpenseNotFoundException extends ExpenseException
     public function __construct($identifier = null, array $context = [])
     {
         if ($identifier === null) {
-            $message = "Expense not found or access denied";
-            $userMessage = "The requested expense could not be found.";
+            $message = 'Expense not found or access denied';
+            $userMessage = 'The requested expense could not be found.';
         } else {
             $message = "Expense not found with identifier: {$identifier}";
-            $userMessage = "The requested expense could not be found.";
+            $userMessage = 'The requested expense could not be found.';
         }
-        
+
         parent::__construct($message, $userMessage, 404, $context);
     }
 }

@@ -9,9 +9,9 @@ describe('ToastNotification', () => {
 
   it('should add success notification to store', () => {
     const store = useNotificationsStore()
-    
+
     store.notifySuccess('Success!', 'Operation completed successfully')
-    
+
     expect(store.notifications).toHaveLength(1)
     expect(store.notifications[0].type).toBe('success')
     expect(store.notifications[0].title).toBe('Success!')
@@ -20,9 +20,9 @@ describe('ToastNotification', () => {
 
   it('should add error notification to store', () => {
     const store = useNotificationsStore()
-    
+
     store.notifyError('Error!', 'Something went wrong')
-    
+
     expect(store.notifications).toHaveLength(1)
     expect(store.notifications[0].type).toBe('error')
     expect(store.notifications[0].title).toBe('Error!')
@@ -31,15 +31,14 @@ describe('ToastNotification', () => {
 
   it('should dismiss notification', () => {
     const store = useNotificationsStore()
-    
+
     store.notifySuccess('Test', 'Test message')
     const notificationId = store.notifications[0].id
-    
+
     expect(store.notifications).toHaveLength(1)
-    
+
     store.dismissNotification(notificationId)
-    
+
     expect(store.activeNotifications).toHaveLength(0)
   })
 })
-

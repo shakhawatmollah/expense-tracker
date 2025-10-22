@@ -82,9 +82,7 @@
       </div>
 
       <div class="modal-footer">
-        <button class="btn btn-secondary" @click="$emit('close')" :disabled="loading">
-          Cancel
-        </button>
+        <button class="btn btn-secondary" @click="$emit('close')" :disabled="loading">Cancel</button>
         <button class="btn btn-primary" @click="handleExport" :disabled="loading">
           <span v-if="loading">Exporting...</span>
           <span v-else>Export</span>
@@ -114,12 +112,12 @@ const error = ref('')
 
 const categories = computed(() => categoriesStore.categories)
 
-onMounted(async () => {
+onMounted(async() => {
   // Set default date range (current month)
   const now = new Date()
   const firstDay = new Date(now.getFullYear(), now.getMonth(), 1)
   const lastDay = new Date(now.getFullYear(), now.getMonth() + 1, 0)
-  
+
   startDate.value = firstDay.toISOString().split('T')[0]
   endDate.value = lastDay.toISOString().split('T')[0]
 
@@ -129,7 +127,7 @@ onMounted(async () => {
   }
 })
 
-const handleExport = async () => {
+const handleExport = async() => {
   error.value = ''
   loading.value = true
 
@@ -169,7 +167,7 @@ const handleExport = async () => {
     // Get filename from response headers or generate one
     const contentDisposition = response.headers['content-disposition']
     let filename = `export_${exportType.value}_${new Date().getTime()}.${format.value}`
-    
+
     if (contentDisposition) {
       const filenameMatch = contentDisposition.match(/filename="?(.+)"?/i)
       if (filenameMatch && filenameMatch[1]) {
@@ -195,206 +193,206 @@ const handleExport = async () => {
 </script>
 
 <style scoped>
-.export-modal {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  z-index: 9999;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.modal-overlay {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(0, 0, 0, 0.5);
-  backdrop-filter: blur(4px);
-}
-
-.modal-content {
-  position: relative;
-  background: white;
-  border-radius: 12px;
-  width: 90%;
-  max-width: 600px;
-  max-height: 90vh;
-  overflow-y: auto;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-}
-
-.modal-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 24px;
-  border-bottom: 1px solid #e5e7eb;
-}
-
-.modal-header h2 {
-  margin: 0;
-  font-size: 24px;
-  font-weight: 600;
-  color: #111827;
-}
-
-.close-btn {
-  background: none;
-  border: none;
-  font-size: 32px;
-  color: #6b7280;
-  cursor: pointer;
-  padding: 0;
-  width: 32px;
-  height: 32px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 6px;
-  transition: all 0.2s;
-}
-
-.close-btn:hover {
-  background: #f3f4f6;
-  color: #111827;
-}
-
-.modal-body {
-  padding: 24px;
-}
-
-.form-group {
-  margin-bottom: 20px;
-}
-
-.form-group label {
-  display: block;
-  margin-bottom: 8px;
-  font-weight: 500;
-  color: #374151;
-  font-size: 14px;
-}
-
-.form-control {
-  width: 100%;
-  padding: 10px 12px;
-  border: 1px solid #d1d5db;
-  border-radius: 6px;
-  font-size: 14px;
-  transition: all 0.2s;
-}
-
-.form-control:focus {
-  outline: none;
-  border-color: #3b82f6;
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
-}
-
-.format-options {
-  display: flex;
-  gap: 12px;
-}
-
-.format-option {
-  flex: 1;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 12px;
-  border: 2px solid #e5e7eb;
-  border-radius: 8px;
-  cursor: pointer;
-  transition: all 0.2s;
-}
-
-.format-option:hover {
-  border-color: #3b82f6;
-  background: #eff6ff;
-}
-
-.format-option input[type="radio"] {
-  margin: 0;
-}
-
-.format-option input[type="radio"]:checked + span {
-  color: #3b82f6;
-  font-weight: 600;
-}
-
-.date-range {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 16px;
-}
-
-.error-message {
-  padding: 12px;
-  background: #fee2e2;
-  border: 1px solid #fecaca;
-  border-radius: 6px;
-  color: #dc2626;
-  font-size: 14px;
-  margin-top: 16px;
-}
-
-.modal-footer {
-  display: flex;
-  justify-content: flex-end;
-  gap: 12px;
-  padding: 24px;
-  border-top: 1px solid #e5e7eb;
-}
-
-.btn {
-  padding: 10px 20px;
-  border-radius: 6px;
-  font-weight: 500;
-  font-size: 14px;
-  cursor: pointer;
-  transition: all 0.2s;
-  border: none;
-}
-
-.btn:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
-.btn-secondary {
-  background: #f3f4f6;
-  color: #374151;
-}
-
-.btn-secondary:hover:not(:disabled) {
-  background: #e5e7eb;
-}
-
-.btn-primary {
-  background: #3b82f6;
-  color: white;
-}
-
-.btn-primary:hover:not(:disabled) {
-  background: #2563eb;
-}
-
-@media (max-width: 768px) {
-  .modal-content {
-    width: 95%;
-    max-width: none;
+  .export-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 9999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
   }
 
-  .date-range {
-    grid-template-columns: 1fr;
+  .modal-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(4px);
+  }
+
+  .modal-content {
+    position: relative;
+    background: white;
+    border-radius: 12px;
+    width: 90%;
+    max-width: 600px;
+    max-height: 90vh;
+    overflow-y: auto;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  }
+
+  .modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 24px;
+    border-bottom: 1px solid #e5e7eb;
+  }
+
+  .modal-header h2 {
+    margin: 0;
+    font-size: 24px;
+    font-weight: 600;
+    color: #111827;
+  }
+
+  .close-btn {
+    background: none;
+    border: none;
+    font-size: 32px;
+    color: #6b7280;
+    cursor: pointer;
+    padding: 0;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 6px;
+    transition: all 0.2s;
+  }
+
+  .close-btn:hover {
+    background: #f3f4f6;
+    color: #111827;
+  }
+
+  .modal-body {
+    padding: 24px;
+  }
+
+  .form-group {
+    margin-bottom: 20px;
+  }
+
+  .form-group label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 500;
+    color: #374151;
+    font-size: 14px;
+  }
+
+  .form-control {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
+    font-size: 14px;
+    transition: all 0.2s;
+  }
+
+  .form-control:focus {
+    outline: none;
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
   }
 
   .format-options {
-    flex-direction: column;
+    display: flex;
+    gap: 12px;
   }
-}
+
+  .format-option {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px;
+    border: 2px solid #e5e7eb;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .format-option:hover {
+    border-color: #3b82f6;
+    background: #eff6ff;
+  }
+
+  .format-option input[type='radio'] {
+    margin: 0;
+  }
+
+  .format-option input[type='radio']:checked + span {
+    color: #3b82f6;
+    font-weight: 600;
+  }
+
+  .date-range {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+
+  .error-message {
+    padding: 12px;
+    background: #fee2e2;
+    border: 1px solid #fecaca;
+    border-radius: 6px;
+    color: #dc2626;
+    font-size: 14px;
+    margin-top: 16px;
+  }
+
+  .modal-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    padding: 24px;
+    border-top: 1px solid #e5e7eb;
+  }
+
+  .btn {
+    padding: 10px 20px;
+    border-radius: 6px;
+    font-weight: 500;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.2s;
+    border: none;
+  }
+
+  .btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  .btn-secondary {
+    background: #f3f4f6;
+    color: #374151;
+  }
+
+  .btn-secondary:hover:not(:disabled) {
+    background: #e5e7eb;
+  }
+
+  .btn-primary {
+    background: #3b82f6;
+    color: white;
+  }
+
+  .btn-primary:hover:not(:disabled) {
+    background: #2563eb;
+  }
+
+  @media (max-width: 768px) {
+    .modal-content {
+      width: 95%;
+      max-width: none;
+    }
+
+    .date-range {
+      grid-template-columns: 1fr;
+    }
+
+    .format-options {
+      flex-direction: column;
+    }
+  }
 </style>

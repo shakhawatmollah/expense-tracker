@@ -2,10 +2,10 @@
 
 namespace App\Http\Requests\Expense;
 
-use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Contracts\Validation\Validator;
-use Illuminate\Http\Exceptions\HttpResponseException;
 use Carbon\Carbon;
+use Illuminate\Contracts\Validation\Validator;
+use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Http\Exceptions\HttpResponseException;
 
 class DateRangeRequest extends FormRequest
 {
@@ -30,14 +30,14 @@ class DateRangeRequest extends FormRequest
                 'date',
                 'date_format:Y-m-d',
                 'before_or_equal:end_date',
-                'before_or_equal:today'
+                'before_or_equal:today',
             ],
             'end_date' => [
                 'required',
                 'date',
                 'date_format:Y-m-d',
                 'after_or_equal:start_date',
-                'before_or_equal:today'
+                'before_or_equal:today',
             ],
             'category_id' => ['nullable', 'integer', 'exists:categories,id'],
             'group_by' => ['nullable', 'string', 'in:day,week,month,year,category'],
@@ -126,7 +126,7 @@ class DateRangeRequest extends FormRequest
             if ($this->start_date && $this->end_date) {
                 $start = Carbon::parse($this->start_date);
                 $end = Carbon::parse($this->end_date);
-                
+
                 if ($start->diffInDays($end) > 365) {
                     $validator->errors()->add(
                         'end_date',
@@ -146,7 +146,7 @@ class DateRangeRequest extends FormRequest
             response()->json([
                 'success' => false,
                 'message' => 'Invalid date range parameters.',
-                'errors' => $validator->errors()
+                'errors' => $validator->errors(),
             ], 422)
         );
     }

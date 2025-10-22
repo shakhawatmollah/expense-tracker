@@ -2,11 +2,10 @@
 
 namespace App\Services;
 
-use App\Models\Expense;
-use App\Models\Category;
 use App\Models\Budget;
+use App\Models\Category;
+use App\Models\Expense;
 use App\Models\User;
-use Illuminate\Support\Facades\Storage;
 use Carbon\Carbon;
 
 class ExportService
@@ -97,8 +96,8 @@ class ExportService
         string $format = 'pdf',
         bool $includeCharts = true
     ): string {
-        $startDate = $startDate ?? Carbon::now()->startOfMonth()->toDateString();
-        $endDate = $endDate ?? Carbon::now()->endOfMonth()->toDateString();
+        $startDate ??= Carbon::now()->startOfMonth()->toDateString();
+        $endDate ??= Carbon::now()->endOfMonth()->toDateString();
 
         $data = [
             'expenses' => Expense::where('user_id', $userId)
@@ -110,7 +109,7 @@ class ExportService
                 ->where('start_date', '<=', $endDate)
                 ->where('end_date', '>=', $startDate)
                 ->get(),
-            'summary' => $this->calculateSummary($userId, $startDate, $endDate)
+            'summary' => $this->calculateSummary($userId, $startDate, $endDate),
         ];
 
         if ($format === 'csv') {
@@ -140,14 +139,14 @@ class ExportService
         $filepath = storage_path('app/exports/' . $filename);
 
         // Create exports directory if it doesn't exist
-        if (!file_exists(storage_path('app/exports'))) {
-            mkdir(storage_path('app/exports'), 0755, true);
+        if (! file_exists(storage_path('app/exports'))) {
+            mkdir(storage_path('app/exports'), 0o755, true);
         }
 
         $file = fopen($filepath, 'w');
 
         // Add UTF-8 BOM for Excel compatibility
-        fprintf($file, chr(0xEF).chr(0xBB).chr(0xBF));
+        fprintf($file, chr(0xEF) . chr(0xBB) . chr(0xBF));
 
         // Write header
         fputcsv($file, [
@@ -156,7 +155,7 @@ class ExportService
             'Amount',
             'Category',
             'Notes',
-            'Created At'
+            'Created At',
         ]);
 
         // Write data
@@ -167,7 +166,7 @@ class ExportService
                 number_format($expense->amount, 2, '.', ''),
                 $expense->category->name ?? 'Uncategorized',
                 $expense->notes ?? '',
-                $expense->created_at->format('Y-m-d H:i:s')
+                $expense->created_at->format('Y-m-d H:i:s'),
             ]);
         }
 
@@ -188,12 +187,12 @@ class ExportService
         $filename = 'categories_' . $userId . '_' . Carbon::now()->format('Y-m-d_His') . '.csv';
         $filepath = storage_path('app/exports/' . $filename);
 
-        if (!file_exists(storage_path('app/exports'))) {
-            mkdir(storage_path('app/exports'), 0755, true);
+        if (! file_exists(storage_path('app/exports'))) {
+            mkdir(storage_path('app/exports'), 0o755, true);
         }
 
         $file = fopen($filepath, 'w');
-        fprintf($file, chr(0xEF).chr(0xBB).chr(0xBF));
+        fprintf($file, chr(0xEF) . chr(0xBB) . chr(0xBF));
 
         // Write header
         fputcsv($file, [
@@ -202,7 +201,7 @@ class ExportService
             'Color',
             'Expense Count',
             'Total Amount',
-            'Created At'
+            'Created At',
         ]);
 
         // Write data
@@ -213,7 +212,7 @@ class ExportService
                 $category->color,
                 $category->expenses_count ?? 0,
                 number_format($category->total_amount ?? 0, 2, '.', ''),
-                $category->created_at->format('Y-m-d H:i:s')
+                $category->created_at->format('Y-m-d H:i:s'),
             ]);
         }
 
@@ -230,12 +229,12 @@ class ExportService
         $filename = 'budgets_' . $userId . '_' . Carbon::now()->format('Y-m-d_His') . '.csv';
         $filepath = storage_path('app/exports/' . $filename);
 
-        if (!file_exists(storage_path('app/exports'))) {
-            mkdir(storage_path('app/exports'), 0755, true);
+        if (! file_exists(storage_path('app/exports'))) {
+            mkdir(storage_path('app/exports'), 0o755, true);
         }
 
         $file = fopen($filepath, 'w');
-        fprintf($file, chr(0xEF).chr(0xBB).chr(0xBF));
+        fprintf($file, chr(0xEF) . chr(0xBB) . chr(0xBF));
 
         // Write header
         fputcsv($file, [
@@ -248,7 +247,7 @@ class ExportService
             'Spent',
             'Remaining',
             'Status',
-            'Created At'
+            'Created At',
         ]);
 
         // Write data
@@ -267,7 +266,7 @@ class ExportService
                 number_format($spent, 2, '.', ''),
                 number_format($remaining, 2, '.', ''),
                 $status,
-                $budget->created_at->format('Y-m-d H:i:s')
+                $budget->created_at->format('Y-m-d H:i:s'),
             ]);
         }
 
@@ -284,12 +283,12 @@ class ExportService
         $filename = 'financial_report_' . $userId . '_' . Carbon::now()->format('Y-m-d_His') . '.csv';
         $filepath = storage_path('app/exports/' . $filename);
 
-        if (!file_exists(storage_path('app/exports'))) {
-            mkdir(storage_path('app/exports'), 0755, true);
+        if (! file_exists(storage_path('app/exports'))) {
+            mkdir(storage_path('app/exports'), 0o755, true);
         }
 
         $file = fopen($filepath, 'w');
-        fprintf($file, chr(0xEF).chr(0xBB).chr(0xBF));
+        fprintf($file, chr(0xEF) . chr(0xBB) . chr(0xBF));
 
         // Write report header
         fputcsv($file, ['Financial Report']);
@@ -312,7 +311,7 @@ class ExportService
             fputcsv($file, [
                 $cat['name'],
                 number_format($cat['amount'], 2, '.', ''),
-                number_format($cat['percentage'], 1, '.', '') . '%'
+                number_format($cat['percentage'], 1, '.', '') . '%',
             ]);
         }
         fputcsv($file, []);
@@ -325,7 +324,7 @@ class ExportService
                 $expense->date->format('Y-m-d'),
                 $expense->description,
                 number_format($expense->amount, 2, '.', ''),
-                $expense->category->name ?? 'Uncategorized'
+                $expense->category->name ?? 'Uncategorized',
             ]);
         }
 
@@ -353,12 +352,12 @@ class ExportService
             $byCategory[] = [
                 'name' => $categoryExpenses->first()->category->name ?? 'Uncategorized',
                 'amount' => $amount,
-                'percentage' => $totalExpenses > 0 ? ($amount / $totalExpenses * 100) : 0
+                'percentage' => $totalExpenses > 0 ? ($amount / $totalExpenses * 100) : 0,
             ];
         }
 
         // Sort by amount descending
-        usort($byCategory, fn($a, $b) => $b['amount'] <=> $a['amount']);
+        usort($byCategory, fn ($a, $b) => $b['amount'] <=> $a['amount']);
 
         $days = Carbon::parse($startDate)->diffInDays(Carbon::parse($endDate)) + 1;
 
@@ -367,7 +366,7 @@ class ExportService
             'total_income' => $totalIncome,
             'net' => $totalIncome - $totalExpenses,
             'avg_daily' => $days > 0 ? $totalExpenses / $days : 0,
-            'by_category' => $byCategory
+            'by_category' => $byCategory,
         ];
     }
 }

@@ -35,7 +35,7 @@ class CacheResponse
         if ($response->isSuccessful() && $response->headers->get('Content-Type') === 'application/json') {
             $content = json_decode($response->getContent(), true);
             Cache::put($key, $content, now()->addMinutes($minutes));
-            
+
             return response()->json($content)
                 ->header('X-Cache', 'MISS');
         }
@@ -50,7 +50,7 @@ class CacheResponse
     {
         $userId = $request->user()?->id ?? 'guest';
         $url = $request->fullUrl();
-        
+
         return 'api_cache:' . md5($userId . $url);
     }
 }

@@ -20,7 +20,7 @@ class BudgetServiceTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        
+
         $this->budgetService = app(BudgetService::class);
         $this->user = User::factory()->create();
         $this->category = Category::factory()->create();
@@ -34,14 +34,14 @@ class BudgetServiceTest extends TestCase
             'amount' => 1000.00,
             'period' => 'monthly',
             'start_date' => '2025-10-01',
-            'end_date' => '2025-10-31'
+            'end_date' => '2025-10-31',
         ]);
 
         // Mock spending of $300
         $spentAmount = 300.00;
-        
+
         $percentage = $this->budgetService->calculateUsagePercentage($budget, $spentAmount);
-        
+
         $this->assertEquals(30.0, $percentage);
     }
 
@@ -51,8 +51,8 @@ class BudgetServiceTest extends TestCase
             'amount' => 1000.00,
             'alert_thresholds' => [
                 'warning' => 75,
-                'danger' => 90
-            ]
+                'danger' => 90,
+            ],
         ]);
 
         // Test safe status (50% usage)
@@ -75,11 +75,11 @@ class BudgetServiceTest extends TestCase
     public function test_can_get_remaining_budget()
     {
         $budget = Budget::factory()->create([
-            'amount' => 1000.00
+            'amount' => 1000.00,
         ]);
 
         $remaining = $this->budgetService->getRemainingAmount($budget, 300.00);
-        
+
         $this->assertEquals(700.00, $remaining);
     }
 
@@ -89,8 +89,8 @@ class BudgetServiceTest extends TestCase
             'amount' => 1000.00,
             'alert_thresholds' => [
                 'warning' => 75,
-                'danger' => 90
-            ]
+                'danger' => 90,
+            ],
         ]);
 
         // Should not need alert at 50%

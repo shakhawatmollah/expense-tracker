@@ -4,7 +4,7 @@ namespace App\Traits;
 
 /**
  * Sanitizable Trait
- * 
+ *
  * Provides sanitization methods for models and services to clean data
  * before storage or processing.
  */
@@ -83,15 +83,15 @@ trait Sanitizable
     {
         // Allow only safe HTML tags
         $allowedTags = '<p><br><strong><em><u><ul><ol><li><a><h1><h2><h3><h4><h5><h6>';
-        
+
         $html = strip_tags($html, $allowedTags);
 
         // Remove dangerous attributes
         $html = preg_replace('/<([a-z][a-z0-9]*)[^>]*?(on\w+\s*=)[^>]*?>/is', '<$1>', $html);
-        
+
         // Remove javascript: protocol
         $html = preg_replace('/href\s*=\s*["\']?\s*javascript:/i', 'href="#"', $html);
-        
+
         return $html;
     }
 
@@ -105,10 +105,10 @@ trait Sanitizable
     {
         // Remove all illegal characters from email
         $email = filter_var($email, FILTER_SANITIZE_EMAIL);
-        
+
         // Convert to lowercase
         $email = strtolower(trim($email));
-        
+
         return $email;
     }
 
@@ -122,7 +122,7 @@ trait Sanitizable
     {
         // Remove all illegal characters from a url
         $url = filter_var($url, FILTER_SANITIZE_URL);
-        
+
         return trim($url);
     }
 
@@ -136,13 +136,13 @@ trait Sanitizable
     {
         // Remove any path traversal attempts
         $filename = basename($filename);
-        
+
         // Remove special characters
         $filename = preg_replace('/[^a-zA-Z0-9._-]/', '_', $filename);
-        
+
         // Remove multiple consecutive underscores
         $filename = preg_replace('/_+/', '_', $filename);
-        
+
         return trim($filename, '_');
     }
 
@@ -156,12 +156,12 @@ trait Sanitizable
     {
         // Remove all non-numeric characters except + at the start
         $phone = preg_replace('/[^0-9+]/', '', $phone);
-        
+
         // Ensure + is only at the start
         if (str_starts_with($phone, '+')) {
             $phone = '+' . preg_replace('/[^0-9]/', '', substr($phone, 1));
         }
-        
+
         return $phone;
     }
 
@@ -198,8 +198,8 @@ trait Sanitizable
     {
         // Don't sanitize password fields
         $skipFields = ['password', 'password_confirmation', 'token', 'api_token'];
-        
-        return !in_array($field, $skipFields);
+
+        return ! in_array($field, $skipFields);
     }
 
     /**
@@ -223,16 +223,16 @@ trait Sanitizable
     {
         // Remove script tags
         $value = preg_replace('/<script\b[^>]*>(.*?)<\/script>/is', '', $value);
-        
+
         // Remove javascript: protocol
         $value = preg_replace('/javascript:/i', '', $value);
-        
+
         // Remove on* event handlers
         $value = preg_replace('/on\w+\s*=/i', '', $value);
-        
+
         // Remove data: protocol
         $value = preg_replace('/data:text\/html/i', '', $value);
-        
+
         return $value;
     }
 }

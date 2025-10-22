@@ -23,7 +23,7 @@ class CategoryResource extends JsonResource
             'expenses_count' => $this->expenses_count ?? 0,
             'total_amount' => $this->when(
                 $this->relationLoaded('expenses') || array_key_exists('total_amount', $this->getAttributes()),
-                fn() => number_format($this->total_amount ?? 0, 2)
+                fn () => number_format($this->total_amount ?? 0, 2)
             ),
             'created_at' => $this->created_at?->format('Y-m-d H:i:s'),
         ];

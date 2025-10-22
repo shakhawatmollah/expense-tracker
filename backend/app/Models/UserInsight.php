@@ -18,14 +18,14 @@ class UserInsight extends Model
         'data',
         'confidence_score',
         'is_read',
-        'generated_at'
+        'generated_at',
     ];
 
     protected $casts = [
         'data' => 'array',
         'confidence_score' => 'decimal:2',
         'is_read' => 'boolean',
-        'generated_at' => 'datetime'
+        'generated_at' => 'datetime',
     ];
 
     /**
@@ -66,22 +66,22 @@ class UserInsight extends Model
     public function scopeForPeriod($query, string $period)
     {
         $now = now();
-        
+
         switch ($period) {
             case 'daily':
                 return $query->whereDate('generated_at', $now->toDateString());
             case 'weekly':
                 return $query->whereBetween('generated_at', [
                     $now->startOfWeek(),
-                    $now->endOfWeek()
+                    $now->endOfWeek(),
                 ]);
             case 'monthly':
                 return $query->whereMonth('generated_at', $now->month)
-                           ->whereYear('generated_at', $now->year);
+                    ->whereYear('generated_at', $now->year);
             case 'quarterly':
                 return $query->whereBetween('generated_at', [
                     $now->startOfQuarter(),
-                    $now->endOfQuarter()
+                    $now->endOfQuarter(),
                 ]);
             case 'yearly':
                 return $query->whereYear('generated_at', $now->year);

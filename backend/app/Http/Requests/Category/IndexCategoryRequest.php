@@ -2,8 +2,8 @@
 
 namespace App\Http\Requests\Category;
 
-use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Contracts\Validation\Validator;
+use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Http\Exceptions\HttpResponseException;
 
 class IndexCategoryRequest extends FormRequest
@@ -68,7 +68,7 @@ class IndexCategoryRequest extends FormRequest
             response()->json([
                 'success' => false,
                 'message' => 'Invalid parameters for category listing.',
-                'errors' => $validator->errors()
+                'errors' => $validator->errors(),
             ], 422)
         );
     }

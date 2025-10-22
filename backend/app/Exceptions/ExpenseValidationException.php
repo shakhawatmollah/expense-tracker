@@ -25,10 +25,10 @@ class ExpenseValidationException extends ExpenseException
      */
     public function __construct(string $message, array $errors = [], array $context = [])
     {
-        $userMessage = "The expense data is invalid. Please check your input.";
-        
+        $userMessage = 'The expense data is invalid. Please check your input.';
+
         $this->errors = $errors;
-        
+
         parent::__construct($message, $userMessage, 422, $context);
     }
 

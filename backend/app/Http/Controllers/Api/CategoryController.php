@@ -3,11 +3,11 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Http\Helpers\ApiResponse;
+use App\Http\Requests\Category\IndexCategoryRequest;
 use App\Http\Requests\Category\StoreCategoryRequest;
 use App\Http\Requests\Category\UpdateCategoryRequest;
-use App\Http\Requests\Category\IndexCategoryRequest;
 use App\Http\Resources\CategoryResource;
-use App\Http\Helpers\ApiResponse;
 use App\Services\CategoryService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -16,7 +16,8 @@ class CategoryController extends Controller
 {
     public function __construct(
         private CategoryService $categoryService
-    ) {}
+    ) {
+    }
 
     /**
      * Display a listing of the resource.
@@ -24,7 +25,7 @@ class CategoryController extends Controller
     public function index(IndexCategoryRequest $request): JsonResponse
     {
         $validated = $request->validated();
-        
+
         $categories = $this->categoryService->getCategoriesWithExpenseCounts($request->user()->id);
 
         return ApiResponse::collection(

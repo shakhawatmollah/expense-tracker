@@ -3,9 +3,8 @@
 namespace App\Http\Middleware;
 
 use Closure;
-use Illuminate\Http\Request;
 use Illuminate\Cache\RateLimiter;
-use Illuminate\Support\Str;
+use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
 
 class RateLimitMiddleware
@@ -51,7 +50,7 @@ class RateLimitMiddleware
 
         return response()->json([
             'message' => 'Too many requests. Please try again later.',
-            'retry_after' => $retryAfter
+            'retry_after' => $retryAfter,
         ], 429)->header('Retry-After', $retryAfter);
     }
 

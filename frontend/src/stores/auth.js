@@ -21,11 +21,11 @@ export const useAuthStore = defineStore('auth', () => {
       if (storedToken && storedUser) {
         token.value = storedToken
         user.value = storedUser
-        
+
         // Load settings on auth initialization
         const settingsStore = useSettingsStore()
         settingsStore.loadSettings()
-        
+
         // Sync user data to settings
         if (storedUser.name) settingsStore.profile.name = storedUser.name
         if (storedUser.email) settingsStore.profile.email = storedUser.email
@@ -69,7 +69,7 @@ export const useAuthStore = defineStore('auth', () => {
       settingsStore.loadSettings()
       if (userData.name) settingsStore.profile.name = userData.name
       if (userData.email) settingsStore.profile.email = userData.email
-      
+
       // Show welcome notification
       const notificationsStore = useNotificationsStore()
       notificationsStore.notifyWelcome(userData.name || 'User')
@@ -77,11 +77,11 @@ export const useAuthStore = defineStore('auth', () => {
       return response
     } catch (err) {
       error.value = err.response?.data?.message || 'Login failed'
-      
+
       // Show error notification
       const notificationsStore = useNotificationsStore()
       notificationsStore.notifyError('Login Failed', err.response?.data?.message || 'Invalid credentials')
-      
+
       throw err
     } finally {
       loading.value = false
@@ -137,7 +137,7 @@ export const useAuthStore = defineStore('auth', () => {
     try {
       const response = await authService.me()
       user.value = response.user
-      
+
       // Safely store user data
       storage.setItem('user', response.user)
     } catch (err) {

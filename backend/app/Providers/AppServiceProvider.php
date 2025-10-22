@@ -2,8 +2,8 @@
 
 namespace App\Providers;
 
-use Illuminate\Support\ServiceProvider;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -22,12 +22,12 @@ class AppServiceProvider extends ServiceProvider
     {
         // Prevent lazy loading in all environments except production
         // This helps catch N+1 query issues during development
-        Model::preventLazyLoading(!app()->isProduction());
-        
+        Model::preventLazyLoading(! app()->isProduction());
+
         // Prevent silently discarding attributes
-        Model::preventSilentlyDiscardingAttributes(!app()->isProduction());
-        
+        Model::preventSilentlyDiscardingAttributes(! app()->isProduction());
+
         // Prevent accessing missing attributes
-        Model::preventAccessingMissingAttributes(!app()->isProduction());
+        Model::preventAccessingMissingAttributes(! app()->isProduction());
     }
 }

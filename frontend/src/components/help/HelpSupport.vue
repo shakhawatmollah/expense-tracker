@@ -14,267 +14,259 @@
         </div>
       </div>
 
-    <!-- Search Box -->
-    <div class="search-box">
-      <i class="fas fa-search"></i>
-      <input
-        v-model="searchQuery"
-        type="text"
-        placeholder="Search for help..."
-        class="search-input"
-      />
-    </div>
-
-    <!-- Quick Links -->
-    <div class="quick-links">
-      <h3 class="section-title">Quick Links</h3>
-      <div class="links-grid">
-        <button @click="scrollToSection('getting-started')" class="quick-link-card">
-          <i class="fas fa-rocket"></i>
-          <span>Getting Started</span>
-        </button>
-        <button @click="scrollToSection('expenses')" class="quick-link-card">
-          <i class="fas fa-receipt"></i>
-          <span>Expenses</span>
-        </button>
-        <button @click="scrollToSection('budgets')" class="quick-link-card">
-          <i class="fas fa-wallet"></i>
-          <span>Budgets</span>
-        </button>
-        <button @click="scrollToSection('reports')" class="quick-link-card">
-          <i class="fas fa-chart-line"></i>
-          <span>Reports</span>
-        </button>
-      </div>
-    </div>
-
-    <!-- FAQ Sections -->
-    <div class="faq-sections">
-      <!-- Getting Started -->
-      <div id="getting-started" class="faq-section">
-        <h2 class="section-heading">
-          <i class="fas fa-rocket"></i>
-          Getting Started
-        </h2>
-        <div class="faq-items">
-          <div
-            v-for="(item, index) in filteredFAQs('getting-started')"
-            :key="index"
-            class="faq-item"
-            :class="{ active: activeItem === `getting-started-${index}` }"
-          >
-            <button @click="toggleItem(`getting-started-${index}`)" class="faq-question">
-              <span>{{ item.question }}</span>
-              <i
-                class="fas"
-                :class="activeItem === `getting-started-${index}` ? 'fa-chevron-up' : 'fa-chevron-down'"
-              ></i>
-            </button>
-            <div v-if="activeItem === `getting-started-${index}`" class="faq-answer" v-html="item.answer"></div>
-          </div>
-        </div>
+      <!-- Search Box -->
+      <div class="search-box">
+        <i class="fas fa-search"></i>
+        <input v-model="searchQuery" type="text" placeholder="Search for help..." class="search-input" />
       </div>
 
-      <!-- Managing Expenses -->
-      <div id="expenses" class="faq-section">
-        <h2 class="section-heading">
-          <i class="fas fa-receipt"></i>
-          Managing Expenses
-        </h2>
-        <div class="faq-items">
-          <div
-            v-for="(item, index) in filteredFAQs('expenses')"
-            :key="index"
-            class="faq-item"
-            :class="{ active: activeItem === `expenses-${index}` }"
-          >
-            <button @click="toggleItem(`expenses-${index}`)" class="faq-question">
-              <span>{{ item.question }}</span>
-              <i
-                class="fas"
-                :class="activeItem === `expenses-${index}` ? 'fa-chevron-up' : 'fa-chevron-down'"
-              ></i>
-            </button>
-            <div v-if="activeItem === `expenses-${index}`" class="faq-answer" v-html="item.answer"></div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Budget Management -->
-      <div id="budgets" class="faq-section">
-        <h2 class="section-heading">
-          <i class="fas fa-wallet"></i>
-          Budget Management
-        </h2>
-        <div class="faq-items">
-          <div
-            v-for="(item, index) in filteredFAQs('budgets')"
-            :key="index"
-            class="faq-item"
-            :class="{ active: activeItem === `budgets-${index}` }"
-          >
-            <button @click="toggleItem(`budgets-${index}`)" class="faq-question">
-              <span>{{ item.question }}</span>
-              <i
-                class="fas"
-                :class="activeItem === `budgets-${index}` ? 'fa-chevron-up' : 'fa-chevron-down'"
-              ></i>
-            </button>
-            <div v-if="activeItem === `budgets-${index}`" class="faq-answer" v-html="item.answer"></div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Categories -->
-      <div id="categories" class="faq-section">
-        <h2 class="section-heading">
-          <i class="fas fa-tags"></i>
-          Categories
-        </h2>
-        <div class="faq-items">
-          <div
-            v-for="(item, index) in filteredFAQs('categories')"
-            :key="index"
-            class="faq-item"
-            :class="{ active: activeItem === `categories-${index}` }"
-          >
-            <button @click="toggleItem(`categories-${index}`)" class="faq-question">
-              <span>{{ item.question }}</span>
-              <i
-                class="fas"
-                :class="activeItem === `categories-${index}` ? 'fa-chevron-up' : 'fa-chevron-down'"
-              ></i>
-            </button>
-            <div v-if="activeItem === `categories-${index}`" class="faq-answer" v-html="item.answer"></div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Reports & Analytics -->
-      <div id="reports" class="faq-section">
-        <h2 class="section-heading">
-          <i class="fas fa-chart-line"></i>
-          Reports & Analytics
-        </h2>
-        <div class="faq-items">
-          <div
-            v-for="(item, index) in filteredFAQs('reports')"
-            :key="index"
-            class="faq-item"
-            :class="{ active: activeItem === `reports-${index}` }"
-          >
-            <button @click="toggleItem(`reports-${index}`)" class="faq-question">
-              <span>{{ item.question }}</span>
-              <i
-                class="fas"
-                :class="activeItem === `reports-${index}` ? 'fa-chevron-up' : 'fa-chevron-down'"
-              ></i>
-            </button>
-            <div v-if="activeItem === `reports-${index}`" class="faq-answer" v-html="item.answer"></div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Account & Security -->
-      <div id="account" class="faq-section">
-        <h2 class="section-heading">
-          <i class="fas fa-user-shield"></i>
-          Account & Security
-        </h2>
-        <div class="faq-items">
-          <div
-            v-for="(item, index) in filteredFAQs('account')"
-            :key="index"
-            class="faq-item"
-            :class="{ active: activeItem === `account-${index}` }"
-          >
-            <button @click="toggleItem(`account-${index}`)" class="faq-question">
-              <span>{{ item.question }}</span>
-              <i
-                class="fas"
-                :class="activeItem === `account-${index}` ? 'fa-chevron-up' : 'fa-chevron-down'"
-              ></i>
-            </button>
-            <div v-if="activeItem === `account-${index}`" class="faq-answer" v-html="item.answer"></div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Troubleshooting -->
-      <div id="troubleshooting" class="faq-section">
-        <h2 class="section-heading">
-          <i class="fas fa-tools"></i>
-          Troubleshooting
-        </h2>
-        <div class="faq-items">
-          <div
-            v-for="(item, index) in filteredFAQs('troubleshooting')"
-            :key="index"
-            class="faq-item"
-            :class="{ active: activeItem === `troubleshooting-${index}` }"
-          >
-            <button @click="toggleItem(`troubleshooting-${index}`)" class="faq-question">
-              <span>{{ item.question }}</span>
-              <i
-                class="fas"
-                :class="activeItem === `troubleshooting-${index}` ? 'fa-chevron-up' : 'fa-chevron-down'"
-              ></i>
-            </button>
-            <div v-if="activeItem === `troubleshooting-${index}`" class="faq-answer" v-html="item.answer"></div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Contact Support -->
-    <div class="contact-support">
-      <div class="support-card">
-        <i class="fas fa-headset"></i>
-        <h3>Still Need Help?</h3>
-        <p>Our support team is here to assist you</p>
-        <div class="support-actions">
-          <a href="mailto:support@expensetracker.com" class="support-btn primary">
-            <i class="fas fa-envelope"></i>
-            Email Support
-          </a>
-          <button class="support-btn secondary">
-            <i class="fas fa-comments"></i>
-            Live Chat
+      <!-- Quick Links -->
+      <div class="quick-links">
+        <h3 class="section-title">Quick Links</h3>
+        <div class="links-grid">
+          <button @click="scrollToSection('getting-started')" class="quick-link-card">
+            <i class="fas fa-rocket"></i>
+            <span>Getting Started</span>
+          </button>
+          <button @click="scrollToSection('expenses')" class="quick-link-card">
+            <i class="fas fa-receipt"></i>
+            <span>Expenses</span>
+          </button>
+          <button @click="scrollToSection('budgets')" class="quick-link-card">
+            <i class="fas fa-wallet"></i>
+            <span>Budgets</span>
+          </button>
+          <button @click="scrollToSection('reports')" class="quick-link-card">
+            <i class="fas fa-chart-line"></i>
+            <span>Reports</span>
           </button>
         </div>
       </div>
-    </div>
 
-    <!-- Keyboard Shortcuts -->
-    <div class="keyboard-shortcuts">
-      <h3 class="section-title">Keyboard Shortcuts</h3>
-      <div class="shortcuts-grid">
-        <div class="shortcut-item">
-          <kbd>Ctrl</kbd> + <kbd>E</kbd>
-          <span>Add Expense</span>
+      <!-- FAQ Sections -->
+      <div class="faq-sections">
+        <!-- Getting Started -->
+        <div id="getting-started" class="faq-section">
+          <h2 class="section-heading">
+            <i class="fas fa-rocket"></i>
+            Getting Started
+          </h2>
+          <div class="faq-items">
+            <div
+              v-for="(item, index) in filteredFAQs('getting-started')"
+              :key="index"
+              class="faq-item"
+              :class="{ active: activeItem === `getting-started-${index}` }"
+            >
+              <button @click="toggleItem(`getting-started-${index}`)" class="faq-question">
+                <span>{{ item.question }}</span>
+                <i
+                  class="fas"
+                  :class="activeItem === `getting-started-${index}` ? 'fa-chevron-up' : 'fa-chevron-down'"
+                ></i>
+              </button>
+              <div v-if="activeItem === `getting-started-${index}`" class="faq-answer" v-html="item.answer"></div>
+            </div>
+          </div>
         </div>
-        <div class="shortcut-item">
-          <kbd>Ctrl</kbd> + <kbd>C</kbd>
-          <span>Add Category</span>
+
+        <!-- Managing Expenses -->
+        <div id="expenses" class="faq-section">
+          <h2 class="section-heading">
+            <i class="fas fa-receipt"></i>
+            Managing Expenses
+          </h2>
+          <div class="faq-items">
+            <div
+              v-for="(item, index) in filteredFAQs('expenses')"
+              :key="index"
+              class="faq-item"
+              :class="{ active: activeItem === `expenses-${index}` }"
+            >
+              <button @click="toggleItem(`expenses-${index}`)" class="faq-question">
+                <span>{{ item.question }}</span>
+                <i class="fas" :class="activeItem === `expenses-${index}` ? 'fa-chevron-up' : 'fa-chevron-down'"></i>
+              </button>
+              <div v-if="activeItem === `expenses-${index}`" class="faq-answer" v-html="item.answer"></div>
+            </div>
+          </div>
         </div>
-        <div class="shortcut-item">
-          <kbd>Ctrl</kbd> + <kbd>B</kbd>
-          <span>Set Budget</span>
+
+        <!-- Budget Management -->
+        <div id="budgets" class="faq-section">
+          <h2 class="section-heading">
+            <i class="fas fa-wallet"></i>
+            Budget Management
+          </h2>
+          <div class="faq-items">
+            <div
+              v-for="(item, index) in filteredFAQs('budgets')"
+              :key="index"
+              class="faq-item"
+              :class="{ active: activeItem === `budgets-${index}` }"
+            >
+              <button @click="toggleItem(`budgets-${index}`)" class="faq-question">
+                <span>{{ item.question }}</span>
+                <i class="fas" :class="activeItem === `budgets-${index}` ? 'fa-chevron-up' : 'fa-chevron-down'"></i>
+              </button>
+              <div v-if="activeItem === `budgets-${index}`" class="faq-answer" v-html="item.answer"></div>
+            </div>
+          </div>
         </div>
-        <div class="shortcut-item">
-          <kbd>Ctrl</kbd> + <kbd>A</kbd>
-          <span>View Analytics</span>
+
+        <!-- Categories -->
+        <div id="categories" class="faq-section">
+          <h2 class="section-heading">
+            <i class="fas fa-tags"></i>
+            Categories
+          </h2>
+          <div class="faq-items">
+            <div
+              v-for="(item, index) in filteredFAQs('categories')"
+              :key="index"
+              class="faq-item"
+              :class="{ active: activeItem === `categories-${index}` }"
+            >
+              <button @click="toggleItem(`categories-${index}`)" class="faq-question">
+                <span>{{ item.question }}</span>
+                <i class="fas" :class="activeItem === `categories-${index}` ? 'fa-chevron-up' : 'fa-chevron-down'"></i>
+              </button>
+              <div v-if="activeItem === `categories-${index}`" class="faq-answer" v-html="item.answer"></div>
+            </div>
+          </div>
         </div>
-        <div class="shortcut-item">
-          <kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>E</kbd>
-          <span>Export Data</span>
+
+        <!-- Reports & Analytics -->
+        <div id="reports" class="faq-section">
+          <h2 class="section-heading">
+            <i class="fas fa-chart-line"></i>
+            Reports & Analytics
+          </h2>
+          <div class="faq-items">
+            <div
+              v-for="(item, index) in filteredFAQs('reports')"
+              :key="index"
+              class="faq-item"
+              :class="{ active: activeItem === `reports-${index}` }"
+            >
+              <button @click="toggleItem(`reports-${index}`)" class="faq-question">
+                <span>{{ item.question }}</span>
+                <i class="fas" :class="activeItem === `reports-${index}` ? 'fa-chevron-up' : 'fa-chevron-down'"></i>
+              </button>
+              <div v-if="activeItem === `reports-${index}`" class="faq-answer" v-html="item.answer"></div>
+            </div>
+          </div>
         </div>
-        <div class="shortcut-item">
-          <kbd>Esc</kbd>
-          <span>Close Modal</span>
+
+        <!-- Account & Security -->
+        <div id="account" class="faq-section">
+          <h2 class="section-heading">
+            <i class="fas fa-user-shield"></i>
+            Account & Security
+          </h2>
+          <div class="faq-items">
+            <div
+              v-for="(item, index) in filteredFAQs('account')"
+              :key="index"
+              class="faq-item"
+              :class="{ active: activeItem === `account-${index}` }"
+            >
+              <button @click="toggleItem(`account-${index}`)" class="faq-question">
+                <span>{{ item.question }}</span>
+                <i class="fas" :class="activeItem === `account-${index}` ? 'fa-chevron-up' : 'fa-chevron-down'"></i>
+              </button>
+              <div v-if="activeItem === `account-${index}`" class="faq-answer" v-html="item.answer"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Troubleshooting -->
+        <div id="troubleshooting" class="faq-section">
+          <h2 class="section-heading">
+            <i class="fas fa-tools"></i>
+            Troubleshooting
+          </h2>
+          <div class="faq-items">
+            <div
+              v-for="(item, index) in filteredFAQs('troubleshooting')"
+              :key="index"
+              class="faq-item"
+              :class="{ active: activeItem === `troubleshooting-${index}` }"
+            >
+              <button @click="toggleItem(`troubleshooting-${index}`)" class="faq-question">
+                <span>{{ item.question }}</span>
+                <i
+                  class="fas"
+                  :class="activeItem === `troubleshooting-${index}` ? 'fa-chevron-up' : 'fa-chevron-down'"
+                ></i>
+              </button>
+              <div v-if="activeItem === `troubleshooting-${index}`" class="faq-answer" v-html="item.answer"></div>
+            </div>
+          </div>
         </div>
       </div>
-    </div>
+
+      <!-- Contact Support -->
+      <div class="contact-support">
+        <div class="support-card">
+          <i class="fas fa-headset"></i>
+          <h3>Still Need Help?</h3>
+          <p>Our support team is here to assist you</p>
+          <div class="support-actions">
+            <a href="mailto:support@expensetracker.com" class="support-btn primary">
+              <i class="fas fa-envelope"></i>
+              Email Support
+            </a>
+            <button class="support-btn secondary">
+              <i class="fas fa-comments"></i>
+              Live Chat
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Keyboard Shortcuts -->
+      <div class="keyboard-shortcuts">
+        <h3 class="section-title">Keyboard Shortcuts</h3>
+        <div class="shortcuts-grid">
+          <div class="shortcut-item">
+            <kbd>Ctrl</kbd>
+            +
+            <kbd>E</kbd>
+            <span>Add Expense</span>
+          </div>
+          <div class="shortcut-item">
+            <kbd>Ctrl</kbd>
+            +
+            <kbd>C</kbd>
+            <span>Add Category</span>
+          </div>
+          <div class="shortcut-item">
+            <kbd>Ctrl</kbd>
+            +
+            <kbd>B</kbd>
+            <span>Set Budget</span>
+          </div>
+          <div class="shortcut-item">
+            <kbd>Ctrl</kbd>
+            +
+            <kbd>A</kbd>
+            <span>View Analytics</span>
+          </div>
+          <div class="shortcut-item">
+            <kbd>Ctrl</kbd>
+            +
+            <kbd>Shift</kbd>
+            +
+            <kbd>E</kbd>
+            <span>Export Data</span>
+          </div>
+          <div class="shortcut-item">
+            <kbd>Esc</kbd>
+            <span>Close Modal</span>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 </template>

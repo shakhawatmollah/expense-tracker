@@ -18,12 +18,12 @@ class AnalyticsCache extends Model
         'cached_data',
         'expires_at',
         'created_at',
-        'updated_at'
+        'updated_at',
     ];
 
     protected $casts = [
         'cached_data' => 'array',
-        'expires_at' => 'datetime'
+        'expires_at' => 'datetime',
     ];
 
     /**
@@ -72,9 +72,9 @@ class AnalyticsCache extends Model
     public static function getCache(int $userId, string $key)
     {
         return static::where('user_id', $userId)
-                    ->byKey($key)
-                    ->valid()
-                    ->first();
+            ->byKey($key)
+            ->valid()
+            ->first();
     }
 
     /**
@@ -85,11 +85,11 @@ class AnalyticsCache extends Model
         return static::updateOrCreate(
             [
                 'user_id' => $userId,
-                'cache_key' => $key
+                'cache_key' => $key,
             ],
             [
                 'cached_data' => $data,
-                'expires_at' => now()->addMinutes($ttlMinutes)
+                'expires_at' => now()->addMinutes($ttlMinutes),
             ]
         );
     }

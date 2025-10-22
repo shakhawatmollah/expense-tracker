@@ -3,10 +3,10 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Http\Helpers\ApiResponse;
 use App\Http\Requests\Auth\LoginRequest;
 use App\Http\Requests\Auth\RegisterRequest;
 use App\Http\Resources\UserResource;
-use App\Http\Helpers\ApiResponse;
 use App\Services\AuthService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -15,7 +15,8 @@ class AuthController extends Controller
 {
     public function __construct(
         private AuthService $authService
-    ) {}
+    ) {
+    }
 
     /**
      * Register a new user
@@ -29,7 +30,7 @@ class AuthController extends Controller
             return ApiResponse::created(
                 [
                     'user' => new UserResource($user),
-                    'token' => $token
+                    'token' => $token,
                 ],
                 'User registered successfully'
             );
@@ -49,8 +50,8 @@ class AuthController extends Controller
     {
         try {
             $result = $this->authService->login($request->validated());
-            
-            if (!$result) {
+
+            if (! $result) {
                 return ApiResponse::unauthorized('Invalid credentials');
             }
 
@@ -59,7 +60,7 @@ class AuthController extends Controller
             return ApiResponse::success(
                 [
                     'user' => new UserResource($result['user']),
-                    'token' => $token
+                    'token' => $token,
                 ],
                 'Login successful'
             );

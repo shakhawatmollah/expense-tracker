@@ -3,7 +3,6 @@
 namespace App\Repositories;
 
 use App\Models\Budget;
-use App\Models\Expense;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Pagination\LengthAwarePaginator;
@@ -23,9 +22,9 @@ class BudgetRepository
     public function findByIdForUser(int $id, int $userId): ?Budget
     {
         return $this->model->with(['category', 'user'])
-                         ->where('id', $id)
-                         ->where('user_id', $userId)
-                         ->first();
+            ->where('id', $id)
+            ->where('user_id', $userId)
+            ->first();
     }
 
     /**
@@ -34,39 +33,42 @@ class BudgetRepository
     public function getAllForUser(int $userId, array $filters = [], int $perPage = 15): LengthAwarePaginator
     {
         $query = $this->model->with(['category', 'user'])
-                           ->where('user_id', $userId);
+            ->where('user_id', $userId);
 
         // Apply filters
-        if (!empty($filters['period'])) {
+        if (! empty($filters['period'])) {
             $query->where('period', $filters['period']);
         }
 
-        if (!empty($filters['category_id'])) {
+        if (! empty($filters['category_id'])) {
             $query->where('category_id', $filters['category_id']);
         }
 
-        if (!empty($filters['is_active'])) {
+        if (! empty($filters['is_active'])) {
             $query->where('is_active', $filters['is_active']);
         }
 
-        if (!empty($filters['status'])) {
+        if (! empty($filters['status'])) {
             switch ($filters['status']) {
                 case 'current':
                     $query->current();
+
                     break;
                 case 'over_budget':
                     $query->overBudget();
+
                     break;
                 case 'active':
                     $query->active();
+
                     break;
             }
         }
 
-        if (!empty($filters['search'])) {
+        if (! empty($filters['search'])) {
             $query->where(function ($q) use ($filters) {
                 $q->where('name', 'LIKE', '%' . $filters['search'] . '%')
-                  ->orWhere('description', 'LIKE', '%' . $filters['search'] . '%');
+                    ->orWhere('description', 'LIKE', '%' . $filters['search'] . '%');
             });
         }
 
@@ -79,9 +81,9 @@ class BudgetRepository
     public function getCurrentForUser(int $userId): Collection
     {
         return $this->model->with(['category', 'user'])
-                         ->where('user_id', $userId)
-                         ->current()
-                         ->get();
+            ->where('user_id', $userId)
+            ->current()
+            ->get();
     }
 
     /**
@@ -90,10 +92,10 @@ class BudgetRepository
     public function getByPeriodForUser(int $userId, string $period): Collection
     {
         return $this->model->with(['category', 'user'])
-                         ->where('user_id', $userId)
-                         ->forPeriod($period)
-                         ->orderBy('start_date', 'desc')
-                         ->get();
+            ->where('user_id', $userId)
+            ->forPeriod($period)
+            ->orderBy('start_date', 'desc')
+            ->get();
     }
 
     /**
@@ -102,10 +104,10 @@ class BudgetRepository
     public function getByCategoryForUser(int $userId, int $categoryId): Collection
     {
         return $this->model->with(['category', 'user'])
-                         ->where('user_id', $userId)
-                         ->byCategory($categoryId)
-                         ->orderBy('start_date', 'desc')
-                         ->get();
+            ->where('user_id', $userId)
+            ->byCategory($categoryId)
+            ->orderBy('start_date', 'desc')
+            ->get();
     }
 
     /**
@@ -114,7 +116,7 @@ class BudgetRepository
     public function create(array $data): Budget
     {
         // Set default alert thresholds if not provided
-        if (!isset($data['alert_thresholds'])) {
+        if (! isset($data['alert_thresholds'])) {
             $data['alert_thresholds'] = Budget::DEFAULT_ALERT_THRESHOLDS;
         }
 
@@ -134,8 +136,8 @@ class BudgetRepository
     public function update(int $id, int $userId, array $data): bool
     {
         $budget = $this->findByIdForUser($id, $userId);
-        
-        if (!$budget) {
+
+        if (! $budget) {
             return false;
         }
 
@@ -155,8 +157,8 @@ class BudgetRepository
     public function delete(int $id, int $userId): bool
     {
         $budget = $this->findByIdForUser($id, $userId);
-        
-        if (!$budget) {
+
+        if (! $budget) {
             return false;
         }
 
@@ -170,7 +172,7 @@ class BudgetRepository
     {
         // Simple stub implementation to prevent 404 errors
         $currentBudgets = $this->getCurrentForUser($userId);
-        
+
         return [
             'total_budgets' => $currentBudgets->count(),
             'total_budgeted' => $currentBudgets->sum('amount'),
@@ -198,8 +200,8 @@ class BudgetRepository
     public function duplicate(int $id, int $userId, array $overrides = []): ?Budget
     {
         $originalBudget = $this->findByIdForUser($id, $userId);
-        
-        if (!$originalBudget) {
+
+        if (! $originalBudget) {
             return null;
         }
 
@@ -210,7 +212,7 @@ class BudgetRepository
         $data = array_merge($data, $overrides);
 
         // Set new name if not overridden
-        if (!isset($overrides['name'])) {
+        if (! isset($overrides['name'])) {
             $data['name'] = $originalBudget->name . ' (Copy)';
         }
 
@@ -239,9 +241,9 @@ class BudgetRepository
         }
 
         $budgets = $this->model->with(['category', 'user'])
-                             ->where('user_id', $userId)
-                             ->whereBetween('start_date', [$startDate, $endDate])
-                             ->get();
+            ->where('user_id', $userId)
+            ->whereBetween('start_date', [$startDate, $endDate])
+            ->get();
 
         $analytics = [
             'budget_trends' => [],
@@ -253,6 +255,7 @@ class BudgetRepository
             if ($period === 'monthly') {
                 return $budget->start_date->format('Y-m');
             }
+
             return $budget->start_date->format('Y');
         });
 
@@ -303,39 +306,42 @@ class BudgetRepository
     public function searchBudgets(int $userId, array $filters): Collection
     {
         $query = $this->model->with(['category', 'user'])
-                           ->where('user_id', $userId);
+            ->where('user_id', $userId);
 
-        if (!empty($filters['period'])) {
+        if (! empty($filters['period'])) {
             $query->forPeriod($filters['period']);
         }
 
-        if (!empty($filters['category_id'])) {
+        if (! empty($filters['category_id'])) {
             $query->byCategory($filters['category_id']);
         }
 
-        if (!empty($filters['status'])) {
+        if (! empty($filters['status'])) {
             switch ($filters['status']) {
                 case 'over_budget':
                     $query->overBudget();
+
                     break;
                 case 'current':
                     $query->current();
+
                     break;
                 case 'active':
                     $query->active();
+
                     break;
             }
         }
 
-        if (!empty($filters['amount_min'])) {
+        if (! empty($filters['amount_min'])) {
             $query->where('amount', '>=', $filters['amount_min']);
         }
 
-        if (!empty($filters['amount_max'])) {
+        if (! empty($filters['amount_max'])) {
             $query->where('amount', '<=', $filters['amount_max']);
         }
 
-        if (!empty($filters['name'])) {
+        if (! empty($filters['name'])) {
             $query->where('name', 'LIKE', '%' . $filters['name'] . '%');
         }
 
@@ -358,12 +364,13 @@ class BudgetRepository
 
         foreach ($defaultBudgets as $budgetData) {
             $budgetData['user_id'] = $userId;
-            
+
             // Try to match with user's categories
-            if (!empty($categories)) {
+            if (! empty($categories)) {
                 foreach ($categories as $category) {
                     if (stripos($budgetData['name'], $category['name']) !== false) {
                         $budgetData['category_id'] = $category['id'];
+
                         break;
                     }
                 }
@@ -382,16 +389,17 @@ class BudgetRepository
     {
         $percentage = $budget->usage_percentage;
         $categoryName = $budget->category?->name ?? 'All Categories';
-        
+
         if ($budget->is_over_budget) {
             $overAmount = $budget->spent_amount - $budget->amount;
+
             return "Budget '{$budget->name}' for {$categoryName} has exceeded by $" . number_format($overAmount, 2);
         }
-        
+
         if ($percentage >= 80) {
             return "Budget '{$budget->name}' for {$categoryName} is at {$percentage}% usage";
         }
-        
+
         return "Budget '{$budget->name}' for {$categoryName} needs attention ({$percentage}% used)";
     }
 }
