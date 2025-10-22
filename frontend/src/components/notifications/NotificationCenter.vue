@@ -141,16 +141,10 @@
                     </svg>
                   </button>
                   <div v-if="openMenuId === notification.id" class="menu-dropdown">
-                    <button
-                      @click.stop="markAsRead(notification.id), (openMenuId = null)"
-                    >
+                    <button @click.stop="(markAsRead(notification.id), (openMenuId = null))">
                       {{ notification.read ? 'Mark as unread' : 'Mark as read' }}
                     </button>
-                    <button
-                      @click.stop="removeFromHistory(notification.id), (openMenuId = null)"
-                    >
-                      Delete
-                    </button>
+                    <button @click.stop="(removeFromHistory(notification.id), (openMenuId = null))">Delete</button>
                   </div>
                 </div>
               </div>
