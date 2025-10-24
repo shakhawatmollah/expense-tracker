@@ -143,9 +143,7 @@ This application follows a **decoupled microservices architecture**:
 ### 🏠 Dashboard Overview
 > *Comprehensive analytics with interactive charts and real-time insights*
 
-![Dashboard](./screenshots/dashboard-1.png)
-
-![Dashboard](./screenshots/dashboard-2.png)
+![Dashboard](./screenshots/dashboard.png)
 
 **Key Features Shown:**
 - Monthly spending trends with interactive line charts
@@ -765,6 +763,8 @@ expense-tracker/
 - `GET /api/dashboard/monthly-summary` - Monthly summary
 - `GET /api/dashboard/yearly-summary` - Yearly summary
 - `GET /api/dashboard/trends` - Expense trends
+
+**API Versioning**: Some API endpoints use a /v1 prefix, Authentication routes (unversioned) do not. See api.js for details.
 
 ## 📖 API Documentation
 

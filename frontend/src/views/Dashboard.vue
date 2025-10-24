@@ -542,13 +542,6 @@
       color: '#3B82F6'
     },
     {
-      id: 'scan-receipt',
-      title: 'Scan Receipt',
-      subtitle: 'Photo capture',
-      icon: 'fas fa-camera',
-      color: '#10B981'
-    },
-    {
       id: 'view-analytics',
       title: 'Analytics',
       subtitle: 'Insights',
@@ -585,9 +578,6 @@
         break
       case 'set-budget':
         showQuickSetBudget()
-        break
-      case 'scan-receipt':
-        // TODO: Implement receipt scanning
         break
       case 'view-analytics':
         router.push('/analytics')
